@@ -10,8 +10,24 @@
     "test": "jest"
   },
   "dependencies": {
+    "@craftzdog/react-native-buffer": "^6.0.5",
+    "@react-native-async-storage/async-storage": "^1.17.11",
+    "axios": "^1.3.4",
+    "bolt07": "^1.8.3",
+    "crypto-random-string": "^5.0.0",
+    "events": "^1.1.1",
+    "process": "^0.11.10",
     "react": "18.2.0",
-    "react-native": "0.71.4"
+    "react-native": "0.71.4",
+    "react-native-camera": "^4.2.1",
+    "react-native-crypto": "^2.2.0",
+    "react-native-permissions": "^3.7.3",
+    "react-native-qrcode-scanner": "^1.5.5",
+    "react-native-randombytes": "^3.6.1",
+    "react-native-toast-message": "^2.1.6",
+    "readable-stream": "^1.0.33",
+    "stream-browserify": "^1.0.0",
+    "util": "^0.10.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
@@ -28,9 +44,28 @@
     "metro-react-native-babel-preset": "0.73.8",
     "prettier": "^2.4.1",
     "react-test-renderer": "18.2.0",
+    "rn-nodeify": "github:tradle/rn-nodeify",
     "typescript": "4.8.4"
   },
   "jest": {
     "preset": "react-native"
+  },
+  "react-native": {
+    "crypto": "react-native-crypto",
+    "_stream_transform": "readable-stream/transform",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_writable": "readable-stream/writable",
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "stream": "stream-browserify"
+  },
+  "browser": {
+    "crypto": "react-native-crypto",
+    "_stream_transform": "readable-stream/transform",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_writable": "readable-stream/writable",
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "stream": "stream-browserify"
   }
 }
