@@ -192,14 +192,24 @@ function App(): JSX.Element {
     }
 
   }
+
+  function bin2String(array) {
+    var result = "";
+    for (var i = 0; i < array.length; i++) {
+      result += String.fromCharCode(parseInt(array[i], 2));
+    }
+    return result;
+  }
+
   async function readNdef() {
     try {
       // register for the NFC tag with NDEF in it
       await NfcManager.requestTechnology(NfcTech.Ndef);
       // the resolved tag object will contain `ndefMessage` property
       const tag = await NfcManager.getTag();
-      console.warn('Tag found', tag);
-      console.warn('NDEF', tag.ndefMessage[0].payload);
+      console.log('Tag found', tag);
+      console.log('NDEF', tag.ndefMessage[0].payload);
+      console.log(String.fromCharCode(...(tag.ndefMessage[0].payload)));
     } catch (ex) {
       console.warn('Oops!', ex);
     } finally {
