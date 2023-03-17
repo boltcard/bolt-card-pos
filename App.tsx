@@ -6,7 +6,7 @@
  */
 import './shim.js';
 
-import React, { PropsWithChildren, useEffect, useState } from 'react';
+import React, { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import {
   Button, SafeAreaView,
   ScrollView,
@@ -34,6 +34,8 @@ type SectionProps = PropsWithChildren<{
 }>;
 
 function App(): JSX.Element {
+  const fetchInvoiceInterval = useRef();
+
   const isDarkMode = useColorScheme() === 'dark';
   
   const [scanMode, setScanMode] = useState(false);
@@ -45,8 +47,11 @@ function App(): JSX.Element {
   const [lndMacaroon, setLndMacaroon] = useState("");
   
   const [inputAmount, setInputAmount] = useState("");
-
+  
+  const [isFetchingInvoices, setIsFetchingInvoices] = useState(false);
+  
   const [lndInvoice, setLndInvoice] = useState();
+  const [invoiceIsPaid, setInvoiceIsPaid] = useState(false);
 
   const [lndhubUser, setLndhubUser] = useState("");
   const [lndhub, setLndhub] = useState("");
@@ -66,11 +71,9 @@ function App(): JSX.Element {
       // })
       getData('lndhub').then(hub => {
         setLndhub(hub)
-        getData('lndhubUser').then(user => {
-          setLndhubUser(user)
-          createLightningWallet(hub);
-          console.log('wallet connected...')
-        });
+      });
+      getData('lndhubUser').then(user => {
+        setLndhubUser(user)
       });
     }
     fetchData();
@@ -81,40 +84,64 @@ function App(): JSX.Element {
     
   }, [])
 
-  const createLightningWallet = async (hub) => {
-    console.log('creating new wallet...');
-    const wallet = new LightningCustodianWallet();
-    wallet.setLabel("initialised custodial wallet");
-    console.log('connecting to hub new wallet...');
-    try {
-      if (lndhub || hub) {
-        const isValidNodeAddress = await LightningCustodianWallet.isValidNodeAddress(lndhub || hub);
-        if (isValidNodeAddress) {
-          console.log('isValidNodeAddress...');
-          wallet.setBaseURI(lndhub);
-          await wallet.init();
-        } else {
-          throw new Error('The provided node address is not valid LND Hub node.');
-        }
+  useEffect( () => {
+    async function initWallet() {
+      console.log('initialising wallet...');
+      const wallet = new LightningCustodianWallet();
+      wallet.setLabel("initialised custodial wallet");
+      const isValidNodeAddress = await LightningCustodianWallet.isValidNodeAddress(lndhub);
+      if (isValidNodeAddress) {
+        console.log('isValidNodeAddress...');
+        wallet.setBaseURI(lndhub);
+        await wallet.init();
+      } else {
+        throw new Error('The provided node address is not valid LND Hub node.');
       }
-      else {
-        alert('set LND Hub first pls.')
-      }
-      // console.log('wallet.createAccount()...');
-      // await wallet.createAccount();
-      // console.log('wallet.authorize()...');
-      // await wallet.authorize();
-    } catch (Err) {
-      console.warn('lnd create failure', Err);
-      if (Err.message) {
-        return alert(Err.message);
-      } 
+      await wallet.setSecret(lndhubUser)
+      setLndWallet(wallet);
+      
+      console.log(wallet);
+      console.log('wallet.getID()',wallet.getID());
     }
+    if(lndhub && lndhubUser) initWallet();
 
-    await wallet.setSecret(lndhubUser)
-    setLndWallet(wallet);
-    
-  };
+  },[lndhub, lndhubUser]);
+
+  // const createLightningWallet = async (hub) => {
+  //   console.log('creating new wallet...');
+  //   const wallet = new LightningCustodianWallet();
+  //   wallet.setLabel("initialised custodial wallet");
+  //   console.log('connecting to hub new wallet...');
+  //   try {
+  //     if (lndhub || hub) {
+  //       const isValidNodeAddress = await LightningCustodianWallet.isValidNodeAddress(lndhub || hub);
+  //       if (isValidNodeAddress) {
+  //         console.log('isValidNodeAddress...');
+  //         wallet.setBaseURI(lndhub);
+  //         await wallet.init();
+  //       } else {
+  //         throw new Error('The provided node address is not valid LND Hub node.');
+  //       }
+  //     }
+  //     else {
+  //       alert('set LND Hub first pls.')
+  //     }
+  //     // console.log('wallet.createAccount()...');
+  //     // await wallet.createAccount();
+  //     // console.log('wallet.authorize()...');
+  //     // await wallet.authorize();
+  //   } catch (Err) {
+  //     console.warn('lnd create failure', Err);
+  //     if (Err.message) {
+  //       return alert(Err.message);
+  //     } 
+  //   }
+
+  //   await wallet.setSecret(lndhubUser)
+  //   setLndWallet(wallet);
+  //   console.log(wallet);
+  //   console.log('wallet.getID()',wallet.getID());
+  // };
 
   const saveToDisk = async (wallet:any) => {
     await storeData('wallet', JSON.stringify(wallet));
@@ -218,6 +245,71 @@ function App(): JSX.Element {
     }
   }
 
+
+  // useEffect(() => {
+  //   BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+
+  //   return () => {
+  //     BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+  //     clearInterval(fetchInvoiceInterval.current);
+  //     fetchInvoiceInterval.current = undefined;
+  //   };
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);r
+  
+  useEffect(() => {
+    lndWallet?.authorize();
+    console.log('LNDViewInvoice - useEffect');
+    if (!invoiceIsPaid) {
+      fetchInvoiceInterval.current = setInterval(async () => {
+        if (isFetchingInvoices && lndWallet) {
+          try {
+            const userInvoices = await lndWallet.getUserInvoices(20);
+            console.log('userInvoices', userInvoices);
+            // fetching only last 20 invoices
+            // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
+            // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
+            const updatedUserInvoice = userInvoices.filter(filteredInvoice =>
+              typeof lndInvoice === 'object'
+                ? filteredInvoice.payment_request === lndInvoice.payment_request
+                : filteredInvoice.payment_request === lndInvoice,
+            )[0];
+            if (typeof updatedUserInvoice !== 'undefined') {
+              // setInvoiceStatusChanged(true);
+              // setIsLoading(false);
+              if (updatedUserInvoice.ispaid) {
+                // we fetched the invoice, and it is paid :-)
+                setIsFetchingInvoices(false);
+                
+                // fetchAndSaveWalletTransactions(walletID);
+              } else {
+                const currentDate = new Date();
+                const now = (currentDate.getTime() / 1000) | 0;
+                const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
+                if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
+                  // invoice expired :-(
+                  // fetchAndSaveWalletTransactions(walletID);
+                  setIsFetchingInvoices(false);
+                  // ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+                  clearInterval(fetchInvoiceInterval.current);
+                  fetchInvoiceInterval.current = undefined;
+                }
+              }
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        }
+      }, 3000);
+    } else {
+      setIsFetchingInvoices(false);
+      clearInterval(fetchInvoiceInterval.current);
+      fetchInvoiceInterval.current = undefined;
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFetchingInvoices]);
+
   return (
     <SafeAreaView >
       <StatusBar
@@ -261,6 +353,9 @@ function App(): JSX.Element {
         </View>}
         <View style={{padding:20}}>
           <Button title="Scan a Tag" onPress={readNdef} />
+        </View>
+        <View style={{padding:20}}>
+          <Button title="Fetch invoices" onPress={() => setIsFetchingInvoices(!isFetchingInvoices)} />
         </View>
       </ScrollView>
       <Toast />
