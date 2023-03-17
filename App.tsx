@@ -11,19 +11,23 @@ import {
   Button, SafeAreaView,
   ScrollView,
   StatusBar,
-  StyleSheet, Text, TextInput, useColorScheme,
-  View
+  StyleSheet, Text, TextInput, useColorScheme, View
 } from 'react-native';
 
-import { Buffer } from '@craftzdog/react-native-buffer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import crypto from 'crypto';
+import { Alert } from 'react-native';
+import NfcManager, { NfcTech } from 'react-native-nfc-manager';
+import QRCode from 'react-native-qrcode-svg';
 import Toast from 'react-native-toast-message';
 import {
-  Colors, Header
+  Colors
 } from 'react-native/Libraries/NewAppScreen';
 import QRScanner from './screens/QRScanner';
+import { LightningCustodianWallet } from './wallets/lightning-custodian-wallet.js';
+  
+const alert = (message:string) => {
+  Alert.alert(message);
+}
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -34,37 +38,87 @@ function App(): JSX.Element {
   
   const [scanMode, setScanMode] = useState(false);
 
-
   const [lndConnect, setLndConnect] = useState("");
   const [lndUrl, setLndUrl] = useState("");
   const [lndDomain, setLndDomain] = useState("");
   const [lndPort, setLndPort] = useState("");
   const [lndMacaroon, setLndMacaroon] = useState("");
-  const [inputAmount, setInputAmount] = useState("0.00");
+  
+  const [inputAmount, setInputAmount] = useState("");
+
+  const [lndInvoice, setLndInvoice] = useState();
+
+  const [lndhubUser, setLndhubUser] = useState("");
+  const [lndhub, setLndhub] = useState("");
+  const [lndWallet, setLndWallet] = useState<LightningCustodianWallet>();
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
 
   useEffect( () => {
-    console.log('loading lndconnect....');
-    getData('@lndconnect').then(lndconnecturl => {
-      setLndMacaroon(lndconnecturl.split("?macaroon=")[1].split('&')[0]);
-      const url = lndconnecturl.split("?macaroon=")[0].replace('lndconnect://', '');
-      setLndUrl('https://'+url);
-      setLndDomain(url.split(':')[0]);
-      setLndPort(url.split(':')[1]);
-      setLndConnect(lndconnecturl);
-      console.log('lndconnect loaded...',lndconnecturl);
-
-    }).catch(e => {
-      console.log('error', e);
-    })
-    
-    return () => {
-      
+    console.log('loading wallet ....');
+    async function fetchData() {
+      // getData('wallet').then(wallet => {
+      //   if(wallet) {
+      //     setLndWallet(JSON.parse(wallet));
+      //   }
+      // })
+      getData('lndhub').then(hub => {
+        setLndhub(hub)
+        getData('lndhubUser').then(user => {
+          setLndhubUser(user)
+          createLightningWallet(hub);
+          console.log('wallet connected...')
+        });
+      });
     }
+    fetchData();
+
+    return () => {
+    
+    }
+    
   }, [])
+
+  const createLightningWallet = async (hub) => {
+    console.log('creating new wallet...');
+    const wallet = new LightningCustodianWallet();
+    wallet.setLabel("initialised custodial wallet");
+    console.log('connecting to hub new wallet...');
+    try {
+      if (lndhub || hub) {
+        const isValidNodeAddress = await LightningCustodianWallet.isValidNodeAddress(lndhub || hub);
+        if (isValidNodeAddress) {
+          console.log('isValidNodeAddress...');
+          wallet.setBaseURI(lndhub);
+          await wallet.init();
+        } else {
+          throw new Error('The provided node address is not valid LND Hub node.');
+        }
+      }
+      else {
+        alert('set LND Hub first pls.')
+      }
+      // console.log('wallet.createAccount()...');
+      // await wallet.createAccount();
+      // console.log('wallet.authorize()...');
+      // await wallet.authorize();
+    } catch (Err) {
+      console.warn('lnd create failure', Err);
+      if (Err.message) {
+        return alert(Err.message);
+      } 
+    }
+
+    await wallet.setSecret(lndhubUser)
+    setLndWallet(wallet);
+    
+  };
+
+  const saveToDisk = async (wallet:any) => {
+    await storeData('wallet', JSON.stringify(wallet));
+  }
 
   const storeData = async (key:string, value:string) => {
     try {
@@ -98,7 +152,7 @@ function App(): JSX.Element {
   }
 
   const onScanSuccess = (e: { data: string; }) => {
-    if(!e.data.startsWith('lndconnect://')) {
+    if(!e.data.startsWith('lndhub://')) {
       Toast.show({
         type: 'error',
         text1: 'Invalid QR Code',
@@ -107,8 +161,11 @@ function App(): JSX.Element {
       console.log('Toast.show');
     }
     else {
-
-      storeData('@lndconnect', e.data)
+      const hubData = e.data.split('@');
+      storeData('lndhubUser', hubData[0])
+      setLndhubUser(hubData[0]);
+      storeData('lndhub', hubData[1])
+      setLndhub(hubData[1]);
       
       Toast.show({
         type: 'success',
@@ -120,74 +177,81 @@ function App(): JSX.Element {
   };
 
   const makeLndInvoice = async () => {
-    console.log('get '+`${lndUrl}/v1/channels`);
-    const buffer = Buffer.from(lndMacaroon, 'base64');
-    const macaroonHex = buffer.toString('hex');
-    const preimage = await crypto.randomBytes(32, function(err, buffer) {
-      return buffer.toString('hex');
-    });
-    // console.log('preimage', buffer)
-    const request = {
-      memo: 'test',
-      r_preimage: preimage,
-      value: 100, //sats
-      // value_msat: <int64>, //msats
-      // expiry: 90, //seconds
-    };
+    // if(!lndWallet) {
+    //   throw new Error('lnd wallet not configured');  
+    // }
 
-    axios({
-      method: 'POST',
-      url: `${lndUrl}/v1/invoices`,
-      headers: {
-        'Grpc-Metadata-macaroon': macaroonHex,
-        'Content-Type': 'application/json'
-      },
-      withCredentials: false,
-      // httpsAgent: new https.Agent({  
-      //   rejectUnauthorized: false
-      // })
-      data: request,
-    }).then(function (response: any) {
-      console.log(response.data);
-    }).catch(function (error: any) {
-      console.log(error);
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        console.log(error.response.data);
-        console.log(error.response.status);
-        console.log(error.response.headers);
-      }
-    });
-    
+    // await createLightningWallet();
+    console.log('wallet creacted...', lndWallet)
+    if(lndWallet) {
+      await lndWallet.authorize();
+      console.log('inputAmount',inputAmount);
+      const result = await lndWallet.addInvoice(parseInt(inputAmount), "test");
+      console.log('result', result);
+      setLndInvoice(result);
+    }
+
   }
-  
+  async function readNdef() {
+    try {
+      // register for the NFC tag with NDEF in it
+      await NfcManager.requestTechnology(NfcTech.Ndef);
+      // the resolved tag object will contain `ndefMessage` property
+      const tag = await NfcManager.getTag();
+      console.warn('Tag found', tag);
+      console.warn('NDEF', tag.ndefMessage[0].payload);
+    } catch (ex) {
+      console.warn('Oops!', ex);
+    } finally {
+      // stop the nfc scanning
+      NfcManager.cancelTechnologyRequest();
+    }
+  }
+
   return (
-    <SafeAreaView style={backgroundStyle}>
+    <SafeAreaView >
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
+        >
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
           <Button onPress={() => setScanMode(!scanMode)} title="Scan Mode" />
-          {scanMode &&  <QRScanner onScanSuccess={onScanSuccess} />}
+          {scanMode && <QRScanner onScanSuccess={onScanSuccess} />}
         </View>
-        <Text>{lndUrl}</Text>
+        <Text>{lndhubUser}</Text>
+        <Text>{lndhub}</Text>
         <TextInput 
-        style={{fontSize:40}}
+          style={{fontSize:40}}
           keyboardType="numeric" 
           placeholder="0.00"
-          value={inputAmount} 
-          onChange={(text)=>setInputAmount(text)}
+          onChangeText={(text)=>setInputAmount(text)}
         />
-        <Button onPress={() => makeLndInvoice()} title="Invoice" />
+        <View style={{padding:20}}>
+          <Button onPress={() => makeLndInvoice()} title="Invoice" />
+        </View>
+        {lndInvoice && <View style={{flexDirection:'column', alignItems: 'center'}}>
+          <View style={{padding:20}}>
+            <QRCode
+              size={300}
+              value={lndInvoice}
+              // logo={{uri: base64Logo}}
+              // logoSize={30}
+              // logoBackgroundColor='transparent'
+            />
+          </View>
+          <View style={{padding:20}}>
+          <Text>{lndInvoice}</Text>
+          </View>
+        </View>}
+        <View style={{padding:20}}>
+          <Button title="Scan a Tag" onPress={readNdef} />
+        </View>
       </ScrollView>
       <Toast />
     </SafeAreaView>
