@@ -262,10 +262,11 @@ function App(): JSX.Element {
     console.log('LNDViewInvoice - useEffect');
     if (!invoiceIsPaid) {
       fetchInvoiceInterval.current = setInterval(async () => {
-        if (isFetchingInvoices && lndWallet) {
+        if (isFetchingInvoices) {
           try {
             const userInvoices = await lndWallet.getUserInvoices(20);
-            console.log('userInvoices', userInvoices);
+            // console.log('userInvoices', userInvoices);
+            console.log('getting userInvoices...');
             // fetching only last 20 invoices
             // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
             // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
@@ -275,12 +276,13 @@ function App(): JSX.Element {
                 : filteredInvoice.payment_request === lndInvoice,
             )[0];
             if (typeof updatedUserInvoice !== 'undefined') {
+              console.log('updatedUserInvoice', updatedUserInvoice.ispaid);
               // setInvoiceStatusChanged(true);
               // setIsLoading(false);
               if (updatedUserInvoice.ispaid) {
                 // we fetched the invoice, and it is paid :-)
                 setIsFetchingInvoices(false);
-                
+                setInvoiceIsPaid(true);
                 // fetchAndSaveWalletTransactions(walletID);
               } else {
                 const currentDate = new Date();
@@ -338,9 +340,9 @@ function App(): JSX.Element {
           <Button onPress={() => makeLndInvoice()} title="Invoice" />
         </View>
         {lndInvoice && <View style={{flexDirection:'column', alignItems: 'center'}}>
-          <View style={{padding:20}}>
+          <View style={{padding:20, backgroundColor:'#fff'}}>
             <QRCode
-              size={300}
+              size={200}
               value={lndInvoice}
               // logo={{uri: base64Logo}}
               // logoSize={30}
@@ -351,11 +353,12 @@ function App(): JSX.Element {
           <Text>{lndInvoice}</Text>
           </View>
         </View>}
-        <View style={{padding:20}}>
-          <Button title="Scan a Tag" onPress={readNdef} />
-        </View>
+        
         <View style={{padding:20}}>
           <Button title="Fetch invoices" onPress={() => setIsFetchingInvoices(!isFetchingInvoices)} />
+        </View>
+        <View style={{padding:20}}>
+          <Button title="Scan a Tag" onPress={readNdef} />
         </View>
       </ScrollView>
       <Toast />
