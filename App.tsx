@@ -8,7 +8,7 @@ import './shim.js';
 
 import React, { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import {
-  Button, SafeAreaView,
+  ActivityIndicator, Button, SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet, Text, TextInput, useColorScheme, View
@@ -16,15 +16,17 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
+import KeepAwake from 'react-native-keep-awake';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import QRCode from 'react-native-qrcode-svg';
 import Toast from 'react-native-toast-message';
+import Icon from 'react-native-vector-icons/Ionicons';
 import {
   Colors
 } from 'react-native/Libraries/NewAppScreen';
 import QRScanner from './screens/QRScanner';
 import { LightningCustodianWallet } from './wallets/lightning-custodian-wallet.js';
-  
+
 const alert = (message:string) => {
   Alert.alert(message);
 }
@@ -40,19 +42,24 @@ function App(): JSX.Element {
   
   const [scanMode, setScanMode] = useState(false);
 
-  const [lndConnect, setLndConnect] = useState("");
-  const [lndUrl, setLndUrl] = useState("");
-  const [lndDomain, setLndDomain] = useState("");
-  const [lndPort, setLndPort] = useState("");
-  const [lndMacaroon, setLndMacaroon] = useState("");
+  // const [lndConnect, setLndConnect] = useState("");
+  // const [lndUrl, setLndUrl] = useState("");
+  // const [lndDomain, setLndDomain] = useState("");
+  // const [lndPort, setLndPort] = useState("");
+  // const [lndMacaroon, setLndMacaroon] = useState("");
   
   const [inputAmount, setInputAmount] = useState("");
   
-  const [isFetchingInvoices, setIsFetchingInvoices] = useState(false);
-  
-  const [lndInvoice, setLndInvoice] = useState();
-  const [invoiceIsPaid, setInvoiceIsPaid] = useState(false);
+  //invoice stuff
+  const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(false);
+  const [lndInvoice, setLndInvoice] = useState<string>();
+  const [invoiceIsPaid, setInvoiceIsPaid] = useState<boolean>(false);
 
+  //NFC shizzle
+  const [ndef, setNdef] = useState<string>();
+  const [boltLoading, setBoltLoading] = useState<boolean>(false);
+
+  //connection
   const [lndhubUser, setLndhubUser] = useState("");
   const [lndhub, setLndhub] = useState("");
   const [lndWallet, setLndWallet] = useState<LightningCustodianWallet>();
@@ -209,13 +216,14 @@ function App(): JSX.Element {
     // }
 
     // await createLightningWallet();
-    console.log('wallet creacted...', lndWallet)
     if(lndWallet) {
+      console.log('invoicing...', lndWallet)
+      setInvoiceIsPaid(false);
       await lndWallet.authorize();
-      console.log('inputAmount',inputAmount);
       const result = await lndWallet.addInvoice(parseInt(inputAmount), "test");
       console.log('result', result);
       setLndInvoice(result);
+      readNdef();
     }
 
   }
@@ -236,7 +244,9 @@ function App(): JSX.Element {
       const tag = await NfcManager.getTag();
       console.log('Tag found', tag);
       console.log('NDEF', tag.ndefMessage[0].payload);
-      console.log(String.fromCharCode(...(tag.ndefMessage[0].payload)));
+      const bytesToNdef = String.fromCharCode(...(tag.ndefMessage[0].payload));
+      setNdef(bytesToNdef.substring(1,bytesToNdef.length));
+      console.log(bytesToNdef.substring(1,bytesToNdef.length));
     } catch (ex) {
       console.warn('Oops!', ex);
     } finally {
@@ -245,6 +255,18 @@ function App(): JSX.Element {
     }
   }
 
+  async function stopReadNdef() {
+    try {
+      NfcManager.cancelTechnologyRequest();
+    } catch (ex) {
+      console.warn('Oops!', ex);
+    }
+  }
+
+  const cancelInvoice = () => {
+    setLndInvoice(undefined);
+    stopReadNdef();
+  }
 
   // useEffect(() => {
   //   BackHandler.addEventListener('hardwareBackPress', handleBackButton);
@@ -262,6 +284,7 @@ function App(): JSX.Element {
     console.log('LNDViewInvoice - useEffect');
     if (!invoiceIsPaid) {
       fetchInvoiceInterval.current = setInterval(async () => {
+        KeepAwake.activate();
         if (isFetchingInvoices) {
           try {
             const userInvoices = await lndWallet.getUserInvoices(20);
@@ -283,6 +306,7 @@ function App(): JSX.Element {
                 // we fetched the invoice, and it is paid :-)
                 setIsFetchingInvoices(false);
                 setInvoiceIsPaid(true);
+                KeepAwake.deactivate();
                 // fetchAndSaveWalletTransactions(walletID);
               } else {
                 const currentDate = new Date();
@@ -300,6 +324,7 @@ function App(): JSX.Element {
             }
           } catch (error) {
             console.log(error);
+            KeepAwake.deactivate();
           }
         }
       }, 3000);
@@ -307,10 +332,43 @@ function App(): JSX.Element {
       setIsFetchingInvoices(false);
       clearInterval(fetchInvoiceInterval.current);
       fetchInvoiceInterval.current = undefined;
+      KeepAwake.deactivate();
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFetchingInvoices]);
+
+  useEffect(() => {
+    if(ndef) {
+      setBoltLoading(true);
+      const url = ndef.replace('lnurlw://','https://');
+      fetch(url)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log('bolt request', data);
+          const callback = new URL(data.callback);
+          callback.searchParams.set('k1', data.k1);
+          callback.searchParams.set('pr', lndInvoice);
+          fetch(callback.toString())
+            .then((cbResponse) => cbResponse.json())
+            .then((cbData) => {
+              console.log('bolt callback', cbData);
+            }).catch(err => {
+              console.error(err);
+            }).finally(() => {
+              setBoltLoading(false);
+              setNdef(undefined);
+            });
+        })
+        .catch(err => {
+          console.error(err);
+        })
+        .finally(()=>{
+          setBoltLoading(false);
+          setNdef(undefined);
+        });
+    }
+  },[ndef]);
 
   return (
     <SafeAreaView >
@@ -339,21 +397,36 @@ function App(): JSX.Element {
         <View style={{padding:20}}>
           <Button onPress={() => makeLndInvoice()} title="Invoice" />
         </View>
-        {lndInvoice && <View style={{flexDirection:'column', alignItems: 'center'}}>
-          <View style={{padding:20, backgroundColor:'#fff'}}>
-            <QRCode
-              size={200}
-              value={lndInvoice}
-              // logo={{uri: base64Logo}}
-              // logoSize={30}
-              // logoBackgroundColor='transparent'
-            />
+        {lndInvoice && (
+          !invoiceIsPaid ?
+          <View style={{flexDirection:'column', alignItems: 'center'}}>
+            <View style={{padding:20, backgroundColor:'#fff'}}>
+              <QRCode
+                size={200}
+                value={lndInvoice}
+                // logo={{uri: base64Logo}}
+                // logoSize={30}
+                // logoBackgroundColor='transparent'
+              />
+            </View>
+            <View style={{padding:20}}>
+              <Text>{lndInvoice}</Text>
+              <View style={{padding:20}}>
+                <Button title="Cancel" color="#f00" onPress={cancelInvoice} />
+              </View>
+            </View>
           </View>
-          <View style={{padding:20}}>
-          <Text>{lndInvoice}</Text>
+        :
+          <View style={{flexDirection:'column', justifyContent:'center'}}>
+            <View style={{flexDirection:'row', justifyContent:'center'}}>
+              <Icon name="checkmark-circle" color="#0f0" size={120} />
+            </View>
+            <View style={{flexDirection:'row', justifyContent:'center'}}>
+              <Text style={{fontSize:40}}>Paid!</Text>
+            </View>
           </View>
-        </View>}
-        
+        )}
+        {boltLoading && <ActivityIndicator size="large" color="#00ff00" />}
         <View style={{padding:20}}>
           <Button title="Fetch invoices" onPress={() => setIsFetchingInvoices(!isFetchingInvoices)} />
         </View>
