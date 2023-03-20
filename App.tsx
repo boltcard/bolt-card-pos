@@ -24,8 +24,10 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {
   Colors
 } from 'react-native/Libraries/NewAppScreen';
+import { useInterval } from 'usehooks-ts';
 import QRScanner from './screens/QRScanner';
 import { LightningCustodianWallet } from './wallets/lightning-custodian-wallet.js';
+let boltLogo = require('./img/bolt-card-icon.png');
 
 const alert = (message:string) => {
   Alert.alert(message);
@@ -211,11 +213,10 @@ function App(): JSX.Element {
   };
 
   const makeLndInvoice = async () => {
-    // if(!lndWallet) {
-    //   throw new Error('lnd wallet not configured');  
-    // }
+    if(!lndWallet) {
+      throw new Error('lnd wallet not configured');  
+    }
 
-    // await createLightningWallet();
     if(lndWallet) {
       console.log('invoicing...', lndWallet)
       setInvoiceIsPaid(false);
@@ -223,6 +224,7 @@ function App(): JSX.Element {
       const result = await lndWallet.addInvoice(parseInt(inputAmount), "test");
       console.log('result', result);
       setLndInvoice(result);
+      setIsFetchingInvoices(true);
       readNdef();
     }
 
@@ -248,7 +250,7 @@ function App(): JSX.Element {
       setNdef(bytesToNdef.substring(1,bytesToNdef.length));
       console.log(bytesToNdef.substring(1,bytesToNdef.length));
     } catch (ex) {
-      console.warn('Oops!', ex);
+      console.warn('NFC Error:', ex);
     } finally {
       // stop the nfc scanning
       NfcManager.cancelTechnologyRequest();
@@ -259,84 +261,63 @@ function App(): JSX.Element {
     try {
       NfcManager.cancelTechnologyRequest();
     } catch (ex) {
-      console.warn('Oops!', ex);
+      console.warn('NFC Error:', ex);
     }
   }
 
-  const cancelInvoice = () => {
+  const resetInvoice = () => {
+    setIsFetchingInvoices(false);
     setLndInvoice(undefined);
     stopReadNdef();
   }
 
-  // useEffect(() => {
-  //   BackHandler.addEventListener('hardwareBackPress', handleBackButton);
-
-  //   return () => {
-  //     BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
-  //     clearInterval(fetchInvoiceInterval.current);
-  //     fetchInvoiceInterval.current = undefined;
-  //   };
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);r
-  
-  useEffect(() => {
-    lndWallet?.authorize();
-    console.log('LNDViewInvoice - useEffect');
-    if (!invoiceIsPaid) {
-      fetchInvoiceInterval.current = setInterval(async () => {
-        KeepAwake.activate();
-        if (isFetchingInvoices) {
-          try {
-            const userInvoices = await lndWallet.getUserInvoices(20);
-            // console.log('userInvoices', userInvoices);
-            console.log('getting userInvoices...');
-            // fetching only last 20 invoices
-            // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
-            // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
-            const updatedUserInvoice = userInvoices.filter(filteredInvoice =>
-              typeof lndInvoice === 'object'
-                ? filteredInvoice.payment_request === lndInvoice.payment_request
-                : filteredInvoice.payment_request === lndInvoice,
-            )[0];
-            if (typeof updatedUserInvoice !== 'undefined') {
-              console.log('updatedUserInvoice', updatedUserInvoice.ispaid);
-              // setInvoiceStatusChanged(true);
-              // setIsLoading(false);
-              if (updatedUserInvoice.ispaid) {
-                // we fetched the invoice, and it is paid :-)
-                setIsFetchingInvoices(false);
-                setInvoiceIsPaid(true);
-                KeepAwake.deactivate();
-                // fetchAndSaveWalletTransactions(walletID);
-              } else {
-                const currentDate = new Date();
-                const now = (currentDate.getTime() / 1000) | 0;
-                const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
-                if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
-                  // invoice expired :-(
-                  // fetchAndSaveWalletTransactions(walletID);
-                  setIsFetchingInvoices(false);
-                  // ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-                  clearInterval(fetchInvoiceInterval.current);
-                  fetchInvoiceInterval.current = undefined;
-                }
-              }
-            }
-          } catch (error) {
-            console.log(error);
+  useInterval(
+    async () => {
+      console.log('LNDViewInvoice - useEffect');
+      KeepAwake.activate();
+      try {
+        const userInvoices = await lndWallet?.getUserInvoices(20);
+        // console.log('userInvoices', userInvoices);
+        console.log('getting userInvoices...');
+        // fetching only last 20 invoices
+        // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
+        // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
+        const updatedUserInvoice = userInvoices && userInvoices.filter(filteredInvoice =>
+          typeof lndInvoice === 'object'
+            ? filteredInvoice.payment_request === lndInvoice.payment_request
+            : filteredInvoice.payment_request === lndInvoice,
+        )[0];
+        if (typeof updatedUserInvoice !== 'undefined') {
+          console.log('updatedUserInvoice', updatedUserInvoice.ispaid);
+          
+          if (updatedUserInvoice.ispaid) {
+            // we fetched the invoice, and it is paid :-)
+            setIsFetchingInvoices(false);
+            setInvoiceIsPaid(true);
             KeepAwake.deactivate();
+          } else {
+            const currentDate = new Date();
+            const now = (currentDate.getTime() / 1000) | 0;
+            const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
+            if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
+              // invoice expired :-(
+              // fetchAndSaveWalletTransactions(walletID);
+              setIsFetchingInvoices(false);
+              // ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+              clearInterval(fetchInvoiceInterval.current);
+              fetchInvoiceInterval.current = undefined;
+            }
           }
         }
-      }, 3000);
-    } else {
-      setIsFetchingInvoices(false);
-      clearInterval(fetchInvoiceInterval.current);
-      fetchInvoiceInterval.current = undefined;
-      KeepAwake.deactivate();
-    }
+      } catch (error) {
+        console.log(error);
+        KeepAwake.deactivate();
+        setIsFetchingInvoices(false);
+      }
+    },
+    isFetchingInvoices ? 3000 : null,
+  )
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFetchingInvoices]);
 
   useEffect(() => {
     if(ndef) {
@@ -404,7 +385,7 @@ function App(): JSX.Element {
               <QRCode
                 size={200}
                 value={lndInvoice}
-                // logo={{uri: base64Logo}}
+                logo={boltLogo}
                 // logoSize={30}
                 // logoBackgroundColor='transparent'
               />
@@ -412,7 +393,7 @@ function App(): JSX.Element {
             <View style={{padding:20}}>
               <Text>{lndInvoice}</Text>
               <View style={{padding:20}}>
-                <Button title="Cancel" color="#f00" onPress={cancelInvoice} />
+                <Button title="Cancel" color="#f00" onPress={resetInvoice} />
               </View>
             </View>
           </View>
@@ -424,15 +405,13 @@ function App(): JSX.Element {
             <View style={{flexDirection:'row', justifyContent:'center'}}>
               <Text style={{fontSize:40}}>Paid!</Text>
             </View>
+            <View style={{padding:20}}>
+              <Button title="Done" onPress={resetInvoice} />
+            </View>
           </View>
         )}
         {boltLoading && <ActivityIndicator size="large" color="#00ff00" />}
-        <View style={{padding:20}}>
-          <Button title="Fetch invoices" onPress={() => setIsFetchingInvoices(!isFetchingInvoices)} />
-        </View>
-        <View style={{padding:20}}>
-          <Button title="Scan a Tag" onPress={readNdef} />
-        </View>
+        
       </ScrollView>
       <Toast />
     </SafeAreaView>
