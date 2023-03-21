@@ -8,7 +8,7 @@ import './shim.js';
 
 import React, { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator, Button, SafeAreaView,
+  ActivityIndicator, Button, Pressable, SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet, Text, TextInput, useColorScheme, View
@@ -25,6 +25,7 @@ import {
   Colors
 } from 'react-native/Libraries/NewAppScreen';
 import { useInterval } from 'usehooks-ts';
+import PinPadButton from './components/PinPadButton';
 import QRScanner from './screens/QRScanner';
 import { LightningCustodianWallet } from './wallets/lightning-custodian-wallet.js';
 let boltLogo = require('./img/bolt-card-icon.png');
@@ -69,6 +70,12 @@ function App(): JSX.Element {
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+
+  const textStyle = {
+    color: isDarkMode ? '#fff' : '#000',
+    borderColor:isDarkMode ? '#fff' : '#000'
+  };
+
 
   useEffect( () => {
     console.log('loading wallet ....');
@@ -115,42 +122,6 @@ function App(): JSX.Element {
     if(lndhub && lndhubUser) initWallet();
 
   },[lndhub, lndhubUser]);
-
-  // const createLightningWallet = async (hub) => {
-  //   console.log('creating new wallet...');
-  //   const wallet = new LightningCustodianWallet();
-  //   wallet.setLabel("initialised custodial wallet");
-  //   console.log('connecting to hub new wallet...');
-  //   try {
-  //     if (lndhub || hub) {
-  //       const isValidNodeAddress = await LightningCustodianWallet.isValidNodeAddress(lndhub || hub);
-  //       if (isValidNodeAddress) {
-  //         console.log('isValidNodeAddress...');
-  //         wallet.setBaseURI(lndhub);
-  //         await wallet.init();
-  //       } else {
-  //         throw new Error('The provided node address is not valid LND Hub node.');
-  //       }
-  //     }
-  //     else {
-  //       alert('set LND Hub first pls.')
-  //     }
-  //     // console.log('wallet.createAccount()...');
-  //     // await wallet.createAccount();
-  //     // console.log('wallet.authorize()...');
-  //     // await wallet.authorize();
-  //   } catch (Err) {
-  //     console.warn('lnd create failure', Err);
-  //     if (Err.message) {
-  //       return alert(Err.message);
-  //     } 
-  //   }
-
-  //   await wallet.setSecret(lndhubUser)
-  //   setLndWallet(wallet);
-  //   console.log(wallet);
-  //   console.log('wallet.getID()',wallet.getID());
-  // };
 
   const saveToDisk = async (wallet:any) => {
     await storeData('wallet', JSON.stringify(wallet));
@@ -351,8 +322,14 @@ function App(): JSX.Element {
     }
   },[ndef]);
 
+  const press = (input:string) => {
+    console.log(inputAmount);
+    if(input === 'c') setInputAmount('0');
+    else setInputAmount(inputAmount === '0' ? input : inputAmount+''+input);
+  }
+
   return (
-    <SafeAreaView >
+    <SafeAreaView>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
@@ -365,19 +342,47 @@ function App(): JSX.Element {
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
           <Button onPress={() => setScanMode(!scanMode)} title="Scan Mode" />
-          {scanMode && <QRScanner onScanSuccess={onScanSuccess} />}
+          {scanMode && <QRScanner cancel={()=> setScanMode(!scanMode)} onScanSuccess={onScanSuccess} />}
         </View>
         <Text>{lndhubUser}</Text>
         <Text>{lndhub}</Text>
         <TextInput 
-          style={{fontSize:40}}
-          keyboardType="numeric" 
+          style={{...textStyle, fontSize:40, borderWidth:1, margin:10}}
+          keyboardType="numeric"
           placeholder="0.00"
+          editable={false}
+          value={inputAmount}
           onChangeText={(text)=>setInputAmount(text)}
         />
-        <View style={{padding:20}}>
-          <Button onPress={() => makeLndInvoice()} title="Invoice" />
-        </View>
+        {!lndInvoice && <>
+          <View style={{flex: 1}}>
+            <View style={{flexDirection:'row', alignItems:'stretch'}}>
+              <PinPadButton number="7" onPress={() => press("7")}/>
+              <PinPadButton number="8" onPress={() => press("8")}/>
+              <PinPadButton number="9" onPress={() => press("9")}/>
+            </View>
+            <View style={{flexDirection:'row'}}>
+              <PinPadButton number="4" onPress={() => press("4")}/>
+              <PinPadButton number="5" onPress={() => press("5")}/>
+              <PinPadButton number="6" onPress={() => press("6")}/>
+            </View>
+            <View style={{flexDirection:'row'}}>
+              <PinPadButton number="1" onPress={() => press("1")}/>
+              <PinPadButton number="2" onPress={() => press("2")}/>
+              <PinPadButton number="3" onPress={() => press("3")}/>
+            </View>
+            <View style={{flexDirection:'row'}}>
+              <PinPadButton number="0" onPress={() => press("0")}/>
+              <PinPadButton number="." onPress={() => press(".")}/>
+              <PinPadButton number="C" onPress={() => press("c")}/>
+            </View>
+          </View>
+          <View style={{padding:10}}>
+            <Pressable onPress={() => makeLndInvoice()}>
+              <Text style={{backgroundColor:'#ff9900', color:'#fff', fontSize:40, textAlign:'center'}}>Invoice</Text>
+            </Pressable>
+          </View>
+        </>}
         {lndInvoice && (
           !invoiceIsPaid ?
           <View style={{flexDirection:'column', alignItems: 'center'}}>
@@ -386,12 +391,11 @@ function App(): JSX.Element {
                 size={200}
                 value={lndInvoice}
                 logo={boltLogo}
-                // logoSize={30}
-                // logoBackgroundColor='transparent'
+                logoSize={40}
+                logoBackgroundColor='transparent'
               />
             </View>
             <View style={{padding:20}}>
-              <Text>{lndInvoice}</Text>
               <View style={{padding:20}}>
                 <Button title="Cancel" color="#f00" onPress={resetInvoice} />
               </View>
@@ -410,7 +414,7 @@ function App(): JSX.Element {
             </View>
           </View>
         )}
-        {boltLoading && <ActivityIndicator size="large" color="#00ff00" />}
+        {boltLoading && <ActivityIndicator size="large" color="#ff9900" />}
         
       </ScrollView>
       <Toast />
