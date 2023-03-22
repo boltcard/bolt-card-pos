@@ -50,6 +50,7 @@ function App(): JSX.Element {
   
   const [inputAmount, setInputAmount] = useState("");
   const [initialisingWallet, setInitialisingWallet] = useState<boolean>(true);
+  const [walletConfigured, setWalletConfigured] = useState<boolean>(false);
   
   //invoice stuff
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(false);
@@ -84,9 +85,13 @@ function App(): JSX.Element {
       //   }
       // })
       getData('lndhub').then(hub => {
+        console.log('lndhub', hub)
+        if(!hub) setLndhub('blank');
         setLndhub(hub)
       });
       getData('lndhubUser').then(user => {
+        console.log('lndhubUser', user)
+        if(!user) setLndhubUser('blank');
         setLndhubUser(user)
       });
     }
@@ -118,7 +123,14 @@ function App(): JSX.Element {
       console.log('wallet.getID()',wallet.getID());
       setInitialisingWallet(false);
     }
-    if(lndhub && lndhubUser) initWallet();
+    if(lndhub == 'blank' && lndhubUser !== 'blank') {
+      setInitialisingWallet(false);
+      setWalletConfigured(false);
+    }
+    else if(lndhub && lndhubUser) {
+      setWalletConfigured(true);
+      initWallet();
+    }
 
   },[lndhub, lndhubUser]);
 
@@ -280,6 +292,7 @@ function App(): JSX.Element {
               if (updatedUserInvoice.ispaid) {
                 // we fetched the invoice, and it is paid :-)
                 setInvoiceIsPaid(true);
+                setBoltLoading(false);
                 setIsFetchingInvoices(false);
                 clearInterval(fetchInvoiceInterval.current);
                 fetchInvoiceInterval.current = undefined;
@@ -292,6 +305,7 @@ function App(): JSX.Element {
                   // invoice expired :-(
                   // fetchAndSaveWalletTransactions(walletID);
                   setIsFetchingInvoices(false);
+                  setBoltLoading(false);
                   // ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
                   clearInterval(fetchInvoiceInterval.current);
                   fetchInvoiceInterval.current = undefined;
@@ -336,9 +350,9 @@ function App(): JSX.Element {
                 text2: err.message
               });
               setTimeout(()=>readNdef(),1000);
+              setBoltLoading(false);
 
             }).finally(() => {
-              setBoltLoading(false);
               setNdef(undefined);
             });
         })
@@ -350,10 +364,9 @@ function App(): JSX.Element {
             text2: err.message
           });
           setTimeout(()=>readNdef(),1000);
-
+          setBoltLoading(false);
         })
         .finally(()=>{
-          setBoltLoading(false);
           setNdef(undefined);
         });
     }
@@ -378,81 +391,92 @@ function App(): JSX.Element {
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
-          <Button onPress={() => setScanMode(!scanMode)} title="Scan Mode" />
-          {scanMode && <QRScanner cancel={()=> setScanMode(!scanMode)} onScanSuccess={onScanSuccess} />}
+            {!walletConfigured && 
+              <View style={{padding:20}}>
+                <Text style={{fontSize:30, fontWeight:'bold'}}>Setup Instructions</Text>
+                <Text style={{fontSize:20}}>1. Install LNBits on your server.</Text>
+                <Text style={{fontSize:20}}>2. Install the LNDHub Extension.</Text>
+                <Text style={{fontSize:20}}>3. Press the Scan QR Code button and scan the "Invoice" QR Code.</Text> 
+                <Button onPress={() => setScanMode(!scanMode)} title="Scan QR Code" />
+              </View>
+            }
+            {scanMode && <QRScanner cancel={()=> setScanMode(!scanMode)} onScanSuccess={onScanSuccess} />}
+
         </View>
         <Text>{lndhubUser}</Text>
         <Text>{lndhub}</Text>
-        <TextInput 
-          style={{...textStyle, fontSize:40, borderWidth:1, margin:10}}
-          keyboardType="numeric"
-          placeholder="0.00"
-          editable={false}
-          value={inputAmount}
-          onChangeText={(text)=>setInputAmount(text)}
-        />
-        {!lndInvoice && <>
-          <View style={{flex: 1}}>
-            <View style={{flexDirection:'row', alignItems:'stretch'}}>
-              <PinPadButton number="7" onPress={() => press("7")}/>
-              <PinPadButton number="8" onPress={() => press("8")}/>
-              <PinPadButton number="9" onPress={() => press("9")}/>
-            </View>
-            <View style={{flexDirection:'row'}}>
-              <PinPadButton number="4" onPress={() => press("4")}/>
-              <PinPadButton number="5" onPress={() => press("5")}/>
-              <PinPadButton number="6" onPress={() => press("6")}/>
-            </View>
-            <View style={{flexDirection:'row'}}>
-              <PinPadButton number="1" onPress={() => press("1")}/>
-              <PinPadButton number="2" onPress={() => press("2")}/>
-              <PinPadButton number="3" onPress={() => press("3")}/>
-            </View>
-            <View style={{flexDirection:'row'}}>
-              <PinPadButton number="0" onPress={() => press("0")}/>
-              <PinPadButton number="." onPress={() => press(".")}/>
-              <PinPadButton number="C" onPress={() => press("c")}/>
-            </View>
-          </View>
-          <View style={{padding:10}}>
-            <Pressable onPress={() => makeLndInvoice()}>
-              <Text style={{backgroundColor:'#ff9900', color:'#fff', fontSize:40, textAlign:'center'}}>Invoice</Text>
-            </Pressable>
-          </View>
-        </>}
-        {lndInvoice && (
-          !invoiceIsPaid ?
-            <View style={{flexDirection:'column', alignItems: 'center'}}>
-              <View style={{padding:20, backgroundColor:'#fff'}}>
-                <QRCode
-                  size={200}
-                  value={lndInvoice}
-                  logo={boltLogo}
-                  logoSize={40}
-                  logoBackgroundColor='transparent'
-                />
+        {walletConfigured && 
+        <>
+          <TextInput 
+            style={{...textStyle, fontSize:40, borderWidth:1, margin:10}}
+            keyboardType="numeric"
+            placeholder="0.00"
+            editable={false}
+            value={inputAmount}
+            onChangeText={(text)=>setInputAmount(text)}
+          />
+          {!lndInvoice && <>
+            <View style={{flex: 1}}>
+              <View style={{flexDirection:'row', alignItems:'stretch'}}>
+                <PinPadButton number="7" onPress={() => press("7")}/>
+                <PinPadButton number="8" onPress={() => press("8")}/>
+                <PinPadButton number="9" onPress={() => press("9")}/>
               </View>
-              <View style={{padding:20}}>
+              <View style={{flexDirection:'row'}}>
+                <PinPadButton number="4" onPress={() => press("4")}/>
+                <PinPadButton number="5" onPress={() => press("5")}/>
+                <PinPadButton number="6" onPress={() => press("6")}/>
+              </View>
+              <View style={{flexDirection:'row'}}>
+                <PinPadButton number="1" onPress={() => press("1")}/>
+                <PinPadButton number="2" onPress={() => press("2")}/>
+                <PinPadButton number="3" onPress={() => press("3")}/>
+              </View>
+              <View style={{flexDirection:'row'}}>
+                <PinPadButton number="0" onPress={() => press("0")}/>
+                <PinPadButton number="." onPress={() => press(".")}/>
+                <PinPadButton number="C" onPress={() => press("c")}/>
+              </View>
+            </View>
+            <View style={{padding:10}}>
+              <Pressable onPress={() => makeLndInvoice()}>
+                <Text style={{backgroundColor:'#ff9900', color:'#fff', fontSize:40, textAlign:'center'}}>Invoice</Text>
+              </Pressable>
+            </View>
+          </>}
+          {lndInvoice && (
+            !invoiceIsPaid ?
+              <View style={{flexDirection:'column', alignItems: 'center'}}>
+                <View style={{padding:20, backgroundColor:'#fff'}}>
+                  <QRCode
+                    size={200}
+                    value={lndInvoice}
+                    logo={boltLogo}
+                    logoSize={40}
+                    logoBackgroundColor='transparent'
+                  />
+                </View>
                 <View style={{padding:20}}>
-                  <Button title="Cancel" color="#f00" onPress={resetInvoice} />
+                  <View style={{padding:20}}>
+                    <Button title="Cancel" color="#f00" onPress={resetInvoice} />
+                  </View>
                 </View>
               </View>
-            </View>
-          :
-            <View style={{flexDirection:'column', justifyContent:'center'}}>
-              <View style={{flexDirection:'row', justifyContent:'center'}}>
-                <Icon name="checkmark-circle" color="#0f0" size={120} />
+            :
+              <View style={{flexDirection:'column', justifyContent:'center'}}>
+                <View style={{flexDirection:'row', justifyContent:'center'}}>
+                  <Icon name="checkmark-circle" color="#0f0" size={120} />
+                </View>
+                <View style={{flexDirection:'row', justifyContent:'center'}}>
+                  <Text style={{fontSize:40}}>Paid!</Text>
+                </View>
+                <View style={{padding:20}}>
+                  <Button title="Done" onPress={resetInvoice} />
+                </View>
               </View>
-              <View style={{flexDirection:'row', justifyContent:'center'}}>
-                <Text style={{fontSize:40}}>Paid!</Text>
-              </View>
-              <View style={{padding:20}}>
-                <Button title="Done" onPress={resetInvoice} />
-              </View>
-            </View>
-        )}
-        {boltLoading && <ActivityIndicator size="large" color="#ff9900" />}
-        
+          )}
+          {boltLoading && <ActivityIndicator size="large" color="#ff9900" />}
+        </>}
       </ScrollView>
       <Toast />
     </SafeAreaView>
