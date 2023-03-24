@@ -1,6 +1,6 @@
 # simple-lnd-pos
 
-A super simple PoS with Bolt Card support. 
+A super simple PoS with Bolt Card support. Built in React Native.
 
 Connects to an LNBits backend with the LNDHub extension installed.
 
