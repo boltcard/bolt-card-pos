@@ -1,6 +1,6 @@
 # simple-lnd-pos
 
-A super simple PoS with [Bolt Card](https://boltcard.org) support. Built in React Native.
+A super simple Point of Sale System (PoS) with [Bolt Card](https://boltcard.org) support. Built in React Native.
 
 Connects to an [LNBits](https://lnbits.com/) backend with the LNDHub extension installed.
 
