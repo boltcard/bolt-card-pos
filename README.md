@@ -1,10 +1,10 @@
 # simple-lnd-pos
 
-A super simple PoS with Bolt Card support. Built in React Native.
+A super simple PoS with [Bolt Card](https://boltcard.org) support. Built in React Native.
 
-Connects to an LNBits backend with the LNDHub extension installed.
+Connects to an [LNBits](https://lnbits.com/) backend with the LNDHub extension installed.
 
-Polls for successful invoice payment.
+Polls for successful invoice payments.
 
 ## setup
 1. Install [LNBits](https://lnbits.com/) and connect it to your node, or use the LNBits demo server
