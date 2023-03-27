@@ -8,11 +8,12 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "postinstall": "react-native setup-ios-permissions && pod-install"
+    "postinstall": "rn-nodeify --install buffer,events,process,stream,inherits,path,assert,crypto --hack; npx react-native setup-ios-permissions; npx pod-install"
   },
   "dependencies": {
     "@craftzdog/react-native-buffer": "^6.0.5",
     "@react-native-async-storage/async-storage": "^1.17.11",
+    "assert": "^1.5.0",
     "axios": "^1.3.4",
     "bech32": "2.0.0",
     "bignumber.js": "^9.1.1",
@@ -31,6 +32,7 @@
     "ecpair": "^2.1.0",
     "events": "^1.1.1",
     "frisbee": "^3.1.4",
+    "path-browserify": "0.0.0",
     "process": "^0.11.10",
     "react": "18.2.0",
     "react-native": "0.71.4",
@@ -84,7 +86,8 @@
     "_stream_writable": "readable-stream/writable",
     "_stream_duplex": "readable-stream/duplex",
     "_stream_passthrough": "readable-stream/passthrough",
-    "stream": "stream-browserify"
+    "stream": "stream-browserify",
+    "path": "path-browserify"
   },
   "browser": {
     "crypto": "react-native-crypto",
@@ -93,7 +96,8 @@
     "_stream_writable": "readable-stream/writable",
     "_stream_duplex": "readable-stream/duplex",
     "_stream_passthrough": "readable-stream/passthrough",
-    "stream": "stream-browserify"
+    "stream": "stream-browserify",
+    "path": "path-browserify"
   },
   "reactNativePermissionsIOS": [
     "Camera"
