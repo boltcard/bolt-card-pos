@@ -1,11 +1,12 @@
 import React, { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator, Alert, Button, Pressable, SafeAreaView,
+  ActivityIndicator, Button, Pressable, SafeAreaView,
   ScrollView,
   StatusBar,
-  StyleSheet, Text, TextInput, useColorScheme, View
+  StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View
 } from 'react-native';
 
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import QRCode from 'react-native-qrcode-svg';
@@ -17,11 +18,8 @@ import {
 import PinPadButton from '../components/PinPadButton';
 import QRScanner from './QRScanner';
 import { LightningCustodianWallet } from '../wallets/lightning-custodian-wallet.js';
+import alert from '../components/Alert';
 let boltLogo = require('../img/bolt-card-icon.png');
-
-const alert = (message:string) => {
-  Alert.alert(message);
-}
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -31,7 +29,8 @@ function Home(): JSX.Element {
   const fetchInvoiceInterval = useRef();
 
   const isDarkMode = useColorScheme() === 'dark';
-  
+  const { navigate } = useNavigation();
+
   const [scanMode, setScanMode] = useState(false);
 
   // const [lndConnect, setLndConnect] = useState("");
@@ -375,6 +374,14 @@ function Home(): JSX.Element {
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         >
+          {/* @TODO: move this to headerRight navigation option */}
+          <View style={{alignItems: 'flex-end', margin: 20}}>
+            <TouchableOpacity onPress={() => {
+              navigate('Settings');
+            }}>
+              <Icon name="cog" color="#000" size={30} />
+            </TouchableOpacity>
+          </View>
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
