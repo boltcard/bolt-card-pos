@@ -377,7 +377,7 @@ function Home(): JSX.Element {
           {/* @TODO: move this to headerRight navigation option */}
           <View style={{alignItems: 'flex-end', margin: 20}}>
             <TouchableOpacity onPress={() => {
-              navigate('Settings');
+              navigate('SettingsRoot');
             }}>
               <Icon name="cog" color="#000" size={30} />
             </TouchableOpacity>

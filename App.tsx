@@ -4,6 +4,7 @@
  *
  * @format
  */
+import 'react-native-gesture-handler';
 import './shim.js';
 
 import React, { PropsWithChildren } from 'react';
