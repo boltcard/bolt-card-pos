@@ -326,26 +326,38 @@ function Home(): JSX.Element {
         .then((response) => response.json())
         .then((data) => {
           console.log('bolt request', data);
-          const callback = new URL(data.callback);
-          callback.searchParams.set('k1', data.k1);
-          callback.searchParams.set('pr', lndInvoice);
-          fetch(callback.toString())
-            .then((cbResponse) => cbResponse.json())
-            .then((cbData) => {
-              console.log('bolt callback', cbData);
-            }).catch(err => {
-              console.error(err);
-              Toast.show({
-                type: 'error',
-                text1: 'Bolt Card Error',
-                text2: err.message
+          if(data.status == 'OK') {
+            const callback = new URL(data.callback);
+            callback.searchParams.set('k1', data.k1);
+            callback.searchParams.set('pr', lndInvoice);
+            fetch(callback.toString())
+              .then((cbResponse) => cbResponse.json())
+              .then((cbData) => {
+                console.log('bolt callback', cbData);
+              }).catch(err => {
+                console.error(err);
+                Toast.show({
+                  type: 'error',
+                  text1: 'Bolt Card Error',
+                  text2: err.message
+                });
+                setTimeout(()=>readNdef(),1000);
+                setBoltLoading(false);
+  
+              }).finally(() => {
+                setNdef(undefined);
               });
-              setTimeout(()=>readNdef(),1000);
-              setBoltLoading(false);
-
-            }).finally(() => {
-              setNdef(undefined);
+          } else if(data.status == 'ERROR') {
+            console.error(data.reason);
+            Toast.show({
+              type: 'error',
+              text1: 'Bolt Card Error',
+              text2: data.reason
             });
+            setTimeout(()=>readNdef(),1000);
+            setBoltLoading(false);
+            setNdef(undefined);
+          }
         })
         .catch(err => {
           console.error(err);
