@@ -389,7 +389,7 @@ function Home(): JSX.Element {
   };
   if (initialisingWallet) return <ActivityIndicator />;
   return (
-    <View>
+    <View style={{...backgroundStyle, flex: 1}}>
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         {/* @TODO: move this to headerRight navigation option */}
         <View style={{alignItems: 'flex-end', margin: 20}}>
