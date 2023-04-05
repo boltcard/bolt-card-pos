@@ -7,26 +7,14 @@
 import 'react-native-gesture-handler';
 import './shim.js';
 
-import React, {PropsWithChildren} from 'react';
-import {
-  Alert,
-  StatusBar,
-  StyleSheet,
-  TouchableOpacity,
-  useColorScheme,
-  View,
-  Text,
-} from 'react-native';
+import React from 'react';
+import {StatusBar, StyleSheet, useColorScheme, View} from 'react-native';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
-import {NavigationContainer, CommonActions} from '@react-navigation/native';
+import {NavigationContainer} from '@react-navigation/native';
 import {navigationRef} from './NavigationService';
 import Navigation from './Navigation';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
 
 function App(): JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
