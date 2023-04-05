@@ -38,11 +38,11 @@ function Home(): JSX.Element {
   // const [lndDomain, setLndDomain] = useState("");
   // const [lndPort, setLndPort] = useState("");
   // const [lndMacaroon, setLndMacaroon] = useState("");
-  
+
   const [inputAmount, setInputAmount] = useState("");
   const [initialisingWallet, setInitialisingWallet] = useState<boolean>(true);
   const [walletConfigured, setWalletConfigured] = useState<boolean>(false);
-  
+
   //invoice stuff
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(false);
   const [lndInvoice, setLndInvoice] = useState<string>();
@@ -63,11 +63,11 @@ function Home(): JSX.Element {
 
   const textStyle = {
     color: isDarkMode ? '#fff' : '#000',
-    borderColor:isDarkMode ? '#fff' : '#000'
+    borderColor: isDarkMode ? '#fff' : '#000'
   };
 
 
-  useEffect( () => {
+  useEffect(() => {
     console.log('loading wallet ....');
     async function fetchData() {
       // getData('wallet').then(wallet => {
@@ -77,24 +77,24 @@ function Home(): JSX.Element {
       // })
       getData('lndhub').then(hub => {
         console.log('lndhub', hub)
-        if(!hub) setLndhub('blank');
+        if (!hub) setLndhub('blank');
         setLndhub(hub)
       });
       getData('lndhubUser').then(user => {
         console.log('lndhubUser', user)
-        if(!user) setLndhubUser('blank');
+        if (!user) setLndhubUser('blank');
         setLndhubUser(user)
       });
     }
     fetchData();
 
     return () => {
-    
+
     }
-    
+
   }, [])
 
-  useEffect( () => {
+  useEffect(() => {
     async function initWallet() {
       console.log('initialising wallet...');
       const wallet = new LightningCustodianWallet();
@@ -109,30 +109,30 @@ function Home(): JSX.Element {
       }
       await wallet.setSecret(lndhubUser)
       setLndWallet(wallet);
-      
+
       console.log(wallet);
-      console.log('wallet.getID()',wallet.getID());
+      console.log('wallet.getID()', wallet.getID());
       setInitialisingWallet(false);
     }
-    if(lndhub == 'blank' && lndhubUser !== 'blank') {
+    if (lndhub == 'blank' && lndhubUser !== 'blank') {
       setInitialisingWallet(false);
       setWalletConfigured(false);
     }
-    else if(lndhub && lndhubUser) {
+    else if (lndhub && lndhubUser) {
       setWalletConfigured(true);
       initWallet();
     }
 
-  },[lndhub, lndhubUser]);
+  }, [lndhub, lndhubUser]);
 
-  const saveToDisk = async (wallet:any) => {
+  const saveToDisk = async (wallet: any) => {
     await storeData('wallet', JSON.stringify(wallet));
   }
 
-  const storeData = async (key:string, value:string) => {
+  const storeData = async (key: string, value: string) => {
     try {
-        await AsyncStorage.setItem(key, value)
-    } catch (e:any) {
+      await AsyncStorage.setItem(key, value)
+    } catch (e: any) {
       console.error(e);
       Toast.show({
         type: 'error',
@@ -142,14 +142,14 @@ function Home(): JSX.Element {
     }
   }
 
-  const getData = async (key:string): Promise<string> => {
+  const getData = async (key: string): Promise<string> => {
     try {
       const value = await AsyncStorage.getItem(key)
-      if(value !== null) {
+      if (value !== null) {
         // value previously stored
         return value;
       }
-    } catch (e:any) {
+    } catch (e: any) {
       console.error(e);
       Toast.show({
         type: 'error',
@@ -161,7 +161,7 @@ function Home(): JSX.Element {
   }
 
   const onScanSuccess = (e: { data: string; }) => {
-    if(!e.data.startsWith('lndhub://')) {
+    if (!e.data.startsWith('lndhub://')) {
       Toast.show({
         type: 'error',
         text1: 'Invalid QR Code',
@@ -175,7 +175,7 @@ function Home(): JSX.Element {
       setLndhubUser(hubData[0]);
       storeData('lndhub', hubData[1])
       setLndhub(hubData[1]);
-      
+
       Toast.show({
         type: 'success',
         text1: 'LND Connect',
@@ -186,11 +186,11 @@ function Home(): JSX.Element {
   };
 
   const makeLndInvoice = async () => {
-    if(!lndWallet) {
-      throw new Error('lnd wallet not configured');  
+    if (!lndWallet) {
+      throw new Error('lnd wallet not configured');
     }
 
-    if(lndWallet) {
+    if (lndWallet) {
       console.log('invoicing...')
       setInvoiceIsPaid(false);
       await lndWallet.authorize();
@@ -221,8 +221,8 @@ function Home(): JSX.Element {
       // console.log('Tag found', tag);
       // console.log('NDEF', tag.ndefMessage[0].payload);
       const bytesToNdef = String.fromCharCode(...(tag.ndefMessage[0].payload));
-      setNdef(bytesToNdef.substring(1,bytesToNdef.length));
-      console.log(bytesToNdef.substring(1,bytesToNdef.length));
+      setNdef(bytesToNdef.substring(1, bytesToNdef.length));
+      console.log(bytesToNdef.substring(1, bytesToNdef.length));
     } catch (ex) {
       console.error('NFC Error:', ex);
     } finally {
@@ -259,10 +259,10 @@ function Home(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    console.log('Polling invoices - invoiceIsPaid:', invoiceIsPaid,'isFetchingInvoices', isFetchingInvoices);
+    console.log('Polling invoices - invoiceIsPaid:', invoiceIsPaid, 'isFetchingInvoices', isFetchingInvoices);
     if (!invoiceIsPaid) {
       fetchInvoiceInterval.current = setInterval(async () => {
-        if (isFetchingInvoices) { 
+        if (isFetchingInvoices) {
           try {
             const userInvoices = await lndWallet?.getUserInvoices(20);
             // console.log('userInvoices', userInvoices);
@@ -274,8 +274,8 @@ function Home(): JSX.Element {
                 ? filteredInvoice.payment_request === lndInvoice.payment_request
                 : filteredInvoice.payment_request === lndInvoice,
             )[0];
-            
-            console.log(Date.now()+' ispaid?', updatedUserInvoice.ispaid);
+
+            console.log(Date.now() + ' ispaid?', updatedUserInvoice.ispaid);
 
             if (typeof updatedUserInvoice !== 'undefined') {
               // setParams({ invoice: updatedUserInvoice });
@@ -319,14 +319,14 @@ function Home(): JSX.Element {
 
 
   useEffect(() => {
-    if(ndef) {
+    if (ndef) {
       setBoltLoading(true);
-      const url = ndef.replace('lnurlw://','https://');
+      const url = ndef.replace('lnurlw://', 'https://');
       fetch(url)
         .then((response) => response.json())
         .then((data) => {
           console.log('bolt request', data);
-          if(data.status == 'OK') {
+          if (data.status == 'OK') {
             const callback = new URL(data.callback);
             callback.searchParams.set('k1', data.k1);
             callback.searchParams.set('pr', lndInvoice);
@@ -341,20 +341,20 @@ function Home(): JSX.Element {
                   text1: 'Bolt Card Error',
                   text2: err.message
                 });
-                setTimeout(()=>readNdef(),1000);
+                setTimeout(() => readNdef(), 1000);
                 setBoltLoading(false);
-  
+
               }).finally(() => {
                 setNdef(undefined);
               });
-          } else if(data.status == 'ERROR') {
+          } else if (data.status == 'ERROR') {
             console.error(data.reason);
             Toast.show({
               type: 'error',
               text1: 'Bolt Card Error',
               text2: data.reason
             });
-            setTimeout(()=>readNdef(),1000);
+            setTimeout(() => readNdef(), 1000);
             setBoltLoading(false);
             setNdef(undefined);
           }
@@ -366,124 +366,124 @@ function Home(): JSX.Element {
             text1: 'Bolt Card Error',
             text2: err.message
           });
-          setTimeout(()=>readNdef(),1000);
+          setTimeout(() => readNdef(), 1000);
           setBoltLoading(false);
         })
-        .finally(()=>{
+        .finally(() => {
           setNdef(undefined);
         });
     }
-  },[ndef]);
+  }, [ndef]);
 
-  const press = (input:string) => {
+  const press = (input: string) => {
     console.log(inputAmount);
-    if(input === 'c') setInputAmount('0');
-    else setInputAmount(inputAmount === '0' ? input : inputAmount+''+input);
+    if (input === 'c') setInputAmount('0');
+    else setInputAmount(inputAmount === '0' ? input : inputAmount + '' + input);
   }
-  if(initialisingWallet) return <ActivityIndicator />
+  if (initialisingWallet) return <ActivityIndicator />
   return (
     <View>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
-        >
-          {/* @TODO: move this to headerRight navigation option */}
-          <View style={{alignItems: 'flex-end', margin: 20}}>
-            <TouchableOpacity onPress={() => {
-              navigate('SettingsRoot');
-            }}>
-              <Icon name="cog" color="#000" size={30} />
-            </TouchableOpacity>
-          </View>
+      >
+        {/* @TODO: move this to headerRight navigation option */}
+        <View style={{ alignItems: 'flex-end', margin: 20 }}>
+          <TouchableOpacity onPress={() => {
+            navigate('SettingsRoot');
+          }}>
+            <Icon name="cog" color="#000" size={30} />
+          </TouchableOpacity>
+        </View>
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
-            {!walletConfigured && 
-              <View style={{padding:20}}>
-                <Text style={{fontSize:30, fontWeight:'bold'}}>Setup Instructions</Text>
-                <Text style={{fontSize:20}}>1. Install LNBits on your server.</Text>
-                <Text style={{fontSize:20}}>2. Install the LNDHub Extension.</Text>
-                <Text style={{fontSize:20}}>3. Press the Scan QR Code button and scan the "Invoice" QR Code.</Text> 
-                <Button onPress={() => setScanMode(!scanMode)} title="Scan QR Code" />
-              </View>
-            }
-            {scanMode && <QRScanner cancel={()=> setScanMode(!scanMode)} onScanSuccess={onScanSuccess} />}
+          {!walletConfigured &&
+            <View style={{ padding: 20 }}>
+              <Text style={{ fontSize: 30, fontWeight: 'bold' }}>Setup Instructions</Text>
+              <Text style={{ fontSize: 20 }}>1. Install LNBits on your server.</Text>
+              <Text style={{ fontSize: 20 }}>2. Install the LNDHub Extension.</Text>
+              <Text style={{ fontSize: 20 }}>3. Press the Scan QR Code button and scan the "Invoice" QR Code.</Text>
+              <Button onPress={() => setScanMode(!scanMode)} title="Scan QR Code" />
+            </View>
+          }
+          {scanMode && <QRScanner cancel={() => setScanMode(!scanMode)} onScanSuccess={onScanSuccess} />}
 
         </View>
         <Text>{lndhubUser}</Text>
         <Text>{lndhub}</Text>
-        {walletConfigured && 
-        <>
-          <TextInput 
-            style={{...textStyle, fontSize:40, borderWidth:1, margin:10}}
-            keyboardType="numeric"
-            placeholder="0.00"
-            editable={false}
-            value={inputAmount}
-            onChangeText={(text)=>setInputAmount(text)}
-          />
-          {!lndInvoice && <>
-            <View style={{flex: 1}}>
-              <View style={{flexDirection:'row', alignItems:'stretch'}}>
-                <PinPadButton number="7" onPress={() => press("7")}/>
-                <PinPadButton number="8" onPress={() => press("8")}/>
-                <PinPadButton number="9" onPress={() => press("9")}/>
-              </View>
-              <View style={{flexDirection:'row'}}>
-                <PinPadButton number="4" onPress={() => press("4")}/>
-                <PinPadButton number="5" onPress={() => press("5")}/>
-                <PinPadButton number="6" onPress={() => press("6")}/>
-              </View>
-              <View style={{flexDirection:'row'}}>
-                <PinPadButton number="1" onPress={() => press("1")}/>
-                <PinPadButton number="2" onPress={() => press("2")}/>
-                <PinPadButton number="3" onPress={() => press("3")}/>
-              </View>
-              <View style={{flexDirection:'row'}}>
-                <PinPadButton number="0" onPress={() => press("0")}/>
-                <PinPadButton number="." onPress={() => press(".")}/>
-                <PinPadButton number="C" onPress={() => press("c")}/>
-              </View>
-            </View>
-            <View style={{padding:10}}>
-              <Pressable onPress={() => makeLndInvoice()}>
-                <Text style={{backgroundColor:'#ff9900', color:'#fff', fontSize:40, textAlign:'center'}}>Invoice</Text>
-              </Pressable>
-            </View>
-          </>}
-          {lndInvoice && (
-            !invoiceIsPaid ?
-              <View style={{flexDirection:'column', alignItems: 'center'}}>
-                <View style={{padding:20, backgroundColor:'#fff'}}>
-                  <QRCode
-                    size={200}
-                    value={lndInvoice}
-                    logo={boltLogo}
-                    logoSize={40}
-                    logoBackgroundColor='transparent'
-                  />
+        {walletConfigured &&
+          <>
+            <TextInput
+              style={{ ...textStyle, fontSize: 40, borderWidth: 1, margin: 10 }}
+              keyboardType="numeric"
+              placeholder="0.00"
+              editable={false}
+              value={inputAmount}
+              onChangeText={(text) => setInputAmount(text)}
+            />
+            {!lndInvoice && <>
+              <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'stretch' }}>
+                  <PinPadButton number="7" onPress={() => press("7")} />
+                  <PinPadButton number="8" onPress={() => press("8")} />
+                  <PinPadButton number="9" onPress={() => press("9")} />
                 </View>
-                <View style={{padding:20}}>
-                  <View style={{padding:20}}>
-                    <Button title="Cancel" color="#f00" onPress={resetInvoice} />
+                <View style={{ flexDirection: 'row' }}>
+                  <PinPadButton number="4" onPress={() => press("4")} />
+                  <PinPadButton number="5" onPress={() => press("5")} />
+                  <PinPadButton number="6" onPress={() => press("6")} />
+                </View>
+                <View style={{ flexDirection: 'row' }}>
+                  <PinPadButton number="1" onPress={() => press("1")} />
+                  <PinPadButton number="2" onPress={() => press("2")} />
+                  <PinPadButton number="3" onPress={() => press("3")} />
+                </View>
+                <View style={{ flexDirection: 'row' }}>
+                  <PinPadButton number="0" onPress={() => press("0")} />
+                  <PinPadButton number="." onPress={() => press(".")} />
+                  <PinPadButton number="C" onPress={() => press("c")} />
+                </View>
+              </View>
+              <View style={{ padding: 10 }}>
+                <Pressable onPress={() => makeLndInvoice()}>
+                  <Text style={{ backgroundColor: '#ff9900', color: '#fff', fontSize: 40, textAlign: 'center' }}>Invoice</Text>
+                </Pressable>
+              </View>
+            </>}
+            {lndInvoice && (
+              !invoiceIsPaid ?
+                <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+                  <View style={{ padding: 20, backgroundColor: '#fff' }}>
+                    <QRCode
+                      size={200}
+                      value={lndInvoice}
+                      logo={boltLogo}
+                      logoSize={40}
+                      logoBackgroundColor='transparent'
+                    />
+                  </View>
+                  <View style={{ padding: 20 }}>
+                    <View style={{ padding: 20 }}>
+                      <Button title="Cancel" color="#f00" onPress={resetInvoice} />
+                    </View>
                   </View>
                 </View>
-              </View>
-            :
-              <View style={{flexDirection:'column', justifyContent:'center'}}>
-                <View style={{flexDirection:'row', justifyContent:'center'}}>
-                  <Icon name="checkmark-circle" color="#0f0" size={120} />
+                :
+                <View style={{ flexDirection: 'column', justifyContent: 'center' }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                    <Icon name="checkmark-circle" color="#0f0" size={120} />
+                  </View>
+                  <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 40 }}>Paid!</Text>
+                  </View>
+                  <View style={{ padding: 20 }}>
+                    <Button title="Done" onPress={resetInvoice} />
+                  </View>
                 </View>
-                <View style={{flexDirection:'row', justifyContent:'center'}}>
-                  <Text style={{fontSize:40}}>Paid!</Text>
-                </View>
-                <View style={{padding:20}}>
-                  <Button title="Done" onPress={resetInvoice} />
-                </View>
-              </View>
-          )}
-          {boltLoading && <ActivityIndicator size="large" color="#ff9900" />}
-        </>}
+            )}
+            {boltLoading && <ActivityIndicator size="large" color="#ff9900" />}
+          </>}
       </ScrollView>
       <Toast />
     </View>
