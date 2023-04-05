@@ -3,9 +3,7 @@ import {
   ActivityIndicator,
   Button,
   Pressable,
-  SafeAreaView,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -24,12 +22,7 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import PinPadButton from '../components/PinPadButton';
 import QRScanner from './QRScanner';
 import {LightningCustodianWallet} from '../wallets/lightning-custodian-wallet.js';
-import alert from '../components/Alert';
 let boltLogo = require('../img/bolt-card-icon.png');
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
 
 function Home(): JSX.Element {
   const fetchInvoiceInterval = useRef();
@@ -397,7 +390,7 @@ function Home(): JSX.Element {
             onPress={() => {
               navigate('SettingsRoot');
             }}>
-            <Icon name="cog" color="#000" size={30} />
+            <Icon name="cog" color={isDarkMode ? '#fff' : '#000'} size={30} />
           </TouchableOpacity>
         </View>
         <View
