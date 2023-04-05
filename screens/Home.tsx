@@ -1,4 +1,4 @@
-import React, {PropsWithChildren, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -24,7 +24,11 @@ import QRScanner from './QRScanner';
 import {LightningCustodianWallet} from '../wallets/lightning-custodian-wallet.js';
 let boltLogo = require('../img/bolt-card-icon.png');
 
-function Home(): JSX.Element {
+export type Props = {
+  navigation: any;
+};
+
+function Home({navigation}): React.FC<Props> {
   const fetchInvoiceInterval = useRef();
 
   const isDarkMode = useColorScheme() === 'dark';
@@ -88,6 +92,28 @@ function Home(): JSX.Element {
 
     return () => {};
   }, []);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('SettingsRoot');
+          }}>
+          <Icon name="cog" color={isDarkMode ? '#fff' : '#000'} size={30} />
+        </TouchableOpacity>
+      ),
+      headerShown: true,
+      title: '',
+      headerStyle: {
+        backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+        borderBottomWidth: 0,
+        elevation: 0,
+        shadowOpacity: 0,
+        shadowOffset: {height: 0, width: 0},
+      },
+    });
+  }, [navigation]);
 
   useEffect(() => {
     async function initWallet() {
@@ -384,15 +410,6 @@ function Home(): JSX.Element {
   return (
     <View style={{...backgroundStyle, flex: 1}}>
       <ScrollView contentInsetAdjustmentBehavior="automatic">
-        {/* @TODO: move this to headerRight navigation option */}
-        <View style={{alignItems: 'flex-end', margin: 20}}>
-          <TouchableOpacity
-            onPress={() => {
-              navigate('SettingsRoot');
-            }}>
-            <Icon name="cog" color={isDarkMode ? '#fff' : '#000'} size={30} />
-          </TouchableOpacity>
-        </View>
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
