@@ -16,13 +16,45 @@ import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NfcManager, {NfcTech} from 'react-native-nfc-manager';
 import QRCode from 'react-native-qrcode-svg';
-import Toast from 'react-native-toast-message';
+import Toast, {BaseToast, ErrorToast} from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import PinPadButton from '../components/PinPadButton';
 import QRScanner from './QRScanner';
 import {LightningCustodianWallet} from '../wallets/lightning-custodian-wallet.js';
 let boltLogo = require('../img/bolt-card-icon.png');
+
+const toastConfig = {
+  /*
+    Overwrite 'success' type,
+    by modifying the existing `BaseToast` component
+  */
+  success: props => (
+    <BaseToast
+      {...props}
+      contentContainerStyle={{paddingHorizontal: 15}}
+      text1Style={{
+        fontSize: 15,
+        fontWeight: '400',
+      }}
+    />
+  ),
+  /*
+    Overwrite 'error' type,
+    by modifying the existing `ErrorToast` component
+  */
+  error: props => (
+    <ErrorToast
+      {...props}
+      text1Style={{
+        fontSize: 17,
+      }}
+      text2Style={{
+        fontSize: 15,
+      }}
+    />
+  ),
+};
 
 export type Props = {
   navigation: any;
@@ -534,7 +566,7 @@ function Home({navigation}): React.FC<Props> {
           </>
         )}
       </ScrollView>
-      <Toast />
+      <Toast config={toastConfig} />
     </View>
   );
 }
