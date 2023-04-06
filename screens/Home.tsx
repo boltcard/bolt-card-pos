@@ -82,6 +82,7 @@ function Home({navigation}): React.FC<Props> {
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(false);
   const [lndInvoice, setLndInvoice] = useState<string>();
   const [invoiceIsPaid, setInvoiceIsPaid] = useState<boolean>(false);
+  const [invoiceLoading, setInvoiceLoading] = useState<boolean>(false);
 
   //NFC shizzle
   const [ndef, setNdef] = useState<string>();
@@ -244,6 +245,7 @@ function Home({navigation}): React.FC<Props> {
     }
 
     if (lndWallet) {
+      setInvoiceLoading(true);
       console.log('invoicing...');
       setInvoiceIsPaid(false);
       await lndWallet.authorize();
@@ -252,6 +254,7 @@ function Home({navigation}): React.FC<Props> {
       setLndInvoice(result);
       setIsFetchingInvoices(true);
       readNdef();
+      setInvoiceLoading(false);
     }
   };
 
@@ -510,16 +513,28 @@ function Home({navigation}): React.FC<Props> {
                   </View>
                 </View>
                 <View style={{padding: 10}}>
-                  <Pressable onPress={() => makeLndInvoice()}>
-                    <Text
+                  <Pressable
+                    onPress={() => makeLndInvoice()}
+                    disabled={invoiceLoading}>
+                    <View
                       style={{
-                        backgroundColor: '#ff9900',
-                        color: '#fff',
-                        fontSize: 40,
-                        textAlign: 'center',
+                        backgroundColor: invoiceLoading ? '#D3D3D3' : '#ff9900',
+                        height: 50,
+                        justifyContent: 'center'
                       }}>
-                      Invoice
-                    </Text>
+                      {invoiceLoading ? (
+                        <ActivityIndicator size="small" color="#fff" />
+                      ) : (
+                        <Text
+                          style={{
+                            fontSize: 40,
+                            textAlign: 'center',
+                            color: '#fff',
+                          }}>
+                          Invoice
+                        </Text>
+                      )}
+                    </View>
                   </Pressable>
                 </View>
               </>
