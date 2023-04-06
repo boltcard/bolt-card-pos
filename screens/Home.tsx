@@ -299,6 +299,7 @@ function Home({navigation}): React.FC<Props> {
     clearInterval(fetchInvoiceInterval.current);
     fetchInvoiceInterval.current = undefined;
     setLndInvoice(undefined);
+    setBoltLoading(false);
     stopReadNdef();
   };
 
@@ -386,7 +387,7 @@ function Home({navigation}): React.FC<Props> {
         .then(response => response.json())
         .then(data => {
           console.log('bolt request', data);
-          if (data.status == 'OK') {
+          if (data.callback) {
             const callback = new URL(data.callback);
             callback.searchParams.set('k1', data.k1);
             callback.searchParams.set('pr', lndInvoice);
@@ -394,6 +395,16 @@ function Home({navigation}): React.FC<Props> {
               .then(cbResponse => cbResponse.json())
               .then(cbData => {
                 console.log('bolt callback', cbData);
+                if (cbData.status == 'ERROR') {
+                  console.error(cbData.reason);
+                  Toast.show({
+                    type: 'error',
+                    text1: 'Bolt Card Error',
+                    text2: cbData.reason,
+                  });
+                  setTimeout(() => readNdef(), 1000);
+                  setBoltLoading(false);
+                }
               })
               .catch(err => {
                 console.error(err);
@@ -520,7 +531,7 @@ function Home({navigation}): React.FC<Props> {
                       style={{
                         backgroundColor: invoiceLoading ? '#D3D3D3' : '#ff9900',
                         height: 50,
-                        justifyContent: 'center'
+                        justifyContent: 'center',
                       }}>
                       {invoiceLoading ? (
                         <ActivityIndicator size="small" color="#fff" />
