@@ -8,7 +8,7 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "postinstall": "rn-nodeify --install buffer,events,process,stream,inherits,path,assert,crypto --hack; npx react-native setup-ios-permissions; npx pod-install"
+    "postinstall": "rn-nodeify --install buffer,events,process,stream,inherits,path,assert,crypto --hack; npx react-native setup-ios-permissions; npx patch-package; npx pod-install"
   },
   "dependencies": {
     "@craftzdog/react-native-buffer": "^6.0.5",
@@ -37,6 +37,7 @@
     "ecpair": "^2.1.0",
     "events": "^1.1.1",
     "frisbee": "^3.1.4",
+    "patch-package": "^6.5.1",
     "path-browserify": "0.0.0",
     "process": "^0.11.10",
     "react": "18.2.0",
