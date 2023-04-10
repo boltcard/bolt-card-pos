@@ -46,18 +46,19 @@ const ShopName = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+    padding: 20
   },
   textInput: {
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 5,
     padding: 10,
-    margin: 10,
+    marginVertical: 10
   },
   saveButton: {
     backgroundColor: 'blue',
     padding: 10,
-    margin: 10,
+    marginVertical: 10,
     borderRadius: 5,
   },
   saveButtonText: {
