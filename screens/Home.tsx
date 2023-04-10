@@ -16,15 +16,46 @@ import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NfcManager, {NfcTech} from 'react-native-nfc-manager';
 import QRCode from 'react-native-qrcode-svg';
-import Toast from 'react-native-toast-message';
+import Toast, {BaseToast, ErrorToast} from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import PinPadButton from '../components/PinPadButton';
 import QRScanner from './QRScanner';
 import {LightningCustodianWallet} from '../wallets/lightning-custodian-wallet.js';
+import {ShopSettingsContext} from '../contexts/ShopSettingsContext';
 let boltLogo = require('../img/bolt-card-icon.png');
 
-import {ShopSettingsContext} from '../contexts/ShopSettingsContext';
+const toastConfig = {
+  /*
+    Overwrite 'success' type,
+    by modifying the existing `BaseToast` component
+  */
+  success: props => (
+    <BaseToast
+      {...props}
+      contentContainerStyle={{paddingHorizontal: 15}}
+      text1Style={{
+        fontSize: 15,
+        fontWeight: '400',
+      }}
+    />
+  ),
+  /*
+    Overwrite 'error' type,
+    by modifying the existing `ErrorToast` component
+  */
+  error: props => (
+    <ErrorToast
+      {...props}
+      text1Style={{
+        fontSize: 17,
+      }}
+      text2Style={{
+        fontSize: 15,
+      }}
+    />
+  ),
+};
 
 export type Props = {
   navigation: any;
@@ -52,6 +83,7 @@ function Home({navigation}): React.FC<Props> {
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(false);
   const [lndInvoice, setLndInvoice] = useState<string>();
   const [invoiceIsPaid, setInvoiceIsPaid] = useState<boolean>(false);
+  const [invoiceLoading, setInvoiceLoading] = useState<boolean>(false);
 
   //NFC shizzle
   const [ndef, setNdef] = useState<string>();
@@ -221,6 +253,7 @@ function Home({navigation}): React.FC<Props> {
     }
 
     if (lndWallet) {
+      setInvoiceLoading(true);
       console.log('invoicing...');
       setInvoiceIsPaid(false);
       await lndWallet.authorize();
@@ -232,6 +265,7 @@ function Home({navigation}): React.FC<Props> {
       setLndInvoice(result);
       setIsFetchingInvoices(true);
       readNdef();
+      setInvoiceLoading(false);
     }
   };
 
@@ -276,6 +310,7 @@ function Home({navigation}): React.FC<Props> {
     clearInterval(fetchInvoiceInterval.current);
     fetchInvoiceInterval.current = undefined;
     setLndInvoice(undefined);
+    setBoltLoading(false);
     stopReadNdef();
   };
 
@@ -362,7 +397,7 @@ function Home({navigation}): React.FC<Props> {
         .then(response => response.json())
         .then(data => {
           console.log('bolt request', data);
-          if (data.status == 'OK') {
+          if (data.callback) {
             const callback = new URL(data.callback);
             callback.searchParams.set('k1', data.k1);
             callback.searchParams.set('pr', lndInvoice);
@@ -370,6 +405,16 @@ function Home({navigation}): React.FC<Props> {
               .then(cbResponse => cbResponse.json())
               .then(cbData => {
                 console.log('bolt callback', cbData);
+                if (cbData.status == 'ERROR') {
+                  console.error(cbData.reason);
+                  Toast.show({
+                    type: 'error',
+                    text1: 'Bolt Card Error',
+                    text2: cbData.reason,
+                  });
+                  setTimeout(() => readNdef(), 1000);
+                  setBoltLoading(false);
+                }
               })
               .catch(err => {
                 console.error(err);
@@ -494,16 +539,28 @@ function Home({navigation}): React.FC<Props> {
                   </View>
                 </View>
                 <View style={{padding: 10}}>
-                  <Pressable onPress={() => makeLndInvoice()}>
-                    <Text
+                  <Pressable
+                    onPress={() => makeLndInvoice()}
+                    disabled={invoiceLoading}>
+                    <View
                       style={{
-                        backgroundColor: '#ff9900',
-                        color: '#fff',
-                        fontSize: 40,
-                        textAlign: 'center',
+                        backgroundColor: invoiceLoading ? '#D3D3D3' : '#ff9900',
+                        height: 50,
+                        justifyContent: 'center',
                       }}>
-                      Invoice
-                    </Text>
+                      {invoiceLoading ? (
+                        <ActivityIndicator size="small" color="#fff" />
+                      ) : (
+                        <Text
+                          style={{
+                            fontSize: 40,
+                            textAlign: 'center',
+                            color: '#fff',
+                          }}>
+                          Invoice
+                        </Text>
+                      )}
+                    </View>
                   </Pressable>
                 </View>
               </>
@@ -550,7 +607,7 @@ function Home({navigation}): React.FC<Props> {
           </>
         )}
       </ScrollView>
-      <Toast />
+      <Toast config={toastConfig} />
     </View>
   );
 }
