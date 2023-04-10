@@ -246,6 +246,17 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API unexpected response: ' + JSON.stringify(response.body));
     }
 
+    try {
+      await updateArray(`user_${this.userid}.invoices`, `user_invoice_${json.hash}`);
+
+      await AsyncStorage.setItem(
+        `user_invoice_${json.hash}`,
+        JSON.stringify(json)
+      )
+    } catch (error) {
+      throw new Error(error);
+    }
+
     return json.pay_req;
   }
 
