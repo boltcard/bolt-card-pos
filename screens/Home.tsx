@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState, useContext} from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -22,6 +22,7 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import PinPadButton from '../components/PinPadButton';
 import QRScanner from './QRScanner';
 import {LightningCustodianWallet} from '../wallets/lightning-custodian-wallet.js';
+import {ShopSettingsContext} from '../contexts/ShopSettingsContext';
 let boltLogo = require('../img/bolt-card-icon.png');
 
 const toastConfig = {
@@ -93,6 +94,9 @@ function Home({navigation}): React.FC<Props> {
   const [lndhub, setLndhub] = useState('');
   const [lndWallet, setLndWallet] = useState<LightningCustodianWallet>();
 
+  //user settings
+  const {shopName} = useContext(ShopSettingsContext);
+
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
@@ -112,12 +116,16 @@ function Home({navigation}): React.FC<Props> {
       // })
       getData('lndhub').then(hub => {
         console.log('lndhub', hub);
-        if (!hub) setLndhub('blank');
+        if (!hub) {
+          setLndhub('blank');
+        }
         setLndhub(hub);
       });
       getData('lndhubUser').then(user => {
         console.log('lndhubUser', user);
-        if (!user) setLndhubUser('blank');
+        if (!user) {
+          setLndhubUser('blank');
+        }
         setLndhubUser(user);
       });
     }
@@ -137,7 +145,7 @@ function Home({navigation}): React.FC<Props> {
         </TouchableOpacity>
       ),
       headerShown: true,
-      title: '',
+      title: shopName,
       headerStyle: {
         backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
         borderBottomWidth: 0,
@@ -146,7 +154,7 @@ function Home({navigation}): React.FC<Props> {
         shadowOffset: {height: 0, width: 0},
       },
     });
-  }, [navigation]);
+  }, [navigation, shopName]);
 
   useEffect(() => {
     async function initWallet() {
@@ -249,7 +257,10 @@ function Home({navigation}): React.FC<Props> {
       console.log('invoicing...');
       setInvoiceIsPaid(false);
       await lndWallet.authorize();
-      const result = await lndWallet.addInvoice(parseInt(inputAmount), 'test');
+      const result = await lndWallet.addInvoice(
+        parseInt(inputAmount),
+        shopName,
+      );
       console.log('result', result);
       setLndInvoice(result);
       setIsFetchingInvoices(true);
@@ -311,7 +322,6 @@ function Home({navigation}): React.FC<Props> {
       clearInterval(fetchInvoiceInterval.current);
       fetchInvoiceInterval.current = undefined;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -449,10 +459,15 @@ function Home({navigation}): React.FC<Props> {
 
   const press = (input: string) => {
     console.log(inputAmount);
-    if (input === 'c') setInputAmount('0');
-    else setInputAmount(inputAmount === '0' ? input : inputAmount + '' + input);
+    if (input === 'c') {
+      setInputAmount('0');
+    } else {
+      setInputAmount(inputAmount === '0' ? input : inputAmount + '' + input);
+    }
   };
-  if (initialisingWallet) return <ActivityIndicator />;
+  if (initialisingWallet) {
+    return <ActivityIndicator />;
+  }
   return (
     <View style={{...backgroundStyle, flex: 1}}>
       <ScrollView contentInsetAdjustmentBehavior="automatic">
