@@ -1,5 +1,7 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import bolt11 from 'bolt11';
 import Frisbee from 'frisbee';
+import { updateArray } from '../helper/storage';
 import { BitcoinUnit, Chain } from './bitcoinUnits';
 import { LegacyWallet } from './legacy-wallet';
 
