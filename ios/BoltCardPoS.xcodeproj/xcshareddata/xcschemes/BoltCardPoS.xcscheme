@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "simplepos.app"
-               BlueprintName = "simplepos"
-               ReferencedContainer = "container:simplepos.xcodeproj">
+               BuildableName = "BoltCardPoS.app"
+               BlueprintName = "BoltCardPoS"
+               ReferencedContainer = "container:BoltCardPoS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "simpleposTests.xctest"
-               BlueprintName = "simpleposTests"
-               ReferencedContainer = "container:simplepos.xcodeproj">
+               BuildableName = "BoltCardPoSTests.xctest"
+               BlueprintName = "BoltCardPoSTests"
+               ReferencedContainer = "container:BoltCardPoS.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "simplepos.app"
-            BlueprintName = "simplepos"
-            ReferencedContainer = "container:simplepos.xcodeproj">
+            BuildableName = "BoltCardPoS.app"
+            BlueprintName = "BoltCardPoS"
+            ReferencedContainer = "container:BoltCardPoS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "simplepos.app"
-            BlueprintName = "simplepos"
-            ReferencedContainer = "container:simplepos.xcodeproj">
+            BuildableName = "BoltCardPoS.app"
+            BlueprintName = "BoltCardPoS"
+            ReferencedContainer = "container:BoltCardPoS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

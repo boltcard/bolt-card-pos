@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		00E356F31AD99517003FC87E /* simpleposTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* simpleposTests.m */; };
-		0C80B921A6F3F58F76C31292 /* libPods-simplepos.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-simplepos.a */; };
+		00E356F31AD99517003FC87E /* BoltCardPoSTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* BoltCardPoSTests.m */; };
+		0C80B921A6F3F58F76C31292 /* libPods-BoltCardPoS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-BoltCardPoS.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		7699B88040F8A987B510C191 /* libPods-simplepos-simpleposTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-simplepos-simpleposTests.a */; };
+		7699B88040F8A987B510C191 /* libPods-BoltCardPoS-BoltCardPoSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-BoltCardPoS-BoltCardPoSTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
@@ -22,28 +22,28 @@
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
-			remoteInfo = simplepos;
+			remoteInfo = "BoltCardPoS";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		00E356EE1AD99517003FC87E /* simpleposTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = simpleposTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		00E356EE1AD99517003FC87E /* BoltCardPoSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "BoltCardPoSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		00E356F21AD99517003FC87E /* simpleposTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = simpleposTests.m; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* simplepos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = simplepos.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = simplepos/AppDelegate.h; sourceTree = "<group>"; };
-		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = simplepos/AppDelegate.mm; sourceTree = "<group>"; };
-		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = simplepos/Images.xcassets; sourceTree = "<group>"; };
-		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = simplepos/Info.plist; sourceTree = "<group>"; };
-		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = simplepos/main.m; sourceTree = "<group>"; };
-		19F6CBCC0A4E27FBF8BF4A61 /* libPods-simplepos-simpleposTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-simplepos-simpleposTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		3B4392A12AC88292D35C810B /* Pods-simplepos.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-simplepos.debug.xcconfig"; path = "Target Support Files/Pods-simplepos/Pods-simplepos.debug.xcconfig"; sourceTree = "<group>"; };
-		47465F5529CD502F00019D16 /* simplepos.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = simplepos.entitlements; path = simplepos/simplepos.entitlements; sourceTree = "<group>"; };
-		5709B34CF0A7D63546082F79 /* Pods-simplepos.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-simplepos.release.xcconfig"; path = "Target Support Files/Pods-simplepos/Pods-simplepos.release.xcconfig"; sourceTree = "<group>"; };
-		5B7EB9410499542E8C5724F5 /* Pods-simplepos-simpleposTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-simplepos-simpleposTests.debug.xcconfig"; path = "Target Support Files/Pods-simplepos-simpleposTests/Pods-simplepos-simpleposTests.debug.xcconfig"; sourceTree = "<group>"; };
-		5DCACB8F33CDC322A6C60F78 /* libPods-simplepos.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-simplepos.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = simplepos/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		89C6BE57DB24E9ADA2F236DE /* Pods-simplepos-simpleposTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-simplepos-simpleposTests.release.xcconfig"; path = "Target Support Files/Pods-simplepos-simpleposTests/Pods-simplepos-simpleposTests.release.xcconfig"; sourceTree = "<group>"; };
+		00E356F21AD99517003FC87E /* BoltCardPoSTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "BoltCardPoSTests.m"; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* BoltCardPoS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "BoltCardPoS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = "BoltCardPoS/AppDelegate.h"; sourceTree = "<group>"; };
+		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = "BoltCardPoS/AppDelegate.mm"; sourceTree = "<group>"; };
+		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "BoltCardPoS/Images.xcassets"; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = "BoltCardPoS/Info.plist"; sourceTree = "<group>"; };
+		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = "BoltCardPoS/main.m"; sourceTree = "<group>"; };
+		19F6CBCC0A4E27FBF8BF4A61 /* libPods-BoltCardPoS-BoltCardPoSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BoltCardPoS-BoltCardPoSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3B4392A12AC88292D35C810B /* Pods-BoltCardPoS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BoltCardPoS.debug.xcconfig"; path = "Target Support Files/Pods-BoltCardPoS/Pods-BoltCardPoS.debug.xcconfig"; sourceTree = "<group>"; };
+		47465F5529CD502F00019D16 /* BoltCardPoS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = BoltCardPoS.entitlements; path = BoltCardPoS/BoltCardPoS.entitlements; sourceTree = "<group>"; };
+		5709B34CF0A7D63546082F79 /* Pods-BoltCardPoS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BoltCardPoS.release.xcconfig"; path = "Target Support Files/Pods-BoltCardPoS/Pods-BoltCardPoS.release.xcconfig"; sourceTree = "<group>"; };
+		5B7EB9410499542E8C5724F5 /* Pods-BoltCardPoS-BoltCardPoSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BoltCardPoS-BoltCardPoSTests.debug.xcconfig"; path = "Target Support Files/Pods-BoltCardPoS-BoltCardPoSTests/Pods-BoltCardPoS-BoltCardPoSTests.debug.xcconfig"; sourceTree = "<group>"; };
+		5DCACB8F33CDC322A6C60F78 /* libPods-BoltCardPoS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BoltCardPoS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = "BoltCardPoS/LaunchScreen.storyboard"; sourceTree = "<group>"; };
+		89C6BE57DB24E9ADA2F236DE /* Pods-BoltCardPoS-BoltCardPoSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BoltCardPoS-BoltCardPoSTests.release.xcconfig"; path = "Target Support Files/Pods-BoltCardPoS-BoltCardPoSTests/Pods-BoltCardPoS-BoltCardPoSTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -52,7 +52,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7699B88040F8A987B510C191 /* libPods-simplepos-simpleposTests.a in Frameworks */,
+				7699B88040F8A987B510C191 /* libPods-BoltCardPoS-BoltCardPoSTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -60,20 +60,20 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0C80B921A6F3F58F76C31292 /* libPods-simplepos.a in Frameworks */,
+				0C80B921A6F3F58F76C31292 /* libPods-BoltCardPoS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		00E356EF1AD99517003FC87E /* simpleposTests */ = {
+		00E356EF1AD99517003FC87E /* BoltCardPoSTests */ = {
 			isa = PBXGroup;
 			children = (
-				00E356F21AD99517003FC87E /* simpleposTests.m */,
+				00E356F21AD99517003FC87E /* BoltCardPoSTests.m */,
 				00E356F01AD99517003FC87E /* Supporting Files */,
 			);
-			path = simpleposTests;
+			path = "BoltCardPoSTests";
 			sourceTree = "<group>";
 		};
 		00E356F01AD99517003FC87E /* Supporting Files */ = {
@@ -84,10 +84,10 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		13B07FAE1A68108700A75B9A /* simplepos */ = {
+		13B07FAE1A68108700A75B9A /* BoltCardPoS */ = {
 			isa = PBXGroup;
 			children = (
-				47465F5529CD502F00019D16 /* simplepos.entitlements */,
+				47465F5529CD502F00019D16 /* BoltCardPoS.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -95,15 +95,15 @@
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 			);
-			name = simplepos;
+			name = "BoltCardPoS";
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				5DCACB8F33CDC322A6C60F78 /* libPods-simplepos.a */,
-				19F6CBCC0A4E27FBF8BF4A61 /* libPods-simplepos-simpleposTests.a */,
+				5DCACB8F33CDC322A6C60F78 /* libPods-BoltCardPoS.a */,
+				19F6CBCC0A4E27FBF8BF4A61 /* libPods-BoltCardPoS-BoltCardPoSTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -118,9 +118,9 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				13B07FAE1A68108700A75B9A /* simplepos */,
+				13B07FAE1A68108700A75B9A /* BoltCardPoS */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
-				00E356EF1AD99517003FC87E /* simpleposTests */,
+				00E356EF1AD99517003FC87E /* BoltCardPoSTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
@@ -133,8 +133,8 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* simplepos.app */,
-				00E356EE1AD99517003FC87E /* simpleposTests.xctest */,
+				13B07F961A680F5B00A75B9A /* BoltCardPoS.app */,
+				00E356EE1AD99517003FC87E /* BoltCardPoSTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -142,10 +142,10 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				3B4392A12AC88292D35C810B /* Pods-simplepos.debug.xcconfig */,
-				5709B34CF0A7D63546082F79 /* Pods-simplepos.release.xcconfig */,
-				5B7EB9410499542E8C5724F5 /* Pods-simplepos-simpleposTests.debug.xcconfig */,
-				89C6BE57DB24E9ADA2F236DE /* Pods-simplepos-simpleposTests.release.xcconfig */,
+				3B4392A12AC88292D35C810B /* Pods-BoltCardPoS.debug.xcconfig */,
+				5709B34CF0A7D63546082F79 /* Pods-BoltCardPoS.release.xcconfig */,
+				5B7EB9410499542E8C5724F5 /* Pods-BoltCardPoS-BoltCardPoSTests.debug.xcconfig */,
+				89C6BE57DB24E9ADA2F236DE /* Pods-BoltCardPoS-BoltCardPoSTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -153,9 +153,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		00E356ED1AD99517003FC87E /* simpleposTests */ = {
+		00E356ED1AD99517003FC87E /* BoltCardPoSTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "simpleposTests" */;
+			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "BoltCardPoSTests" */;
 			buildPhases = (
 				A55EABD7B0C7F3A422A6CC61 /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
@@ -169,14 +169,14 @@
 			dependencies = (
 				00E356F51AD99517003FC87E /* PBXTargetDependency */,
 			);
-			name = simpleposTests;
-			productName = simpleposTests;
-			productReference = 00E356EE1AD99517003FC87E /* simpleposTests.xctest */;
+			name = BoltCardPoSTests;
+			productName = BoltCardPoSTests;
+			productReference = 00E356EE1AD99517003FC87E /* BoltCardPoSTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		13B07F861A680F5B00A75B9A /* simplepos */ = {
+		13B07F861A680F5B00A75B9A /* BoltCardPoS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "simplepos" */;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "BoltCardPoS" */;
 			buildPhases = (
 				C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
@@ -191,9 +191,9 @@
 			);
 			dependencies = (
 			);
-			name = simplepos;
-			productName = simplepos;
-			productReference = 13B07F961A680F5B00A75B9A /* simplepos.app */;
+			name = "BoltCardPoS";
+			productName = "BoltCardPoS";
+			productReference = 13B07F961A680F5B00A75B9A /* BoltCardPoS.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -213,7 +213,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "simplepos" */;
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "BoltCardPoS" */;
 			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -226,8 +226,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				13B07F861A680F5B00A75B9A /* simplepos */,
-				00E356ED1AD99517003FC87E /* simpleposTests */,
+				13B07F861A680F5B00A75B9A /* BoltCardPoS */,
+				00E356ED1AD99517003FC87E /* BoltCardPoSTests */,
 			);
 		};
 /* End PBXProject section */
@@ -274,15 +274,15 @@
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-simplepos/Pods-simplepos-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-BoltCardPoS/Pods-BoltCardPoS-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-simplepos/Pods-simplepos-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-BoltCardPoS/Pods-BoltCardPoS-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-simplepos/Pods-simplepos-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BoltCardPoS/Pods-BoltCardPoS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		A55EABD7B0C7F3A422A6CC61 /* [CP] Check Pods Manifest.lock */ = {
@@ -300,7 +300,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-simplepos-simpleposTests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-BoltCardPoS-BoltCardPoSTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -322,7 +322,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-simplepos-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-BoltCardPoS-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -335,15 +335,15 @@
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-simplepos-simpleposTests/Pods-simplepos-simpleposTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-BoltCardPoS-BoltCardPoSTests/Pods-BoltCardPoS-BoltCardPoSTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-simplepos-simpleposTests/Pods-simplepos-simpleposTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-BoltCardPoS-BoltCardPoSTests/Pods-BoltCardPoS-BoltCardPoSTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-simplepos-simpleposTests/Pods-simplepos-simpleposTests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BoltCardPoS-BoltCardPoSTests/Pods-BoltCardPoS-BoltCardPoSTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		E235C05ADACE081382539298 /* [CP] Copy Pods Resources */ = {
@@ -352,15 +352,15 @@
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-simplepos/Pods-simplepos-resources-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-BoltCardPoS/Pods-BoltCardPoS-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-simplepos/Pods-simplepos-resources-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-BoltCardPoS/Pods-BoltCardPoS-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-simplepos/Pods-simplepos-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BoltCardPoS/Pods-BoltCardPoS-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		F6A41C54EA430FDDC6A6ED99 /* [CP] Copy Pods Resources */ = {
@@ -369,15 +369,15 @@
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-simplepos-simpleposTests/Pods-simplepos-simpleposTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-BoltCardPoS-BoltCardPoSTests/Pods-BoltCardPoS-BoltCardPoSTests-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-simplepos-simpleposTests/Pods-simplepos-simpleposTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-BoltCardPoS-BoltCardPoSTests/Pods-BoltCardPoS-BoltCardPoSTests-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-simplepos-simpleposTests/Pods-simplepos-simpleposTests-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BoltCardPoS-BoltCardPoSTests/Pods-BoltCardPoS-BoltCardPoSTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
@@ -406,7 +406,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00E356F31AD99517003FC87E /* simpleposTests.m in Sources */,
+				00E356F31AD99517003FC87E /* BoltCardPoSTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -424,7 +424,7 @@
 /* Begin PBXTargetDependency section */
 		00E356F51AD99517003FC87E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 13B07F861A680F5B00A75B9A /* simplepos */;
+			target = 13B07F861A680F5B00A75B9A /* BoltCardPoS */;
 			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -432,14 +432,14 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5B7EB9410499542E8C5724F5 /* Pods-simplepos-simpleposTests.debug.xcconfig */;
+			baseConfigurationReference = 5B7EB9410499542E8C5724F5 /* Pods-BoltCardPoS-BoltCardPoSTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = simpleposTests/Info.plist;
+				INFOPLIST_FILE = "BoltCardPoSTests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -451,19 +451,19 @@
 					"-lc++",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.boltcard.boltcardpos";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/simplepos.app/simplepos";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BoltCardPoS.app/BoltCardPoS";
 			};
 			name = Debug;
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 89C6BE57DB24E9ADA2F236DE /* Pods-simplepos-simpleposTests.release.xcconfig */;
+			baseConfigurationReference = 89C6BE57DB24E9ADA2F236DE /* Pods-BoltCardPoS-BoltCardPoSTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
-				INFOPLIST_FILE = simpleposTests/Info.plist;
+				INFOPLIST_FILE = "BoltCardPoSTests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -475,23 +475,24 @@
 					"-lc++",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.boltcard.boltcardpos";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/simplepos.app/simplepos";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BoltCardPoS.app/BoltCardPoS";
 			};
 			name = Release;
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3B4392A12AC88292D35C810B /* Pods-simplepos.debug.xcconfig */;
+			baseConfigurationReference = 3B4392A12AC88292D35C810B /* Pods-BoltCardPoS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = simplepos/simplepos.entitlements;
+				CODE_SIGN_ENTITLEMENTS = BoltCardPoS/BoltCardPoS.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = G2LFSW78NA;
 				ENABLE_BITCODE = NO;
-				INFOPLIST_FILE = simplepos/Info.plist;
+				INFOPLIST_FILE = "BoltCardPoS/Info.plist";
+             INFOPLIST_KEY_CFBundleDisplayName = "Bolt Card PoS";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -502,8 +503,8 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = nz.onesandzeros.simplepos;
-				PRODUCT_NAME = simplepos;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.boltcard.boltcardpos";
+				PRODUCT_NAME = "BoltCardPoS";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -512,14 +513,15 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5709B34CF0A7D63546082F79 /* Pods-simplepos.release.xcconfig */;
+			baseConfigurationReference = 5709B34CF0A7D63546082F79 /* Pods-BoltCardPoS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = simplepos/simplepos.entitlements;
+				CODE_SIGN_ENTITLEMENTS = BoltCardPoS/BoltCardPoS.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = G2LFSW78NA;
-				INFOPLIST_FILE = simplepos/Info.plist;
+				INFOPLIST_FILE = "BoltCardPoS/Info.plist";
+             INFOPLIST_KEY_CFBundleDisplayName = "Bolt Card PoS";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -530,8 +532,8 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = nz.onesandzeros.simplepos;
-				PRODUCT_NAME = simplepos;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.boltcard.boltcardpos";
+				PRODUCT_NAME = "BoltCardPoS";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -677,7 +679,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "simpleposTests" */ = {
+		00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "BoltCardPoSTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				00E356F61AD99517003FC87E /* Debug */,
@@ -686,7 +688,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "simplepos" */ = {
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "BoltCardPoS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
@@ -695,7 +697,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "simplepos" */ = {
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "BoltCardPoS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,

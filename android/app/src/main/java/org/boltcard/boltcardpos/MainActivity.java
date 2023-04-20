@@ -1,4 +1,4 @@
-package com.simplepos;
+package org.boltcard.boltcardpos;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
@@ -13,7 +13,7 @@ public class MainActivity extends ReactActivity {
    */
   @Override
   protected String getMainComponentName() {
-    return "simplepos";
+    return "Bolt Card PoS";
   }
 
   /**
