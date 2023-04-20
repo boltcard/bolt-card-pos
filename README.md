@@ -6,6 +6,14 @@ Connects to an [LNBits](https://lnbits.com/) backend with the LNDHub extension i
 
 Polls for successful invoice payments.
 
+## Release
+[Early alpha release.](https://github.com/boltcard/bolt-card-pos/releases) It's safe to use (as long as you scan the Invoice QR code in LNDHub) because all you can do is Pay the pos invoice.
+
+It works, looks a bit janky, some payment errors might not be shown.
+
+Give it a try let us know what you think!
+
+
 ## setup
 1. Install [LNBits](https://lnbits.com/) and connect it to your node, or use the LNBits demo server
 2. Click extensions and install the LNDHub extension.
