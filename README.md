@@ -1,4 +1,4 @@
-# bolt-card-pos
+# Bolt Card PoS App (Point of Sale)
 
 A simple Point of Sale (PoS) App with [Bolt Card](https://boltcard.org) support. Built in React Native for iOS and Android.
 
