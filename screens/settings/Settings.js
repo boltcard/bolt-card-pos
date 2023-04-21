@@ -1,8 +1,8 @@
 import React from 'react';
 
-import {StyleSheet, View, ScrollView} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {SimpleListItem} from '../../SimpleComponents';
+import { useNavigation } from '@react-navigation/native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { SimpleListItem } from '../../SimpleComponents';
 
 const Settings = () => {
   const {navigate} = useNavigation();
@@ -11,8 +11,8 @@ const Settings = () => {
       <View />
       <ScrollView style={styles.root}>
         <SimpleListItem
-          title="LNBIT"
-          onPress={() => console.log('TODO: navigate to QR code scan screen')}
+          title="Connection"
+          onPress={() => navigate('Connect')}
           chevron
         />
         <SimpleListItem

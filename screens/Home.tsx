@@ -12,7 +12,6 @@ import {
   useColorScheme,
 } from 'react-native';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import QRCode from 'react-native-qrcode-svg';
@@ -84,12 +83,10 @@ function Home({navigation}): React.FC<Props> {
   const [boltLoading, setBoltLoading] = useState<boolean>(false);
 
   //connection
-  const [lndhubUser, setLndhubUser] = useState('');
-  const [lndhub, setLndhub] = useState('');
   const [lndWallet, setLndWallet] = useState<LightningCustodianWallet>();
 
-  //user settings
-  const {shopName} = useContext(ShopSettingsContext);
+  //shop settings
+  const {shopName, lndhub, lndhubUser} = useContext(ShopSettingsContext);
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -99,34 +96,6 @@ function Home({navigation}): React.FC<Props> {
     color: isDarkMode ? '#fff' : '#000',
     borderColor: isDarkMode ? '#fff' : '#000',
   };
-
-  useEffect(() => {
-    console.log('loading wallet ....');
-    async function fetchData() {
-      // getData('wallet').then(wallet => {
-      //   if(wallet) {
-      //     setLndWallet(JSON.parse(wallet));
-      //   }
-      // })
-      getData('lndhub').then(hub => {
-        console.log('lndhub', hub);
-        if (!hub) {
-          setLndhub('blank');
-        }
-        setLndhub(hub);
-      });
-      getData('lndhubUser').then(user => {
-        console.log('lndhubUser', user);
-        if (!user) {
-          setLndhubUser('blank');
-        }
-        setLndhubUser(user);
-      });
-    }
-    fetchData();
-
-    return () => {};
-  }, []);
 
   useEffect(() => {
     navigation.setOptions({
@@ -150,6 +119,8 @@ function Home({navigation}): React.FC<Props> {
     });
   }, [navigation, shopName]);
 
+  //once the connections details have been loaded from local store
+  //set up the connection objects to connect to the hub 
   useEffect(() => {
     async function initWallet() {
       console.log('initialising wallet...');
@@ -173,73 +144,16 @@ function Home({navigation}): React.FC<Props> {
       console.log('wallet.getID()', wallet.getID());
       setInitialisingWallet(false);
     }
-    if (lndhub == 'blank' && lndhubUser !== 'blank') {
+    if (lndhub == 'blank' || lndhubUser == 'blank') {
       setInitialisingWallet(false);
       setWalletConfigured(false);
     } else if (lndhub && lndhubUser) {
       setWalletConfigured(true);
+
+      console.log('init with lndhub, lndhubUser', lndhub, lndhubUser)
       initWallet();
     }
   }, [lndhub, lndhubUser]);
-
-  const saveToDisk = async (wallet: any) => {
-    await storeData('wallet', JSON.stringify(wallet));
-  };
-
-  const storeData = async (key: string, value: string) => {
-    try {
-      await AsyncStorage.setItem(key, value);
-    } catch (e: any) {
-      console.error(e);
-      Toast.show({
-        type: 'error',
-        text1: 'Store Data Error',
-        text2: e.message,
-      });
-    }
-  };
-
-  const getData = async (key: string): Promise<string> => {
-    try {
-      const value = await AsyncStorage.getItem(key);
-      if (value !== null) {
-        // value previously stored
-        return value;
-      }
-    } catch (e: any) {
-      console.error(e);
-      Toast.show({
-        type: 'error',
-        text1: 'Get Data Error',
-        text2: e.message,
-      });
-    }
-    return '';
-  };
-
-  const onScanSuccess = (e: {data: string}) => {
-    if (!e.data.startsWith('lndhub://')) {
-      Toast.show({
-        type: 'error',
-        text1: 'Invalid QR Code',
-        text2: 'Please scan your lndconnect QR code',
-      });
-      console.log('Toast.show');
-    } else {
-      const hubData = e.data.split('@');
-      storeData('lndhubUser', hubData[0]);
-      setLndhubUser(hubData[0]);
-      storeData('lndhub', hubData[1]);
-      setLndhub(hubData[1]);
-
-      Toast.show({
-        type: 'success',
-        text1: 'LND Connect',
-        text2: 'Code scanned successfully',
-      });
-      setScanMode(false);
-    }
-  };
 
   const makeLndInvoice = async () => {
     if (!lndWallet) {
@@ -468,7 +382,6 @@ function Home({navigation}): React.FC<Props> {
         {!walletConfigured && (
           <ConnectToHub 
             setScanMode={setScanMode}
-            onScanSuccess={onScanSuccess}
             lndhub={lndhub}
             lndhubUser={lndhubUser}
             scanMode={scanMode}

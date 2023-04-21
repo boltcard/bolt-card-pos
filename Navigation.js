@@ -1,11 +1,12 @@
 // import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import Home from './screens/Home';
 
-import Settings from './screens/settings/Settings';
+import ConnectToHub from './screens/settings/ConnectToHub';
 import Currency from './screens/settings/Currency';
+import Settings from './screens/settings/Settings';
 import ShopName from './screens/settings/ShopName';
 
 const SettingsStack = createNativeStackNavigator();
@@ -15,6 +16,7 @@ const SettingsRoot = () => {
       screenOptions={{headerHideShadow: true}}
       initialRouteName="Settings">
       <SettingsStack.Screen name="Settings" component={Settings} />
+      <SettingsStack.Screen name="Connect" component={ConnectToHub} />
       <SettingsStack.Screen name="Currency" component={Currency} />
       <SettingsStack.Screen name="Shop Name" component={ShopName} />
     </SettingsStack.Navigator>

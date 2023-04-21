@@ -1,27 +1,55 @@
 import { useNavigation } from '@react-navigation/native';
-import React from 'react';
+import React, { useContext } from 'react';
 import {
     Button,
     Text,
     useColorScheme,
     View
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { ShopSettingsContext } from '../../contexts/ShopSettingsContext';
 import QRScanner from '../QRScanner';
+
 const ConnectToHub = (props) => {
+    const {lndhub, setLndhub, lndhubUser, setLndhubUser} = useContext(ShopSettingsContext);
     
     const {navigate} = useNavigation();
     const isDarkMode = useColorScheme() === 'dark';
 
-    const {setScanMode, scanMode, onScanSuccess, lndhub, lndhubUser} = props;
+    const {setScanMode, scanMode} = props;
+
+    const onScanSuccess = (e: {data: string}) => {
+        if (!e.data.startsWith('lndhub://')) {
+          Toast.show({
+            type: 'error',
+            text1: 'Invalid QR Code',
+            text2: 'Please scan your lndconnect QR code',
+          });
+          console.log('Toast.show');
+        } else {
+          const hubData = e.data.split('@');
+        //   storeData('lndhubUser', hubData[0]);
+          setLndhubUser(hubData[0]);
+        //   storeData('lndhub', hubData[1]);
+          setLndhub(hubData[1]);
+    
+          Toast.show({
+            type: 'success',
+            text1: 'LND Connect',
+            text2: 'Code scanned successfully',
+          });
+          setScanMode(false);
+        }
+      };
     return (
         <>
             <View
                 style={{
                 backgroundColor: isDarkMode ? Colors.black : Colors.white,
             }}>
-                
                 <View style={{padding: 20}}>
+                    
                     <Text style={{fontSize: 30, fontWeight: 'bold'}}>
                     Setup Instructions
                     </Text>
@@ -38,6 +66,12 @@ const ConnectToHub = (props) => {
                     onPress={() => setScanMode(!scanMode)}
                     title="Scan QR Code"
                     />
+                    <Text style={{fontSize: 30, fontWeight: 'bold'}}>
+                    Current Settings
+                    </Text>
+                    <Text>lndhubUser : {lndhubUser && lndhubUser != 'blank' && lndhubUser}</Text>
+                    <Text>lndhub : {lndhub && lndhub != 'blank' && lndhub}</Text>
+                    
                 </View>
                 {scanMode && (
                     <QRScanner
@@ -46,8 +80,7 @@ const ConnectToHub = (props) => {
                     />
                 )}
             </View>
-            <Text>{lndhubUser}</Text>
-            <Text>{lndhub}</Text>
+            
         </>
     );
 }
