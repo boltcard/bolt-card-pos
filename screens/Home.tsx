@@ -116,6 +116,7 @@ function Home({navigation}): React.FC<Props> {
         shadowOpacity: 0,
         shadowOffset: {height: 0, width: 0},
       },
+      headerTintColor: isDarkMode ? '#fff' : '#000',
     });
   }, [navigation, shopName]);
 
@@ -257,8 +258,6 @@ function Home({navigation}): React.FC<Props> {
             console.log(Date.now() + ' ispaid?', updatedUserInvoice.ispaid);
 
             if (typeof updatedUserInvoice !== 'undefined') {
-              // setParams({ invoice: updatedUserInvoice });
-              // setIsLoading(false);
               if (updatedUserInvoice.ispaid) {
                 // we fetched the invoice, and it is paid :-)
                 setInvoiceIsPaid(true);
@@ -266,7 +265,6 @@ function Home({navigation}): React.FC<Props> {
                 setIsFetchingInvoices(false);
                 clearInterval(fetchInvoiceInterval.current);
                 fetchInvoiceInterval.current = undefined;
-                // fetchAndSaveWalletTransactions(walletID);
               } else {
                 const currentDate = new Date();
                 const now = (currentDate.getTime() / 1000) | 0;
@@ -274,7 +272,6 @@ function Home({navigation}): React.FC<Props> {
                   updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
                 if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
                   // invoice expired :-(
-                  // fetchAndSaveWalletTransactions(walletID);
                   setIsFetchingInvoices(false);
                   setBoltLoading(false);
                   // ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -378,7 +375,7 @@ function Home({navigation}): React.FC<Props> {
   }
   return (
     <View style={{...backgroundStyle, flex: 1}}>
-      <ScrollView contentInsetAdjustmentBehavior="automatic">
+      <ScrollView contentInsetAdjustmentBehavior="automatic" style={{...backgroundStyle, flex: 1}}>
         {!walletConfigured && (
           <ConnectToHub 
             setScanMode={setScanMode}
@@ -453,7 +450,7 @@ function Home({navigation}): React.FC<Props> {
                 <View style={{flexDirection: 'column', alignItems: 'center'}}>
                   <View style={{padding: 20, backgroundColor: '#fff'}}>
                     <QRCode
-                      size={200}
+                      size={350}
                       value={lndInvoice}
                       logo={boltLogo}
                       logoSize={40}
@@ -475,11 +472,11 @@ function Home({navigation}): React.FC<Props> {
                   style={{flexDirection: 'column', justifyContent: 'center'}}>
                   <View
                     style={{flexDirection: 'row', justifyContent: 'center'}}>
-                    <Icon name="checkmark-circle" color="#0f0" size={120} />
+                    <Icon name="checkmark-circle" color="#0f0" size={250} />
                   </View>
                   <View
                     style={{flexDirection: 'row', justifyContent: 'center'}}>
-                    <Text style={{fontSize: 40}}>Paid!</Text>
+                    <Text style={{fontSize: 60}}>Paid!</Text>
                   </View>
                   <View style={{padding: 20}}>
                     <Button title="Done" onPress={resetInvoice} />
