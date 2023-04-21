@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState, useContext} from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -8,22 +8,22 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  useColorScheme,
   View,
+  useColorScheme,
 } from 'react-native';
 
-import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import NfcManager, {NfcTech} from 'react-native-nfc-manager';
+import { useNavigation } from '@react-navigation/native';
+import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import QRCode from 'react-native-qrcode-svg';
-import Toast, {BaseToast, ErrorToast} from 'react-native-toast-message';
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 import PinPadButton from '../components/PinPadButton';
-import QRScanner from './QRScanner';
-import {LightningCustodianWallet} from '../wallets/lightning-custodian-wallet.js';
-import {ShopSettingsContext} from '../contexts/ShopSettingsContext';
-let boltLogo = require('../img/bolt-card-icon.png');
+import { ShopSettingsContext } from '../contexts/ShopSettingsContext';
+import { LightningCustodianWallet } from '../wallets/lightning-custodian-wallet.js';
+import ConnectToHub from './settings/ConnectToHub';
+boltLogo = require('../img/bolt-card-icon.png');
 
 const toastConfig = {
   /*
@@ -68,12 +68,6 @@ function Home({navigation}): React.FC<Props> {
   const {navigate} = useNavigation();
 
   const [scanMode, setScanMode] = useState(false);
-
-  // const [lndConnect, setLndConnect] = useState("");
-  // const [lndUrl, setLndUrl] = useState("");
-  // const [lndDomain, setLndDomain] = useState("");
-  // const [lndPort, setLndPort] = useState("");
-  // const [lndMacaroon, setLndMacaroon] = useState("");
 
   const [inputAmount, setInputAmount] = useState('');
   const [initialisingWallet, setInitialisingWallet] = useState<boolean>(true);
@@ -471,39 +465,15 @@ function Home({navigation}): React.FC<Props> {
   return (
     <View style={{...backgroundStyle, flex: 1}}>
       <ScrollView contentInsetAdjustmentBehavior="automatic">
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          {!walletConfigured && (
-            <View style={{padding: 20}}>
-              <Text style={{fontSize: 30, fontWeight: 'bold'}}>
-                Setup Instructions
-              </Text>
-              <Text style={{fontSize: 20}}>
-                1. Install LNBits on your server.
-              </Text>
-              <Text style={{fontSize: 20}}>
-                2. Install the LNDHub Extension.
-              </Text>
-              <Text style={{fontSize: 20}}>
-                3. Press the Scan QR Code button and scan the "Invoice" QR Code.
-              </Text>
-              <Button
-                onPress={() => setScanMode(!scanMode)}
-                title="Scan QR Code"
-              />
-            </View>
-          )}
-          {scanMode && (
-            <QRScanner
-              cancel={() => setScanMode(!scanMode)}
-              onScanSuccess={onScanSuccess}
-            />
-          )}
-        </View>
-        <Text>{lndhubUser}</Text>
-        <Text>{lndhub}</Text>
+        {!walletConfigured && (
+          <ConnectToHub 
+            setScanMode={setScanMode}
+            onScanSuccess={onScanSuccess}
+            lndhub={lndhub}
+            lndhubUser={lndhubUser}
+            scanMode={scanMode}
+          />
+        )}
         {walletConfigured && (
           <>
             <TextInput
