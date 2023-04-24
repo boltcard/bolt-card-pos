@@ -6,15 +6,20 @@ import {
   ScrollView,
   TextInput,
   TouchableOpacity,
+  useColorScheme,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {ShopSettingsContext} from '../../contexts/ShopSettingsContext';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 const ShopName = () => {
   const {navigate} = useNavigation();
   const {shopName, setShopName} = useContext(ShopSettingsContext);
   const [newShopName, setNewShopName] = useState(shopName);
-
+  const isDarkMode = useColorScheme() === 'dark';
+  const backgroundStyle = {
+    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  };
   const handleShopNameChange = newName => {
     setNewShopName(newName);
   };
@@ -27,7 +32,7 @@ const ShopName = () => {
   return (
     <>
       <View />
-      <ScrollView style={styles.root} keyboardShouldPersistTaps="handled">
+      <ScrollView style={{...styles.root, ...backgroundStyle}} keyboardShouldPersistTaps="handled">
         <Text>Shop Name</Text>
         <TextInput
           style={styles.textInput}

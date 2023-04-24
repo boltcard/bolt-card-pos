@@ -16,7 +16,9 @@ const ConnectToHub = (props) => {
     
     const {navigate} = useNavigation();
     const isDarkMode = useColorScheme() === 'dark';
-
+    const backgroundStyle = {
+      backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    };
     const {setScanMode, scanMode} = props;
 
     const onScanSuccess = (e: {data: string}) => {
@@ -45,12 +47,16 @@ const ConnectToHub = (props) => {
     return (
         <>
             <View
-                style={{
-                backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            }}>
+                style={{...backgroundStyle}}>
                 <View style={{padding: 20}}>
-                    
-                    <Text style={{fontSize: 30, fontWeight: 'bold'}}>
+                <Text style={{fontSize: 30, fontWeight: 'bold'}}>
+                    Current Settings
+                    </Text>
+                    <Text style={{fontWeight:'bold'}}>LND Hub User:</Text>
+                    <Text>{lndhubUser && lndhubUser != 'blank' && lndhubUser}</Text>
+                    <Text style={{fontWeight:'bold'}}>LND Hub:</Text>
+                    <Text>{lndhub && lndhub != 'blank' && lndhub}</Text>
+                    <Text style={{fontSize: 30, fontWeight: 'bold', marginTop:20}}>
                     Setup Instructions
                     </Text>
                     <Text style={{fontSize: 20}}>
@@ -66,11 +72,7 @@ const ConnectToHub = (props) => {
                     onPress={() => setScanMode(!scanMode)}
                     title="Scan QR Code"
                     />
-                    <Text style={{fontSize: 30, fontWeight: 'bold'}}>
-                    Current Settings
-                    </Text>
-                    <Text>lndhubUser : {lndhubUser && lndhubUser != 'blank' && lndhubUser}</Text>
-                    <Text>lndhub : {lndhub && lndhub != 'blank' && lndhub}</Text>
+                    
                     
                 </View>
                 {scanMode && (
