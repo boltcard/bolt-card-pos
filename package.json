@@ -7,12 +7,12 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest",
-    "postinstall": "rn-nodeify --install buffer,events,process,stream,inherits,path,assert,crypto --hack; npx react-native setup-ios-permissions; npx patch-package; npx pod-install"
+    "test": "jest"
   },
   "dependencies": {
     "@craftzdog/react-native-buffer": "^6.0.5",
     "@react-native-async-storage/async-storage": "^1.17.11",
+    "@react-native-clipboard/clipboard": "^1.11.2",
     "@react-navigation/bottom-tabs": "^6.5.7",
     "@react-navigation/drawer": "^6.6.2",
     "@react-navigation/native": "^6.1.6",
