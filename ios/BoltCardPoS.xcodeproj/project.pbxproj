@@ -44,6 +44,7 @@
 		5DCACB8F33CDC322A6C60F78 /* libPods-BoltCardPoS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BoltCardPoS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = BoltCardPoS/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-BoltCardPoS-BoltCardPoSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BoltCardPoS-BoltCardPoSTests.release.xcconfig"; path = "Target Support Files/Pods-BoltCardPoS-BoltCardPoSTests/Pods-BoltCardPoS-BoltCardPoSTests.release.xcconfig"; sourceTree = "<group>"; };
+		D548C1CC2A00AE2E0008779C /* Ionicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Ionicons.ttf; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -87,6 +88,7 @@
 		13B07FAE1A68108700A75B9A /* BoltCardPoS */ = {
 			isa = PBXGroup;
 			children = (
+				D548C1CB2A00ADF80008779C /* Fonts */,
 				47465F5529CD502F00019D16 /* BoltCardPoS.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
@@ -148,6 +150,14 @@
 				89C6BE57DB24E9ADA2F236DE /* Pods-BoltCardPoS-BoltCardPoSTests.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		D548C1CB2A00ADF80008779C /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				D548C1CC2A00AE2E0008779C /* Ionicons.ttf */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
