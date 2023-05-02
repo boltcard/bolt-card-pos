@@ -30,6 +30,7 @@
     "react-native-elements": "^3.4.3",
     "react-native-gesture-handler": "^2.9.0",
     "react-native-nfc-manager": "^3.14.2",
+    "react-native-permissions": "^3.8.0",
     "react-native-qrcode-scanner": "^1.5.5",
     "react-native-qrcode-svg": "^6.2.0",
     "react-native-reanimated": "^3.1.0",
