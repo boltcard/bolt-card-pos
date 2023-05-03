@@ -60,5 +60,9 @@
 		<string>D2760000850100</string>
 		<string>D2760000850101</string>
 	</array>
+    <key>UIAppFonts</key>
+    <array>
+      <string>Ionicons.ttf</string>
+    </array>
 </dict>
 </plist>
