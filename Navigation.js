@@ -13,7 +13,7 @@ const SettingsStack = createNativeStackNavigator();
 const SettingsRoot = () => {
   return (
     <SettingsStack.Navigator
-      screenOptions={{headerHideShadow: true}}
+      screenOptions={{headerHideShadow: true, headerBackVisible: true}}
       initialRouteName="Settings">
       <SettingsStack.Screen name="Settings" component={Settings} />
       <SettingsStack.Screen name="Connect" component={ConnectToHub} />
