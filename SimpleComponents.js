@@ -9,8 +9,10 @@ import {
   TouchableOpacity,
   View,
   I18nManager,
+  useColorScheme,
 } from 'react-native';
 import {useTheme} from '@react-navigation/native';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 // const { height, width } = Dimensions.get('window');
 // const aspectRatio = height / width;
@@ -23,7 +25,15 @@ import {useTheme} from '@react-navigation/native';
 
 export const SimpleListItem = React.memo(props => {
   const {colors} = useTheme();
+  const isDarkMode = useColorScheme() === 'dark';
 
+  const backgroundStyle = {
+    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  };
+  const textStyle = {
+    color: isDarkMode ? '#fff' : '#000',
+    borderColor: isDarkMode ? '#fff' : '#000',
+  };
   return (
     <ListItem
       containerStyle={props.containerStyle ?? {backgroundColor: 'transparent'}}
@@ -44,7 +54,7 @@ export const SimpleListItem = React.memo(props => {
           style={{
             color: props.disabled
               ? colors.buttonDisabledTextColor
-              : colors.foregroundColor,
+              : isDarkMode ? '#fff' : '#000',
             fontSize: 16,
             fontWeight: '500',
             writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
