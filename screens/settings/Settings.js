@@ -11,11 +11,13 @@ const Settings = () => {
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
-
+  const textStyle = {
+    color: isDarkMode ? '#fff' : '#000',
+    borderColor: isDarkMode ? '#fff' : '#000',
+  };
   const {navigate} = useNavigation();
   return (
     <>
-      <View />
       <ScrollView style={{...styles.root, ...backgroundStyle}}>
         <SimpleListItem
           title="Connection"

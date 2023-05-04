@@ -13,9 +13,9 @@ const SettingsStack = createNativeStackNavigator();
 const SettingsRoot = () => {
   return (
     <SettingsStack.Navigator
-      screenOptions={{headerHideShadow: true, headerBackVisible: true}}
+      screenOptions={{headerHideShadow: true, headerShown:true}}
       initialRouteName="Settings">
-      <SettingsStack.Screen name="Settings" component={Settings} />
+    <SettingsStack.Screen name="Settings" component={Settings} />
       <SettingsStack.Screen name="Connect" component={ConnectToHub} />
       <SettingsStack.Screen name="Currency" component={Currency} />
       <SettingsStack.Screen name="Shop Name" component={ShopName} />
@@ -24,14 +24,15 @@ const SettingsRoot = () => {
 };
 const HomeStack = createNativeStackNavigator();
 const NavigationDefaultOptions = {
-  headerShown: false,
+  // headerShown:false,
   stackPresentation: 'modal',
 };
 const HomeRoot = () => {
   return (
     <HomeStack.Navigator
       initialRouteName="Home"
-      screenOptions={{headerHideShadow: false}}>
+      screenOptions={{headerHideShadow: false}}
+      >
       <HomeStack.Screen
         name="Home"
         component={Home}
