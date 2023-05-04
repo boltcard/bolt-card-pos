@@ -99,7 +99,7 @@ const ConnectToHub = (props) => {
                                     setLndhub(null);
                                 }}
                             >
-                                <Text style={{...textStyle, borderWidth:1, padding:10}}>Clear Connection</Text>
+                                <Text style={{...textStyle, borderWidth:1, padding:10}}>Clear Hub</Text>
                             </Pressable>
                             
                         </View>
