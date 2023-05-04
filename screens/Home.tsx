@@ -22,6 +22,9 @@ import PinPadButton from '../components/PinPadButton';
 import { ShopSettingsContext } from '../contexts/ShopSettingsContext';
 import { LightningCustodianWallet } from '../wallets/lightning-custodian-wallet.js';
 import ConnectToHub from './settings/ConnectToHub';
+import Clipboard from '@react-native-clipboard/clipboard';
+
+
 boltLogo = require('../img/bolt-card-icon.png');
 
 const toastConfig = {
@@ -370,6 +373,17 @@ function Home({navigation}): React.FC<Props> {
       setInputAmount(inputAmount === '0' ? input : inputAmount + '' + input);
     }
   };
+
+  const copyToClipboard = () => {
+    Clipboard.setString(lndInvoice);
+    Toast.show({
+      type: 'success',
+      text1: 'Copied to clipboard',
+      text2: 'Invoice has been copied to clipboard',
+    });
+  }
+
+
   if (initialisingWallet) {
     return <ActivityIndicator />;
   }
@@ -386,17 +400,20 @@ function Home({navigation}): React.FC<Props> {
         )}
         {walletConfigured && (
           <>
-            <TextInput
-              style={{...textStyle, fontSize: 40, borderWidth: 1, margin: 10}}
-              keyboardType="numeric"
-              placeholder="0.00"
-              editable={false}
-              value={inputAmount}
-              onChangeText={text => setInputAmount(text)}
-            />
+            <View style={{flexDirection: 'row', flex:1}}>
+              <TextInput
+                style={{...textStyle, fontSize: 40, borderWidth: 1, margin: 10, flex:3}}
+                keyboardType="numeric"
+                placeholder="0"
+                editable={false}
+                value={inputAmount}
+                onChangeText={text => setInputAmount(text)}
+              />
+              <Text style={{flex:1, fontSize:30,margin: 10,  lineHeight:80}}>sats</Text>
+            </View>
             {!lndInvoice && (
-              <>
-                <View style={{flex: 1}}>
+              <View style={{flex:4}}>
+                <View style={{flex: 1, padding: 10}}>
                   <View style={{flexDirection: 'row', alignItems: 'stretch'}}>
                     <PinPadButton number="7" onPress={() => press('7')} />
                     <PinPadButton number="8" onPress={() => press('8')} />
@@ -443,27 +460,43 @@ function Home({navigation}): React.FC<Props> {
                     </View>
                   </Pressable>
                 </View>
-              </>
+              </View>
             )}
             {lndInvoice &&
               (!invoiceIsPaid ? (
                 <View style={{flexDirection: 'column', alignItems: 'center'}}>
                   <View style={{padding: 20, backgroundColor: '#fff'}}>
                     <QRCode
-                      size={350}
+                      size={300}
                       value={lndInvoice}
                       logo={boltLogo}
-                      logoSize={40}
+                      logoSize={80}
                       logoBackgroundColor="transparent"
                     />
                   </View>
+                  <View style={{width:'100%', padding: 20, flexDirection:'row', justifyContent:'space-around'}}>
+                    <View  style={{borderWidth:1, borderColor: '#ccc', padding:10, borderRadius:10}}>
+                      <Pressable 
+                        onPress={() => copyToClipboard()}
+                      >
+                        <Text style={{fontSize:20}}><Icon name="copy" color="#F60" size={30} /> Copy</Text>
+                      </Pressable>
+                    </View>
+                    <View style={{borderWidth:1, borderColor: '#ccc', padding:10, borderRadius:10}}>
+                      <Pressable 
+                        onPress={() => share()}
+                      >
+                        <Text style={{fontSize:20}}><Icon name="share" color="#F60" size={30} /> Share</Text>
+                      </Pressable>
+                    </View>
+                  </View>
                   <View style={{padding: 20}}>
-                    <View style={{padding: 20}}>
-                      <Button
-                        title="Cancel"
-                        color="#f00"
+                    <View style={{padding: 20, backgroundColor: "#f00"}}>
+                      <Pressable
                         onPress={resetInvoice}
-                      />
+                      >
+                        <Text style={{fontSize:20, color:"#fff"}}>Cancel</Text>
+                      </Pressable>
                     </View>
                   </View>
                 </View>
