@@ -17,7 +17,43 @@ import {navigationRef} from './NavigationService';
 import Navigation from './Navigation';
 import {ShopSettingsProvider} from './contexts/ShopSettingsContext';
 
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+
+
+const toastConfig = {
+  /*
+    Overwrite 'success' type,
+    by modifying the existing `BaseToast` component
+  */
+  success: props => (
+    <BaseToast
+      {...props}
+      contentContainerStyle={{paddingHorizontal: 15}}
+      text1Style={{
+        fontSize: 15,
+        fontWeight: '400',
+      }}
+    />
+  ),
+  /*
+    Overwrite 'error' type,
+    by modifying the existing `ErrorToast` component
+  */
+  error: props => (
+    <ErrorToast
+      {...props}
+      text1Style={{
+        fontSize: 17,
+      }}
+      text2Style={{
+        fontSize: 15,
+      }}
+    />
+  ),
+};
+
 function App(): JSX.Element {
+  
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -39,6 +75,8 @@ function App(): JSX.Element {
           </View>
         </SafeAreaProvider>
       </ShopSettingsProvider>
+      
+      <Toast config={toastConfig} />
     </>
   );
 }

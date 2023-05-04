@@ -24,37 +24,6 @@ import { LightningCustodianWallet } from '../wallets/lightning-custodian-wallet.
 import ConnectToHub from './settings/ConnectToHub';
 boltLogo = require('../img/bolt-card-icon.png');
 
-const toastConfig = {
-  /*
-    Overwrite 'success' type,
-    by modifying the existing `BaseToast` component
-  */
-  success: props => (
-    <BaseToast
-      {...props}
-      contentContainerStyle={{paddingHorizontal: 15}}
-      text1Style={{
-        fontSize: 15,
-        fontWeight: '400',
-      }}
-    />
-  ),
-  /*
-    Overwrite 'error' type,
-    by modifying the existing `ErrorToast` component
-  */
-  error: props => (
-    <ErrorToast
-      {...props}
-      text1Style={{
-        fontSize: 17,
-      }}
-      text2Style={{
-        fontSize: 15,
-      }}
-    />
-  ),
-};
 
 export type Props = {
   navigation: any;
@@ -378,10 +347,8 @@ function Home({navigation}): React.FC<Props> {
       <ScrollView contentInsetAdjustmentBehavior="automatic" style={{...backgroundStyle, flex: 1}}>
         {!walletConfigured && (
           <ConnectToHub 
-            setScanMode={setScanMode}
             lndhub={lndhub}
             lndhubUser={lndhubUser}
-            scanMode={scanMode}
           />
         )}
         {walletConfigured && (
@@ -487,7 +454,6 @@ function Home({navigation}): React.FC<Props> {
           </>
         )}
       </ScrollView>
-      <Toast config={toastConfig} />
     </View>
   );
 }
