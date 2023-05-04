@@ -45,13 +45,14 @@ const ShopSettingsProvider = ({children}) => {
           lndhubUser: lndhubUser?.toString(),
           lndhub: lndhub?.toString(),
         }));
+        console.log('Saved shop settings');
       } catch (error) {
         console.error('Failed to save shop name to storage:', error);
       }
     }
     saveShopSettings();
   }, [shopName, lndhub, lndhubUser]);
-
+  console.log('Context updated: ', shopName, lndhub, lndhubUser);
   return (
     <ShopSettingsContext.Provider value={{
       shopName, setShopName,

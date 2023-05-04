@@ -12,7 +12,7 @@ import {
   useColorScheme,
 } from 'react-native';
 
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import QRCode from 'react-native-qrcode-svg';
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
@@ -68,6 +68,16 @@ function Home({navigation}): React.FC<Props> {
     color: isDarkMode ? '#fff' : '#000',
     borderColor: isDarkMode ? '#fff' : '#000',
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('useFocusEffect', shopName, lndhub, lndhubUser);
+      if(!shopName || !lndhub || !lndhubUser) {
+        setWalletConfigured(false);
+      }
+      // return () => unsubscribe();
+    }, [lndhub, lndhubUser])
+  );
 
   useEffect(() => {
     navigation.setOptions({

@@ -43,7 +43,7 @@ const ConnectToHub = (props) => {
           Toast.show({
             type: 'success',
             text1: 'LND Connect',
-            text2: 'Code scanned successfully',
+            text2: 'LND Hub Save Success.',
           });
           setScanMode(false);
         }
@@ -58,17 +58,9 @@ const ConnectToHub = (props) => {
             :
                 <View
                     style={{...backgroundStyle, ...textStyle}}>
-                    <View style={{padding: 20}}>
+                    <View style={{padding: 20, height:'100%', ...backgroundStyle, ...textStyle}}>
                         <Text style={{fontSize: 30, fontWeight: 'bold', ...textStyle}}>
                             Current Settings
-                            <Pressable
-                                onPress={() => {
-                                    setLndhubUser("");
-                                    setLndhub("");
-                                }}
-                            >
-                                <Text style={{...textStyle, borderWidth:1, padding:10}}>Clear Hub</Text>
-                            </Pressable>
                         </Text>
                         <Text style={{fontWeight:'bold', ...textStyle}}>LND Hub User:</Text>
                         <Text style={{...textStyle}}>{lndhubUser && lndhubUser != 'blank' && lndhubUser}</Text>
@@ -90,17 +82,24 @@ const ConnectToHub = (props) => {
                           value={hub}
                           onChangeText={text => setHub(text)}
                         />  
-                        <View style={{flexDirection:'row', justifyContent:'space-around'}}>
+                        <View style={{flexDirection:'row', justifyContent:'space-between'}}>
                             <Pressable
                                 onPress={() => onScanSuccess({data:hub})}
                             >
                                 <Text style={{...textStyle, borderWidth:1, padding:10}}>Save Hub URL</Text>
                             </Pressable>
-                            <Text style={{...textStyle, lineHeight:40}}>OR</Text>                  
                             <Pressable
                                 onPress={() => setScanMode(!scanMode)}
                             >
                                 <Text style={{...textStyle, borderWidth:1, padding:10}}>Scan QR Code</Text>
+                            </Pressable>
+                            <Pressable
+                                onPress={() => {
+                                    setLndhubUser(null);
+                                    setLndhub(null);
+                                }}
+                            >
+                                <Text style={{...textStyle, borderWidth:1, padding:10}}>Clear Connection</Text>
                             </Pressable>
                             
                         </View>
