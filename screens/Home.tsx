@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
   useColorScheme,
+  Platform,
 } from 'react-native';
 
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -155,7 +156,7 @@ function Home({navigation}): React.FC<Props> {
       console.log('result', result);
       setLndInvoice(result);
       setIsFetchingInvoices(true);
-      readNdef();
+      if (Platform.OS !== 'ios') readNdef();
       setInvoiceLoading(false);
     }
   };
@@ -299,7 +300,9 @@ function Home({navigation}): React.FC<Props> {
                     text1: 'Bolt Card Error',
                     text2: cbData.reason,
                   });
-                  setTimeout(() => readNdef(), 1000);
+                  setTimeout(() => {
+                    if (Platform.OS !== 'ios') readNdef()
+                  }, 1000);
                   setBoltLoading(false);
                 }
               })
@@ -310,7 +313,9 @@ function Home({navigation}): React.FC<Props> {
                   text1: 'Bolt Card Error',
                   text2: err.message,
                 });
-                setTimeout(() => readNdef(), 1000);
+                setTimeout(() => {
+                  if (Platform.OS !== 'ios') readNdef();
+                }, 1000);
                 setBoltLoading(false);
               })
               .finally(() => {
@@ -323,7 +328,9 @@ function Home({navigation}): React.FC<Props> {
               text1: 'Bolt Card Error',
               text2: data.reason,
             });
-            setTimeout(() => readNdef(), 1000);
+            setTimeout(() => {
+              if (Platform.OS !== 'ios') readNdef();
+            }, 1000);
             setBoltLoading(false);
             setNdef(undefined);
           }
@@ -335,7 +342,9 @@ function Home({navigation}): React.FC<Props> {
             text1: 'Bolt Card Error',
             text2: err.message,
           });
-          setTimeout(() => readNdef(), 1000);
+          setTimeout(() => {
+            if (Platform.OS !== 'ios') readNdef();
+          }, 1000);
           setBoltLoading(false);
         })
         .finally(() => {
@@ -467,6 +476,13 @@ function Home({navigation}): React.FC<Props> {
                       </Pressable>
                     </View>
                   </View>*/}
+                  {Platform.OS === 'ios' && (
+                    <Pressable
+                      onPress={resetInvoice}
+                    >
+                      <Text style={{fontSize:20, color:"#fff"}}>Enable Bolt Card NFC</Text>
+                    </Pressable>
+                  )}
                   <View style={{padding: 20}}>
                     <View style={{padding: 20, backgroundColor: "#f00"}}>
                       <Pressable
