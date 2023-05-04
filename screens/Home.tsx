@@ -386,7 +386,7 @@ function Home({navigation}): React.FC<Props> {
                 value={inputAmount}
                 onChangeText={text => setInputAmount(text)}
               />
-              <Text style={{flex:1, fontSize:30,margin: 10,  lineHeight:80}}>sats</Text>
+              <Text style={{...textStyle,flex:1, fontSize:30,margin: 10,  lineHeight:80}}>sats</Text>
             </View>
             {!lndInvoice && (
               <View style={{flex:4}}>
@@ -451,7 +451,7 @@ function Home({navigation}): React.FC<Props> {
                       logoBackgroundColor="transparent"
                     />
                   </View>
-                  <View style={{width:'100%', padding: 20, flexDirection:'row', justifyContent:'space-around'}}>
+                  {/*<View style={{width:'100%', padding: 20, flexDirection:'row', justifyContent:'space-around'}}>
                     <View  style={{borderWidth:1, borderColor: '#ccc', padding:10, borderRadius:10}}>
                       <Pressable 
                         onPress={() => copyToClipboard()}
@@ -466,7 +466,7 @@ function Home({navigation}): React.FC<Props> {
                         <Text style={{fontSize:20}}><Icon name="share" color="#F60" size={30} /> Share</Text>
                       </Pressable>
                     </View>
-                  </View>
+                  </View>*/}
                   <View style={{padding: 20}}>
                     <View style={{padding: 20, backgroundColor: "#f00"}}>
                       <Pressable
