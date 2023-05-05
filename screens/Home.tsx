@@ -477,11 +477,13 @@ function Home({navigation}): React.FC<Props> {
                     </View>
                   </View>*/}
                   {Platform.OS === 'ios' && (
-                    <Pressable
-                      onPress={resetInvoice}
-                    >
-                      <Text style={{fontSize:20, color:"#fff"}}>Enable Bolt Card NFC</Text>
-                    </Pressable>
+                    <View style={{padding: 20, backgroundColor: "#999"}}>
+                      <Pressable
+                        onPress={resetInvoice}
+                      >
+                        <Text style={{fontSize:20, color:"#fff"}}>Enable Bolt Card NFC</Text>
+                      </Pressable>
+                    </View>
                   )}
                   <View style={{padding: 20}}>
                     <View style={{padding: 20, backgroundColor: "#f00"}}>
