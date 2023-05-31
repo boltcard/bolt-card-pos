@@ -6,10 +6,8 @@ Connects to an [LNBits](https://lnbits.com/) backend with the LNDHub extension i
 
 Polls for successful invoice payments.
 
-## Android Release
-[![image](https://github.com/boltcard/bolt-card-pos/assets/3826238/0d636bdf-01c0-4180-a9aa-dcbcfd1fc717)](https://play.google.com/store/apps/details?id=org.boltcard.boltcardpos)
-[![Appstore](https://bluewallet.io/uploads/app-store-badge-blue.svg)](https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8)
-[![Playstore](https://bluewallet.io/uploads/play-store-badge-blue.svg)](https://play.google.com/store/apps/details?id=io.bluewallet.bluewallet)
+## Android Release]
+[![Playstore](https://bluewallet.io/uploads/play-store-badge-blue.svg)](https://play.google.com/store/apps/details?id=org.boltcard.boltcardpos)
 
 
 
