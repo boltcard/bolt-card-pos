@@ -8,7 +8,7 @@ Polls for successful invoice payments.
 
 ## Android Release
 [Play Store Listing](https://play.google.com/store/apps/details?id=org.boltcard.boltcardpos)
-[![image](https://github.com/boltcard/bolt-card-pos/assets/3826238/0d636bdf-01c0-4180-a9aa-dcbcfd1fc717)](https://play.google.com/store/apps/details?id=org.boltcard.boltcardpos)
+[<img src="https://github.com/boltcard/bolt-card-pos/assets/3826238/0d636bdf-01c0-4180-a9aa-dcbcfd1fc717"/>](https://play.google.com/store/apps/details?id=org.boltcard.boltcardpos)
 
 
 
