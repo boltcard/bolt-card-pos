@@ -6,8 +6,8 @@ Connects to an [LNBits](https://lnbits.com/) backend with the LNDHub extension i
 
 Polls for successful invoice payments.
 
-## Android Release
-[Play Store Listing](https://play.google.com/store/apps/details?id=org.boltcard.boltcardpos)
+[![Playstore](https://bluewallet.io/uploads/play-store-badge-blue.svg)](https://play.google.com/store/apps/details?id=org.boltcard.boltcardpos)
+
 
 [Early alpha release.](https://github.com/boltcard/bolt-card-pos/releases) It's safe to use (as long as you scan the Invoice QR code in LNDHub) because all you can do is Pay the pos invoice.
 
@@ -21,4 +21,3 @@ Give it a try let us know what you think!
 2. Click extensions and install the LNDHub extension.
 3. On the app hit the Scan QR code button and then scan the INVOICE QR code. (Admin QR code should work, but there is no need for the PoS to have this level of permissions)
 4. Create invoices to test.
-
