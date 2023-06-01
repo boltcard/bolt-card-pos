@@ -10,6 +10,15 @@ const ShopSettingsProvider = ({children}) => {
   const [lndhub, setLndhub] = useState('');
   const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState(FiatUnit.USD);
   
+  const getPreferredCurrency = async () => {
+    const item = await getPreferredCurrencyAsyncStorage();
+    _setPreferredFiatCurrency(item);
+  };
+
+  const setPreferredFiatCurrency = () => {
+    getPreferredCurrency();
+  };
+
 
   useEffect(() => {
     async function getShopName() {
@@ -61,7 +70,7 @@ const ShopSettingsProvider = ({children}) => {
       shopName, setShopName,
       lndhubUser, setLndhubUser,
       lndhub, setLndhub,
-      preferredFiatCurrency, _setPreferredFiatCurrency
+      setPreferredFiatCurrency
     }}>
       {children}
     </ShopSettingsContext.Provider>

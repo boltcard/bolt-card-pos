@@ -25,6 +25,9 @@ import { ShopSettingsContext } from '../contexts/ShopSettingsContext';
 import { LightningCustodianWallet } from '../wallets/lightning-custodian-wallet.js';
 import ConnectToHub from './settings/ConnectToHub';
 import Clipboard from '@react-native-clipboard/clipboard';
+import DropDownPicker from 'react-native-dropdown-picker';
+
+const currency = require('../helper/currency');
 
 const boltLogo = require('../img/bolt-card-icon.png');
 const boltPosLogo = require('../img/bolt-card-pos.png');
@@ -40,9 +43,10 @@ function Home({navigation}): React.FC<Props> {
   const isDarkMode = useColorScheme() === 'dark';
   const {navigate} = useNavigation();
 
-  const [scanMode, setScanMode] = useState(false);
-
   const [inputAmount, setInputAmount] = useState('');
+  const [fiatAmount, setFiatAmount] = useState('');
+  const [satsAmount, setSatsAmount] = useState('');
+  
   const [initialisingWallet, setInitialisingWallet] = useState<boolean>(true);
   const [walletConfigured, setWalletConfigured] = useState<boolean>(false);
 
@@ -61,6 +65,11 @@ function Home({navigation}): React.FC<Props> {
 
   //shop settings
   const {shopName, lndhub, lndhubUser} = useContext(ShopSettingsContext);
+
+  const [open, setOpen] = useState(false);
+  const [fiatCurrency, setFiatCurrency] = useState(null);
+  const [selectedUnit, setSelectedUnit] = useState('sats');
+
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -138,6 +147,10 @@ function Home({navigation}): React.FC<Props> {
       console.log('init with lndhub, lndhubUser', lndhub, lndhubUser)
       initWallet();
     }
+    currency.getPreferredCurrency().then(preferred => {
+      setFiatCurrency(preferred);
+      console.log(currency);
+    });
   }, [lndhub, lndhubUser]);
 
   const makeLndInvoice = async () => {
@@ -386,6 +399,23 @@ function Home({navigation}): React.FC<Props> {
     }
   };
 
+  useEffect(()=> {
+    if(selectedUnit == 'sats') {
+      console.log(currency.satoshiToLocalCurrency(inputAmount));
+      setFiatAmount(currency.satoshiToLocalCurrency(inputAmount));
+    }
+    else if(selectedUnit == 'btc') {
+
+    }
+    else {
+      console.log(currency.fiatToBTC(inputAmount));
+      setSatsAmount(currency.fiatToBTC(inputAmount));
+    }
+    
+
+    
+  },[inputAmount])
+
   const copyToClipboard = () => {
     Clipboard.setString(lndInvoice);
     Toast.show({
@@ -395,13 +425,18 @@ function Home({navigation}): React.FC<Props> {
     });
   }
 
+  const currencyItems = [
+    {label: 'Sats', value: 'sats'},
+    {label: 'Btc', value: 'btc'},
+    {label: fiatCurrency?.endPointKey, value: fiatCurrency?.endPointKey}
+  ];
 
   if (initialisingWallet) {
     return <ActivityIndicator />;
   }
   return (
     <View style={{...backgroundStyle, flex: 1}}>
-      <ScrollView contentInsetAdjustmentBehavior="automatic" style={{...backgroundStyle, flex: 1}}>
+      <View style={{...backgroundStyle, flex: 1}}>
         {!walletConfigured && (
           <ConnectToHub 
             lndhub={lndhub}
@@ -414,23 +449,64 @@ function Home({navigation}): React.FC<Props> {
               <Image source={boltPosLogo} style={{width:100, height:100}} />
               <View style={{alignItems:'flex-start', flexDirection:'column'}}>
                 <Text style={{...textStyle, fontSize: 30}}>{shopName}</Text>
-                <Text style={{...textStyle, fontSize: 15, color:'#ccc'}}>Bolt Card POS</Text>
+                <Text style={{...textStyle, fontSize: 15, color:'#999'}}>Bolt Card POS</Text>
               </View>
             </View>
             <View style={{flexDirection: 'row', flex:1}}>
               <TextInput
-                style={{...textStyle, fontSize: 40, borderWidth: 1, margin: 10, flex:3}}
+                style={{...textStyle, fontSize: 40, borderWidth: 1, margin: 10, flex:3, height:60}}
                 keyboardType="numeric"
                 placeholder="0"
                 editable={false}
                 value={inputAmount}
                 onChangeText={text => setInputAmount(text)}
               />
-              <Text style={{...textStyle,flex:1, fontSize:30,margin: 10,  lineHeight:80}}>sats</Text>
+              <DropDownPicker
+                open={open}
+                value={selectedUnit}
+                items={currencyItems}
+                setOpen={setOpen}
+                setValue={setSelectedUnit}
+                // setItems={setItems}
+                theme={isDarkMode ? "DARK" : "LIGHT"}
+                multiple={false}
+                containerStyle={{
+                  margin: 10,
+                  width: 100,
+                }}
+              />
+              {/* <Text style={{...textStyle,flex:1, fontSize:30,margin: 10,  lineHeight:80}}>sats</Text> */}
             </View>
             {!lndInvoice && (
-              <View style={{flex:4}}>
+              <View style={{flex:4, zIndex: -1 }}>
+                
                 <View style={{flex: 1, padding: 10}}>
+                <View style={{marginBottom:10}}>
+                  <Pressable
+                    onPress={() => makeLndInvoice()}
+                    disabled={invoiceLoading}>
+                    <View
+                      style={{
+                        backgroundColor: invoiceLoading ? '#D3D3D3' : '#ff9900',
+                        height: 60,
+                        justifyContent: 'center',
+                        
+                      }}>
+                      {invoiceLoading ? (
+                        <ActivityIndicator size="small" color="#fff" />
+                      ) : (
+                        <Text
+                          style={{
+                            fontSize: 40,
+                            textAlign: 'center',
+                            color: '#fff',
+                          }}>
+                          Invoice
+                        </Text>
+                      )}
+                    </View>
+                  </Pressable>
+                </View>
                   <View style={{flexDirection: 'row', alignItems: 'stretch'}}>
                     <PinPadButton number="7" onPress={() => press('7')} />
                     <PinPadButton number="8" onPress={() => press('8')} />
@@ -452,31 +528,7 @@ function Home({navigation}): React.FC<Props> {
                     <PinPadButton number="C" onPress={() => press('c')} />
                   </View>
                 </View>
-                <View style={{padding: 10}}>
-                  <Pressable
-                    onPress={() => makeLndInvoice()}
-                    disabled={invoiceLoading}>
-                    <View
-                      style={{
-                        backgroundColor: invoiceLoading ? '#D3D3D3' : '#ff9900',
-                        height: 50,
-                        justifyContent: 'center',
-                      }}>
-                      {invoiceLoading ? (
-                        <ActivityIndicator size="small" color="#fff" />
-                      ) : (
-                        <Text
-                          style={{
-                            fontSize: 40,
-                            textAlign: 'center',
-                            color: '#fff',
-                          }}>
-                          Invoice
-                        </Text>
-                      )}
-                    </View>
-                  </Pressable>
-                </View>
+                
               </View>
             )}
             {lndInvoice &&
@@ -545,7 +597,7 @@ function Home({navigation}): React.FC<Props> {
             {boltLoading && <ActivityIndicator size="large" color="#ff9900" />}
           </>
         )}
-      </ScrollView>
+      </View>
     </View>
   );
 }

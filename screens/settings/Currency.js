@@ -35,6 +35,10 @@ const CurrencySettings = (props) => {
     let preferredCurrency = FiatUnit.USD;
     try {
       preferredCurrency = await currency.getPreferredCurrency();
+      if(preferredCurrency == null) {
+        preferredCurrency = FiatUnit.USD;
+      }
+
       if (preferredCurrency === null) {
         throw Error('preferredCurrency === null');
       }
@@ -54,7 +58,7 @@ const CurrencySettings = (props) => {
     return (
       <>
         <View />
-        <ScrollView style={{...styles.root, ...backgroundStyle}}>
+        <View style={{...styles.root, ...backgroundStyle}}>
           <Text>CURRENCY</Text>
 
           <FlatList
@@ -65,7 +69,7 @@ const CurrencySettings = (props) => {
             extraData={data}
             renderItem={({item}) => {
               return (
-                <ListItem
+                <SimpleListItem
                   disabled={isSavingNewPreferredCurrency}
                   title={`${item.endPointKey} (${item.symbol})`}
                   checkmark={selectedCurrency.endPointKey === item.endPointKey}
@@ -89,7 +93,7 @@ const CurrencySettings = (props) => {
               );
             }}
           />
-        </ScrollView>
+        </View>
       </>
     );
   }
