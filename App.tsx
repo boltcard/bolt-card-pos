@@ -18,6 +18,7 @@ import Navigation from './Navigation';
 import {ShopSettingsProvider} from './contexts/ShopSettingsContext';
 
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+const currency = require('./helper/currency');
 
 
 const toastConfig = {
@@ -32,8 +33,7 @@ const toastConfig = {
       text1Style={{
         fontSize: 15,
         fontWeight: '400',
-      }}
-    />
+      }} />
   ),
   /*
     Overwrite 'error' type,

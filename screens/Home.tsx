@@ -11,6 +11,7 @@ import {
   View,
   useColorScheme,
   Platform,
+  Image,
 } from 'react-native';
 
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -25,8 +26,8 @@ import { LightningCustodianWallet } from '../wallets/lightning-custodian-wallet.
 import ConnectToHub from './settings/ConnectToHub';
 import Clipboard from '@react-native-clipboard/clipboard';
 
-
-boltLogo = require('../img/bolt-card-icon.png');
+const boltLogo = require('../img/bolt-card-icon.png');
+const boltPosLogo = require('../img/bolt-card-pos.png');
 
 
 export type Props = {
@@ -141,21 +142,44 @@ function Home({navigation}): React.FC<Props> {
 
   const makeLndInvoice = async () => {
     if (!lndWallet) {
-      throw new Error('lnd wallet not configured');
+      throw new Error(
+        'Wallet not configured, please reconnect to the hub in the settings',
+      );
     }
 
     if (lndWallet) {
       setInvoiceLoading(true);
       console.log('invoicing...');
       setInvoiceIsPaid(false);
-      await lndWallet.authorize();
-      const result = await lndWallet.addInvoice(
-        parseInt(inputAmount),
-        shopName,
-      );
-      console.log('result', result);
-      setLndInvoice(result);
-      setIsFetchingInvoices(true);
+      try {
+        await lndWallet.authorize();
+      } catch (error) {
+        console.log(error.message);
+        Toast.show({
+          type: 'error',
+          text1: 'LND Auth error',
+          text2: error.message,
+        });
+        setInvoiceLoading(false);
+
+      }
+      try {
+        const result = await lndWallet.addInvoice(
+          parseInt(inputAmount),
+          shopName,
+        );
+        console.log('result', result);
+        setLndInvoice(result);
+        setIsFetchingInvoices(true);
+      } catch (error) {
+        console.log(error.message);
+        Toast.show({
+          type: 'error',
+          text1: 'Add invoice error',
+          text2: error.message,
+        });
+        setInvoiceLoading(false);
+      }
       if (Platform.OS !== 'ios') readNdef();
       setInvoiceLoading(false);
     }
@@ -386,6 +410,13 @@ function Home({navigation}): React.FC<Props> {
         )}
         {walletConfigured && (
           <>
+            <View style={{alignItems:'center', flexDirection:'row'}}>
+              <Image source={boltPosLogo} style={{width:100, height:100}} />
+              <View style={{alignItems:'flex-start', flexDirection:'column'}}>
+                <Text style={{...textStyle, fontSize: 30}}>{shopName}</Text>
+                <Text style={{...textStyle, fontSize: 15, color:'#ccc'}}>Bolt Card POS</Text>
+              </View>
+            </View>
             <View style={{flexDirection: 'row', flex:1}}>
               <TextInput
                 style={{...textStyle, fontSize: 40, borderWidth: 1, margin: 10, flex:3}}
