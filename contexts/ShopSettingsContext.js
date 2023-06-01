@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useEffect, useState } from 'react';
+import { FiatUnit } from '../models/fiatUnit';
 
 const ShopSettingsContext = createContext();
 
@@ -7,7 +8,9 @@ const ShopSettingsProvider = ({children}) => {
   const [shopName, setShopName] = useState('');
   const [lndhubUser, setLndhubUser] = useState('');
   const [lndhub, setLndhub] = useState('');
+  const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState(FiatUnit.USD);
   
+
   useEffect(() => {
     async function getShopName() {
       try {
@@ -57,7 +60,8 @@ const ShopSettingsProvider = ({children}) => {
     <ShopSettingsContext.Provider value={{
       shopName, setShopName,
       lndhubUser, setLndhubUser,
-      lndhub, setLndhub
+      lndhub, setLndhub,
+      preferredFiatCurrency, _setPreferredFiatCurrency
     }}>
       {children}
     </ShopSettingsContext.Provider>
