@@ -80,12 +80,13 @@ async function updateExchangeRate() {
     return;
   }
   lastTimeUpdateExchangeRateWasCalled = +new Date();
-
+  
   if (+new Date() - exchangeRates[LAST_UPDATED] <= 30 * 60 * 1000) {
     // not updating too often
     return;
   }
-  console.log('updating exchange rate...');
+  await _restoreSavedPreferredFiatCurrencyFromStorage();
+  console.log('updating exchange rate...', 'BTC_' + preferredFiatCurrency.endPointKey);
 
   let rate;
   try {

@@ -26,6 +26,8 @@ import { LightningCustodianWallet } from '../wallets/lightning-custodian-wallet.
 import ConnectToHub from './settings/ConnectToHub';
 import Clipboard from '@react-native-clipboard/clipboard';
 import DropDownPicker from 'react-native-dropdown-picker';
+import dateFormat from "dateformat";
+const rtf1 = new Intl.RelativeTimeFormat('en', { style: 'short' });
 
 const currency = require('../helper/currency');
 
@@ -46,7 +48,7 @@ function Home({navigation}): React.FC<Props> {
   const [inputAmount, setInputAmount] = useState('');
   const [fiatAmount, setFiatAmount] = useState('');
   const [satsAmount, setSatsAmount] = useState('');
-  
+
   const [initialisingWallet, setInitialisingWallet] = useState<boolean>(true);
   const [walletConfigured, setWalletConfigured] = useState<boolean>(false);
 
@@ -68,6 +70,7 @@ function Home({navigation}): React.FC<Props> {
 
   const [open, setOpen] = useState(false);
   const [fiatCurrency, setFiatCurrency] = useState(null);
+  const [lastRate, setLastRate] = useState(null);
   const [selectedUnit, setSelectedUnit] = useState('sats');
 
 
@@ -149,8 +152,13 @@ function Home({navigation}): React.FC<Props> {
     }
     currency.getPreferredCurrency().then(preferred => {
       setFiatCurrency(preferred);
-      console.log(currency);
+      console.log('currency.getPreferredCurrency()', preferred);
     });
+
+    currency.mostRecentFetchedRate().then(lastFetchedRate => {
+      setLastRate(lastFetchedRate);
+      console.log('currency.mostRecentFetchedRate()', lastFetchedRate);
+    })
   }, [lndhub, lndhubUser]);
 
   const makeLndInvoice = async () => {
@@ -400,21 +408,26 @@ function Home({navigation}): React.FC<Props> {
   };
 
   useEffect(()=> {
+    // console.log('inputAmount update', inputAmount)
     if(selectedUnit == 'sats') {
       console.log(currency.satoshiToLocalCurrency(inputAmount));
       setFiatAmount(currency.satoshiToLocalCurrency(inputAmount));
+      setSatsAmount(inputAmount);
     }
     else if(selectedUnit == 'btc') {
+      console.log(currency.satoshiToLocalCurrency(currency.btcToSatoshi(inputAmount)));
+      setSatsAmount(currency.btcToSatoshi(inputAmount));
+      setFiatAmount(currency.satoshiToLocalCurrency(currency.btcToSatoshi(inputAmount)));
 
     }
     else {
-      console.log(currency.fiatToBTC(inputAmount));
-      setSatsAmount(currency.fiatToBTC(inputAmount));
+      console.log(currency.btcToSatoshi(currency.fiatToBTC(inputAmount)));
+      setSatsAmount(currency.btcToSatoshi(currency.fiatToBTC(inputAmount)));
     }
     
 
     
-  },[inputAmount])
+  },[inputAmount, selectedUnit])
 
   const copyToClipboard = () => {
     Clipboard.setString(lndInvoice);
@@ -452,9 +465,13 @@ function Home({navigation}): React.FC<Props> {
                 <Text style={{...textStyle, fontSize: 15, color:'#999'}}>Bolt Card POS</Text>
               </View>
             </View>
-            <View style={{flexDirection: 'row', flex:1}}>
+            <View style={{flexDirection: 'row',  margin:10, borderWidth:1}}>
+              <Text
+                style={{...textStyle, fontSize: 40, height:60, marginTop:10}}
+              >{selectedUnit != 'sats' && selectedUnit != 'btc' && fiatCurrency?.symbol}</Text>
               <TextInput
-                style={{...textStyle, fontSize: 40, borderWidth: 1, margin: 10, flex:3, height:60}}
+                style={{...textStyle, fontSize: 40, borderWidth: 1, margin: 10, flex:3, height:60, padding:0, paddingLeft:10}}
+                placeholderTextColor="#999" 
                 keyboardType="numeric"
                 placeholder="0"
                 editable={false}
@@ -477,6 +494,18 @@ function Home({navigation}): React.FC<Props> {
               />
               {/* <Text style={{...textStyle,flex:1, fontSize:30,margin: 10,  lineHeight:80}}>sats</Text> */}
             </View>
+            <View style={{flexDirection: 'column', zIndex: -1, margin:10, borderWidth:1}}>
+                {inputAmount > 0 && <>
+                  <Text style={{...textStyle, fontSize: 20}}>
+                    {(selectedUnit == 'sats' || selectedUnit == 'btc')? 
+                      fiatAmount + ' ' + fiatCurrency.endPointKey : 
+                      satsAmount.toLocaleString() + ' sats'} Rate Updated {rtf1.format(Math.round((lastRate.LastUpdated-new Date() )/1000/60), 'minutes')}
+                  </Text>
+                  <Text style={{...textStyle, fontSize: 20}}>
+                    {/* {dateFormat(new Date(lastRate.LastUpdated), "ddd, dS mmm yyyy, h:MM TT")} */}
+                  </Text>
+                </>}
+            </View>
             {!lndInvoice && (
               <View style={{flex:4, zIndex: -1 }}>
                 
@@ -497,11 +526,11 @@ function Home({navigation}): React.FC<Props> {
                       ) : (
                         <Text
                           style={{
-                            fontSize: 40,
+                            fontSize: 30,
                             textAlign: 'center',
                             color: '#fff',
                           }}>
-                          Invoice
+                          Invoice {satsAmount.toLocaleString()} sats
                         </Text>
                       )}
                     </View>
