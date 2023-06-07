@@ -27,7 +27,6 @@ import ConnectToHub from './settings/ConnectToHub';
 import Clipboard from '@react-native-clipboard/clipboard';
 import DropDownPicker from 'react-native-dropdown-picker';
 import dateFormat from "dateformat";
-const rtf1 = new Intl.RelativeTimeFormat('en', { style: 'short' });
 
 const currency = require('../helper/currency');
 
@@ -89,6 +88,17 @@ function Home({navigation}): React.FC<Props> {
       if(!shopName || !lndhub || !lndhubUser) {
         setWalletConfigured(false);
       }
+
+      currency.init().then(() => {
+        currency.getPreferredCurrency().then(preferred => {
+          setFiatCurrency(preferred);
+          console.log('currency.getPreferredCurrency()', preferred);
+        });
+        currency.mostRecentFetchedRate().then(lastFetchedRate => {
+          setLastRate(lastFetchedRate);
+          console.log('currency.mostRecentFetchedRate()', lastFetchedRate);
+        });
+      });
       // return () => unsubscribe();
     }, [lndhub, lndhubUser])
   );
@@ -150,15 +160,7 @@ function Home({navigation}): React.FC<Props> {
       console.log('init with lndhub, lndhubUser', lndhub, lndhubUser)
       initWallet();
     }
-    currency.getPreferredCurrency().then(preferred => {
-      setFiatCurrency(preferred);
-      console.log('currency.getPreferredCurrency()', preferred);
-    });
 
-    currency.mostRecentFetchedRate().then(lastFetchedRate => {
-      setLastRate(lastFetchedRate);
-      console.log('currency.mostRecentFetchedRate()', lastFetchedRate);
-    })
   }, [lndhub, lndhubUser]);
 
   const makeLndInvoice = async () => {
@@ -410,19 +412,15 @@ function Home({navigation}): React.FC<Props> {
   useEffect(()=> {
     // console.log('inputAmount update', inputAmount)
     if(selectedUnit == 'sats') {
-      console.log(currency.satoshiToLocalCurrency(inputAmount));
-      setFiatAmount(currency.satoshiToLocalCurrency(inputAmount));
+      if(fiatCurrency) setFiatAmount(currency.satoshiToLocalCurrency(inputAmount));
       setSatsAmount(inputAmount);
     }
     else if(selectedUnit == 'btc') {
-      console.log(currency.satoshiToLocalCurrency(currency.btcToSatoshi(inputAmount)));
       setSatsAmount(currency.btcToSatoshi(inputAmount));
-      setFiatAmount(currency.satoshiToLocalCurrency(currency.btcToSatoshi(inputAmount)));
-
+      if(fiatCurrency) setFiatAmount(currency.satoshiToLocalCurrency(currency.btcToSatoshi(inputAmount)));
     }
     else {
-      console.log(currency.btcToSatoshi(currency.fiatToBTC(inputAmount)));
-      setSatsAmount(currency.btcToSatoshi(currency.fiatToBTC(inputAmount)));
+      if(fiatCurrency) setSatsAmount(currency.btcToSatoshi(currency.fiatToBTC(inputAmount)));
     }
     
 
@@ -440,9 +438,12 @@ function Home({navigation}): React.FC<Props> {
 
   const currencyItems = [
     {label: 'Sats', value: 'sats'},
-    {label: 'Btc', value: 'btc'},
-    {label: fiatCurrency?.endPointKey, value: fiatCurrency?.endPointKey}
+    {label: 'Btc', value: 'btc'}
   ];
+
+  if(fiatCurrency) {
+    currencyItems.push({label: fiatCurrency.endPointKey, value: fiatCurrency.endPointKey});
+  }
 
   if (initialisingWallet) {
     return <ActivityIndicator />;
@@ -494,15 +495,13 @@ function Home({navigation}): React.FC<Props> {
               />
               {/* <Text style={{...textStyle,flex:1, fontSize:30,margin: 10,  lineHeight:80}}>sats</Text> */}
             </View>
-            <View style={{flexDirection: 'column', zIndex: -1, margin:10, borderWidth:1}}>
+            <View style={{flexDirection: 'column', zIndex: -1, margin:10, }}>
                 {inputAmount > 0 && <>
                   <Text style={{...textStyle, fontSize: 20}}>
-                    {(selectedUnit == 'sats' || selectedUnit == 'btc')? 
+                    {/* {(selectedUnit == 'sats' || selectedUnit == 'btc')? 
                       fiatAmount + ' ' + fiatCurrency.endPointKey : 
-                      satsAmount.toLocaleString() + ' sats'} Rate Updated {rtf1.format(Math.round((lastRate.LastUpdated-new Date() )/1000/60), 'minutes')}
-                  </Text>
-                  <Text style={{...textStyle, fontSize: 20}}>
-                    {/* {dateFormat(new Date(lastRate.LastUpdated), "ddd, dS mmm yyyy, h:MM TT")} */}
+                      satsAmount.toLocaleString() + ' sats'}  */}
+                      {lastRate && 'Rate Updated ' +Math.round((new Date()-lastRate.LastUpdated )/1000/60) +' minutes ago'}
                   </Text>
                 </>}
             </View>
