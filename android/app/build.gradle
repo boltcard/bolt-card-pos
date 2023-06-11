@@ -98,8 +98,8 @@ android {
         applicationId "org.boltcard.boltcardpos"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "0.0.1"
+        versionCode 7
+        versionName "0.0.4"
 
         missingDimensionStrategy 'react-native-camera', 'general'
 
@@ -139,7 +139,7 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            // signingConfig signingConfigs.release
+            signingConfig signingConfigs.release
         }
     }
 

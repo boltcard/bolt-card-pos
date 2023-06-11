@@ -437,7 +437,7 @@ function Home({navigation}): React.FC<Props> {
 
   const currencyItems = [
     {label: 'Sats', value: 'sats'},
-    {label: 'Btc', value: 'btc'}
+    {label: 'BTC', value: 'btc'}
   ];
 
   if(fiatCurrency) {
@@ -458,41 +458,42 @@ function Home({navigation}): React.FC<Props> {
         )}
         {walletConfigured && (
           <>
-            <View style={{flexDirection: 'row',  margin:10, borderWidth:1}}>
-              <Text
-                style={{...textStyle, fontSize: 35, height:60, marginTop:10, marginLeft:5}}
-              >{selectedUnit != 'sats' && selectedUnit != 'btc' && fiatCurrency?.symbol}</Text>
-              <TextInput
-                style={{...textStyle, fontSize: 40, borderWidth: 1, marginVertical: 10, marginLeft:5, flex:3, height:50, padding:0, paddingLeft:10, borderRadius: 8}}
-                placeholderTextColor="#999" 
-                keyboardType="numeric"
-                placeholder="0"
-                editable={false}
-                value={inputAmount}
-                onChangeText={text => setInputAmount(text)}
-              />
-              <DropDownPicker
-                open={open}
-                value={selectedUnit}
-                items={currencyItems}
-                setOpen={setOpen}
-                setValue={setSelectedUnit}
-                // setItems={setItems}
-                theme={isDarkMode ? "DARK" : "LIGHT"}
-                multiple={false}
-                containerStyle={{
-                  margin: 10,
-                  width: 100,
-                }}
-              />
-              {/* <Text style={{...textStyle,flex:1, fontSize:30,margin: 10,  lineHeight:80}}>sats</Text> */}
-            </View>
-            <View style={{flexDirection: 'column', zIndex: -1, marginHorizontal:10, }}>
-                <>
-                  <Text style={{...textStyle, fontSize: 15}}>
-                      {'Rate Updated ' +Math.round((new Date()-lastRate.LastUpdated )/1000/60) +' minutes ago'}
-                  </Text>
-                </>
+            <View style={{flexDirection: 'column',  margin:0, padding:0}}>
+              <View style={{flexDirection: 'row',  margin:0, padding:0}}>
+                <Text
+                  style={{...textStyle, fontSize: 35, height:50, marginTop:10, marginLeft:5}}
+                >{selectedUnit != 'sats' && selectedUnit != 'btc' && fiatCurrency?.symbol}</Text>
+                <TextInput
+                  style={{...textStyle, fontSize: 40, borderWidth: 1, marginTop: 10, marginLeft:5, flex:3, height:50, padding:0, paddingLeft:10, borderRadius: 8}}
+                  placeholderTextColor="#999" 
+                  keyboardType="numeric"
+                  placeholder="0"
+                  editable={false}
+                  value={inputAmount}
+                  onChangeText={text => setInputAmount(text)}
+                />
+                <DropDownPicker
+                  open={open}
+                  value={selectedUnit}
+                  items={currencyItems}
+                  setOpen={setOpen}
+                  setValue={setSelectedUnit}
+                  // setItems={setItems}
+                  theme={isDarkMode ? "DARK" : "LIGHT"}
+                  multiple={false}
+                  containerStyle={{
+                    margin: 10,
+                    width: 100,
+                  }}
+                />
+              </View>
+              <View style={{flexDirection: 'column', zIndex: -1, marginHorizontal:10, marginTop:0, alignItems:'center' }}>
+                  <>
+                    <Text style={{...textStyle, fontSize: 15}}>
+                    {'Rate update ' +Math.round((new Date()-lastRate.LastUpdated )/1000/60) +' min ago'}
+                    </Text>
+                  </>
+                </View>
             </View>
             {!lndInvoice && (
               <View style={{flex:4, zIndex: -1 }}>
@@ -551,6 +552,20 @@ function Home({navigation}): React.FC<Props> {
             {lndInvoice &&
               (!invoiceIsPaid ? (
                 <View style={{flexDirection: 'column', alignItems: 'center'}}>
+                  <View style={{flexDirection: 'row', alignItems: 'center', marginVertical:5}}>
+                    <Text style={{...textStyle, fontSize:25, margin: 0, lineHeight:30, marginRight:10}}>
+                      Pay {satsAmount ? satsAmount.toLocaleString() : 0} sats.
+                    </Text> 
+                    <View style={{padding: 0}}>
+                      <View style={{padding: 10, backgroundColor: "#f00"}}>
+                        <Pressable
+                          onPress={resetInvoice}
+                        >
+                          <Text style={{fontSize:20, color:"#fff"}}>Cancel</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  </View>
                   <View style={{padding: 20, backgroundColor: '#fff'}}>
                     <QRCode
                       size={300}
@@ -577,7 +592,7 @@ function Home({navigation}): React.FC<Props> {
                     </View>
                   </View>*/}
                   {Platform.OS === 'ios' && (
-                    <View style={{padding: 20, backgroundColor: "#999"}}>
+                    <View style={{padding: 10, backgroundColor: "#999"}}>
                       <Pressable
                         onPress={readNdef}
                       >
@@ -585,29 +600,31 @@ function Home({navigation}): React.FC<Props> {
                       </Pressable>
                     </View>
                   )}
-                  <View style={{padding: 20}}>
-                    <View style={{padding: 20, backgroundColor: "#f00"}}>
-                      <Pressable
-                        onPress={resetInvoice}
-                      >
-                        <Text style={{fontSize:20, color:"#fff"}}>Cancel</Text>
-                      </Pressable>
-                    </View>
-                  </View>
                 </View>
               ) : (
                 <View
-                  style={{flexDirection: 'column', justifyContent: 'center'}}>
-                  <View
-                    style={{flexDirection: 'row', justifyContent: 'center'}}>
-                    <Icon name="checkmark-circle" color="#0f0" size={250} />
+                  style={{...textStyle, flexDirection: 'column', justifyContent: 'center', borderWidth:1, borderRadius:10, margin:10}}>
+                  <View style={{flexDirection: 'row', justifyContent: 'center', paddingLeft:30}}>
+                    <Icon name="checkmark-circle" color="#0f0" size={200} />
                   </View>
                   <View
                     style={{flexDirection: 'row', justifyContent: 'center'}}>
-                    <Text style={{fontSize: 60}}>Paid!</Text>
+                    <Text style={{...textStyle, fontSize: 60}}>Paid!</Text>
                   </View>
                   <View style={{padding: 20}}>
-                    <Button title="Done" onPress={resetInvoice} />
+                    <Pressable
+                      onPress={resetInvoice}
+                    >
+                      <Text style={{
+                        ...textStyle,
+                        backgroundColor: '#ff9900',
+                        height: 45,
+                        lineHeight:40,
+                        fontSize:30,
+                        justifyContent: 'center',
+                        textAlign:'center',
+                      }}>Done</Text>
+                    </Pressable>
                   </View>
                 </View>
               ))}

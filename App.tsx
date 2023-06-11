@@ -30,6 +30,7 @@ const toastConfig = {
     <BaseToast
       {...props}
       contentContainerStyle={{paddingHorizontal: 15}}
+      text2NumberOfLines={5}
       text1Style={{
         fontSize: 15,
         fontWeight: '400',
@@ -48,6 +49,7 @@ const toastConfig = {
       text2Style={{
         fontSize: 15,
       }}
+      text2NumberOfLines={5}
     />
   ),
 };
