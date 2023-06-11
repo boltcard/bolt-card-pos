@@ -409,8 +409,10 @@ function Home({navigation}): React.FC<Props> {
     }
   };
 
+  /**
+   * Update the various conversions to sats etc.
+   */
   useEffect(()=> {
-    // console.log('inputAmount update', inputAmount)
     if(selectedUnit == 'sats') {
       if(fiatCurrency) setFiatAmount(currency.satoshiToLocalCurrency(inputAmount));
       setSatsAmount(inputAmount);
@@ -422,9 +424,6 @@ function Home({navigation}): React.FC<Props> {
     else {
       if(fiatCurrency) setSatsAmount(currency.btcToSatoshi(currency.fiatToBTC(inputAmount)));
     }
-    
-
-    
   },[inputAmount, selectedUnit])
 
   const copyToClipboard = () => {
@@ -459,19 +458,12 @@ function Home({navigation}): React.FC<Props> {
         )}
         {walletConfigured && (
           <>
-            <View style={{alignItems:'center', flexDirection:'row'}}>
-              <Image source={boltPosLogo} style={{width:100, height:100}} />
-              <View style={{alignItems:'flex-start', flexDirection:'column'}}>
-                <Text style={{...textStyle, fontSize: 30}}>{shopName}</Text>
-                <Text style={{...textStyle, fontSize: 15, color:'#999'}}>Bolt Card POS</Text>
-              </View>
-            </View>
             <View style={{flexDirection: 'row',  margin:10, borderWidth:1}}>
               <Text
-                style={{...textStyle, fontSize: 40, height:60, marginTop:10}}
+                style={{...textStyle, fontSize: 35, height:60, marginTop:10, marginLeft:5}}
               >{selectedUnit != 'sats' && selectedUnit != 'btc' && fiatCurrency?.symbol}</Text>
               <TextInput
-                style={{...textStyle, fontSize: 40, borderWidth: 1, margin: 10, flex:3, height:60, padding:0, paddingLeft:10}}
+                style={{...textStyle, fontSize: 40, borderWidth: 1, marginVertical: 10, marginLeft:5, flex:3, height:50, padding:0, paddingLeft:10, borderRadius: 8}}
                 placeholderTextColor="#999" 
                 keyboardType="numeric"
                 placeholder="0"
@@ -495,15 +487,12 @@ function Home({navigation}): React.FC<Props> {
               />
               {/* <Text style={{...textStyle,flex:1, fontSize:30,margin: 10,  lineHeight:80}}>sats</Text> */}
             </View>
-            <View style={{flexDirection: 'column', zIndex: -1, margin:10, }}>
-                {inputAmount > 0 && <>
-                  <Text style={{...textStyle, fontSize: 20}}>
-                    {/* {(selectedUnit == 'sats' || selectedUnit == 'btc')? 
-                      fiatAmount + ' ' + fiatCurrency.endPointKey : 
-                      satsAmount.toLocaleString() + ' sats'}  */}
-                      {lastRate && 'Rate Updated ' +Math.round((new Date()-lastRate.LastUpdated )/1000/60) +' minutes ago'}
+            <View style={{flexDirection: 'column', zIndex: -1, marginHorizontal:10, }}>
+                <>
+                  <Text style={{...textStyle, fontSize: 15}}>
+                      {'Rate Updated ' +Math.round((new Date()-lastRate.LastUpdated )/1000/60) +' minutes ago'}
                   </Text>
-                </>}
+                </>
             </View>
             {!lndInvoice && (
               <View style={{flex:4, zIndex: -1 }}>
@@ -529,7 +518,7 @@ function Home({navigation}): React.FC<Props> {
                             textAlign: 'center',
                             color: '#fff',
                           }}>
-                          Invoice {satsAmount.toLocaleString()} sats
+                          Invoice {satsAmount ? satsAmount.toLocaleString() : 0} sats
                         </Text>
                       )}
                     </View>
