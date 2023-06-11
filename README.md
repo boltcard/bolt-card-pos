@@ -8,12 +8,10 @@ Polls for successful invoice payments.
 
 [![Playstore](https://bluewallet.io/uploads/play-store-badge-blue.svg)](https://play.google.com/store/apps/details?id=org.boltcard.boltcardpos)
 
-
+## APK files
 [Latest Android Release.](https://github.com/boltcard/bolt-card-pos/releases) It's safe to use (as long as you scan the Invoice QR code in LNDHub) because all you can do is Pay the pos invoice.
 
-It works, looks a bit janky, some payment errors might not be shown.
-
-Give it a try let us know what you think!
+It works, some payment errors might not be shown. Give it a try let us know what you think!
 
 
 ## setup
