@@ -245,6 +245,7 @@ function Home({navigation}): React.FC<Props> {
   }
 
   const resetInvoice = () => {
+    setInputAmount("")
     setIsFetchingInvoices(false);
     clearInterval(fetchInvoiceInterval.current);
     fetchInvoiceInterval.current = undefined;
@@ -508,6 +509,7 @@ function Home({navigation}): React.FC<Props> {
                         backgroundColor: invoiceLoading ? '#D3D3D3' : '#ff9900',
                         height: 60,
                         justifyContent: 'center',
+                        borderRadius:20
                         
                       }}>
                       {invoiceLoading ? (
@@ -557,7 +559,7 @@ function Home({navigation}): React.FC<Props> {
                       Pay {satsAmount ? satsAmount.toLocaleString() : 0} sats.
                     </Text> 
                     <View style={{padding: 0}}>
-                      <View style={{padding: 10, backgroundColor: "#f00"}}>
+                      <View style={{paddingVertical: 10, paddingHorizontal:30, backgroundColor: "#f00", borderRadius:20}}>
                         <Pressable
                           onPress={resetInvoice}
                         >

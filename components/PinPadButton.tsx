@@ -13,7 +13,8 @@ export default function App(props): JSX.Element {
                         padding:10,
                         borderWidth:1, 
                         borderColor:'#fff',
-                        fontWeight:'bold'
+                        fontWeight:'bold',
+                        borderRadius:20,
                 }}>
                     {props.number}
                 </Text>

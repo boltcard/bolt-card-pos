@@ -59,8 +59,6 @@ const CurrencySettings = (props) => {
       <>
         <View />
         <View style={{...styles.root, ...backgroundStyle}}>
-          <Text>CURRENCY</Text>
-
           <FlatList
             style={styles.flex}
             keyExtractor={(_item, index) => `${index}`}
