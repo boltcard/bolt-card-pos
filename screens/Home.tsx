@@ -556,7 +556,7 @@ function Home({navigation}): React.FC<Props> {
               <View style={{flexDirection: 'column', zIndex: -1, marginHorizontal:10, marginTop:0, alignItems:'center' }}>
                   <>
                     <Text style={{...textStyle, fontSize: 15}}>
-                    {'Rate update ' +Math.round((new Date()-lastRate.LastUpdated )/1000/60) +' min ago'}
+                    {lastRate && ('Rate update ' +Math.round((new Date()-lastRate.LastUpdated )/1000/60) +' min ago')}
                     </Text>
                   </>
                 </View>
