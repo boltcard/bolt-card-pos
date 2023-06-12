@@ -15,6 +15,8 @@ export default function App(props): JSX.Element {
                         borderColor:'#fff',
                         fontWeight:'bold',
                         borderRadius:20,
+                        borderColor: 'transparent',
+                        margin:1
                 }}>
                     {props.number}
                 </Text>

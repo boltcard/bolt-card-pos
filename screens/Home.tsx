@@ -60,7 +60,9 @@ function Home({navigation}): React.FC<Props> {
   //NFC shizzle
   const [ndef, setNdef] = useState<string>();
   const [boltLoading, setBoltLoading] = useState<boolean>(false);
-
+  const [boltServiceResponse, setBoltServiceResponse] = useState<boolean>(false);
+  const [boltServiceCallback, setBoltServiceCallback] = useState<boolean>(false);
+  
   //connection
   const [lndWallet, setLndWallet] = useState<LightningCustodianWallet>();
 
@@ -223,34 +225,75 @@ function Home({navigation}): React.FC<Props> {
       await NfcManager.requestTechnology(NfcTech.Ndef);
       // the resolved tag object will contain `ndefMessage` property
       const tag = await NfcManager.getTag();
+      const nfcData = tag.ndefMessage[0].payload;
       // console.log('Tag found', tag);
-      // console.log('NDEF', tag.ndefMessage[0].payload);
-      const bytesToNdef = String.fromCharCode(...tag.ndefMessage[0].payload);
-      setNdef(bytesToNdef.substring(1, bytesToNdef.length));
+      // console.log('NDEF', nfcData);
+
+      if(!nfcData || nfcData == "") {
+        console.log('NDEF empty');
+        Toast.show({
+          type: 'error',
+          text1: 'Bolt Card Response Empty',
+          text2: 'The bolt card response was empty. Is the card configured?',
+        });
+        await NfcManager.cancelTechnologyRequest();
+        setTimeout(() => {
+          readNdef();
+        }, 1000);
+      }
+
+      const bytesToNdef = String.fromCharCode(...nfcData);
+      const boltURL = bytesToNdef.substring(1, bytesToNdef.length);
+      if (isValidUrl(boltURL)) {
+        console.log('Bolt URL found: ' + boltURL);
+        setNdef(boltURL);
+      } else {
+        console.log('NDEF invalid: ' + boltURL);
+        Toast.show({
+          type: 'error',
+          text1: 'Bolt Card Invalid',
+          text2: 'This card did not provide a Bolt service URL',
+        });
+        await NfcManager.cancelTechnologyRequest();
+        setTimeout(() => {
+          readNdef();
+        }, 1000);
+      }
       console.log(bytesToNdef.substring(1, bytesToNdef.length));
     } catch (ex) {
       console.error('NFC Error:', ex);
     } finally {
       // stop the nfc scanning
-      NfcManager.cancelTechnologyRequest();
+      stopReadNdef();
+    }
+  }
+
+  const isValidUrl = urlString => {
+    try {
+      return Boolean(new URL(urlString));
+    } catch (e) {
+      return false;
     }
   }
 
   async function stopReadNdef() {
     try {
-      NfcManager.cancelTechnologyRequest();
+      await NfcManager.cancelTechnologyRequest();
     } catch (ex) {
       console.error('NFC stopReadNdef:', ex);
     }
   }
 
   const resetInvoice = () => {
-    setInputAmount("")
+    setInputAmount('');
     setIsFetchingInvoices(false);
     clearInterval(fetchInvoiceInterval.current);
     fetchInvoiceInterval.current = undefined;
     setLndInvoice(undefined);
     setBoltLoading(false);
+    setBoltServiceResponse(false);
+    setBoltServiceCallback(true);
+
     stopReadNdef();
   };
 
@@ -315,7 +358,7 @@ function Home({navigation}): React.FC<Props> {
             console.error(error);
           }
         }
-      }, 3000);
+      }, 2000);
     } else {
       setIsFetchingInvoices(false);
       clearInterval(fetchInvoiceInterval.current);
@@ -325,12 +368,20 @@ function Home({navigation}): React.FC<Props> {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFetchingInvoices]);
 
+
+  /**
+   * Set with a valid URL from the NFC reader.
+   * Calls the bolt service and sends the invoice to the callback
+   */
   useEffect(() => {
     if (ndef) {
       setBoltLoading(true);
       const url = ndef.replace('lnurlw://', 'https://');
       fetch(url)
-        .then(response => response.json())
+        .then(response => {
+          setBoltServiceResponse(true);
+          return response.json();
+        })
         .then(data => {
           console.log('bolt request', data);
           if (data.callback) {
@@ -349,10 +400,13 @@ function Home({navigation}): React.FC<Props> {
                     text2: cbData.reason,
                   });
                   setTimeout(() => {
-                    if (Platform.OS !== 'ios') readNdef()
+                    readNdef()
                   }, 1000);
                   setBoltLoading(false);
+                } else {
+                  setBoltServiceCallback(true);
                 }
+                
               })
               .catch(err => {
                 console.error(err);
@@ -362,7 +416,7 @@ function Home({navigation}): React.FC<Props> {
                   text2: err.message,
                 });
                 setTimeout(() => {
-                  if (Platform.OS !== 'ios') readNdef();
+                  readNdef();
                 }, 1000);
                 setBoltLoading(false);
               })
@@ -377,7 +431,7 @@ function Home({navigation}): React.FC<Props> {
               text2: data.reason,
             });
             setTimeout(() => {
-              if (Platform.OS !== 'ios') readNdef();
+              readNdef();
             }, 1000);
             setBoltLoading(false);
             setNdef(undefined);
@@ -391,7 +445,7 @@ function Home({navigation}): React.FC<Props> {
             text2: err.message,
           });
           setTimeout(() => {
-            if (Platform.OS !== 'ios') readNdef();
+            readNdef();
           }, 1000);
           setBoltLoading(false);
         })
@@ -400,6 +454,17 @@ function Home({navigation}): React.FC<Props> {
         });
     }
   }, [ndef]);
+
+  const retryBoltcardPayment = () => {
+    setBoltLoading(false);
+    setBoltServiceCallback(false);
+    setBoltServiceResponse(false);
+    NfcManager.cancelTechnologyRequest().then(() => {
+      setTimeout(() => {
+        readNdef();
+      }, 1000);
+    });
+  }
 
   const press = (input: string) => {
     console.log(inputAmount);
@@ -552,12 +617,13 @@ function Home({navigation}): React.FC<Props> {
               </View>
             )}
             {lndInvoice &&
-              (!invoiceIsPaid ? (
+              (!invoiceIsPaid  ? (
                 <View style={{flexDirection: 'column', alignItems: 'center'}}>
                   <View style={{flexDirection: 'row', alignItems: 'center', marginVertical:5}}>
                     <Text style={{...textStyle, fontSize:25, margin: 0, lineHeight:30, marginRight:10}}>
                       Pay {satsAmount ? satsAmount.toLocaleString() : 0} sats.
                     </Text> 
+                    {!boltLoading && 
                     <View style={{padding: 0}}>
                       <View style={{paddingVertical: 10, paddingHorizontal:30, backgroundColor: "#f00", borderRadius:20}}>
                         <Pressable
@@ -567,6 +633,7 @@ function Home({navigation}): React.FC<Props> {
                         </Pressable>
                       </View>
                     </View>
+                    }
                   </View>
                   <View style={{padding: 20, backgroundColor: '#fff'}}>
                     <QRCode
@@ -630,7 +697,44 @@ function Home({navigation}): React.FC<Props> {
                   </View>
                 </View>
               ))}
-            {boltLoading && <ActivityIndicator size="large" color="#ff9900" />}
+            {lndInvoice &&
+              (!invoiceIsPaid && boltLoading) &&
+              <View style={{position: 'absolute', top:'20%', left:'10%', height:'30%', width:'80%', backgroundColor:'#000', padding:10, borderRadius:10}}>
+                <Text style={{...textStyle, fontSize:20}}>Bolt Card Detected. <Icon name="checkmark" color="#0f0" size={20} /></Text>
+                {boltServiceResponse && 
+                  <Text style={{...textStyle, fontSize:20}}>
+                    Bolt Service connected <Icon name="checkmark" color="#0f0" size={20} />
+                  </Text>
+                }
+                {boltServiceCallback && 
+                  <>
+                    <Text style={{...textStyle, fontSize:20}}>
+                      Bolt Service Callback success <Icon name="checkmark" color="#0f0" size={20} />
+                    </Text>
+                    <Text style={{...textStyle, fontSize:20}}>
+                      Payment initiated...
+                    </Text>
+                  </>
+                }
+                
+                <ActivityIndicator size="large" color="#ff9900" />
+                <View style={{padding: 20}}>
+                    <Pressable
+                      onPress={retryBoltcardPayment}
+                    >
+                      <Text style={{
+                        ...textStyle,
+                        backgroundColor: '#ff9900',
+                        height: 45,
+                        lineHeight:40,
+                        fontSize:30,
+                        justifyContent: 'center',
+                        textAlign:'center',
+                      }}>Retry Payment</Text>
+                    </Pressable>
+                  </View>
+              </View>
+            }
           </>
         )}
       </View>

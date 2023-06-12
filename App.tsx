@@ -50,6 +50,11 @@ const toastConfig = {
         fontSize: 15,
       }}
       text2NumberOfLines={5}
+      style={{
+        paddingVertical:20,
+        height:100,
+        borderLeftColor: 'red'
+      }}
     />
   ),
 };
