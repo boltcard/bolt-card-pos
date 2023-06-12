@@ -67,7 +67,7 @@ const HomeRoot = () => {
       <HomeStack.Screen
         name="Home"
         component={Home}
-        options={NavigationDefaultOptions}
+        options={{...NavigationDefaultOptions, headerBackTitleVisible: false}}
       />
       <HomeStack.Screen
         name="SettingsRoot"
