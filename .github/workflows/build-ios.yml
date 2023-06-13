@@ -41,17 +41,15 @@ jobs:
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
       - name: iOS app
         run: |
-          ls ios
-          xcodebuild -scheme "Actions Production" clean archive -archivePath "Actions" -configuration "Release Production"
+          xcodebuild -scheme "Actions Production" clean archive -archivePath "Actions" -configuration "Release Production" -project ${{ github.workspace }}/ios
       - name: export ipa
         env:
           EXPORT_PLIST: ${{ secrets.IOS_EXPORT_PRODUCTION }}
         run: |
-          ls ios
           # create export options
           EXPORT_PLIST_PATH=$RUNNER_TEMP/ExportOptions.plist
           echo -n "$EXPORT_PLIST" | base64 --decode --output $EXPORT_PLIST_PATH
-          xcodebuild -exportArchive -archivePath $GITHUB_WORKSPACE/Actions.xarchive -exportOptionsPlist $EXPORT_PLIST_PATH -exportPath $RUNNER_TEMP/export
+          xcodebuild -exportArchive -archivePath $GITHUB_WORKSPACE/Actions.xarchive -exportOptionsPlist $EXPORT_PLIST_PATH -exportPath $RUNNER_TEMP/export -project ${{ github.workspace }}/ios
       - name: Upload application
         uses: actions/upload-artifact@v3
         with:
