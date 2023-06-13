@@ -16,7 +16,6 @@ jobs:
         with:
           node-version: 18
       - name: Install npm dependencies and pod install
-        uses: actions/checkout@v3
         run: |
           npm install
           cd ios
