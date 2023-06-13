@@ -41,8 +41,8 @@ jobs:
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
       - name: iOS app
         run: |
-        ls ios
-        xcodebuild -scheme "Actions Production" clean archive -archivePath "Actions" -configuration "Release Production"
+          ls ios
+          xcodebuild -scheme "Actions Production" clean archive -archivePath "Actions" -configuration "Release Production"
       - name: export ipa
         env:
           EXPORT_PLIST: ${{ secrets.IOS_EXPORT_PRODUCTION }}
