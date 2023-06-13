@@ -40,11 +40,14 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
       - name: iOS app
-        run: xcodebuild -scheme "Actions Production" clean archive -archivePath "Actions" -configuration "Release Production"
+        run: |
+        ls ios
+        xcodebuild -scheme "Actions Production" clean archive -archivePath "Actions" -configuration "Release Production"
       - name: export ipa
         env:
           EXPORT_PLIST: ${{ secrets.IOS_EXPORT_PRODUCTION }}
         run: |
+          ls ios
           # create export options
           EXPORT_PLIST_PATH=$RUNNER_TEMP/ExportOptions.plist
           echo -n "$EXPORT_PLIST" | base64 --decode --output $EXPORT_PLIST_PATH
