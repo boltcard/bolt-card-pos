@@ -11,6 +11,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      - name: Install npm dependencies and pod install
+        uses: actions/setup-node@v3
+        run: |
+          npm install
+          cd ios
+          pod install
       - name: Install the Apple certificate and provisioning profile
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
