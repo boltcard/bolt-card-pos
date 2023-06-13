@@ -41,7 +41,7 @@ jobs:
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
       - name: iOS app
         run: |
-          xcodebuild -scheme "simplepos" clean archive -archivePath "simplepos" -configuration "Release Production" -project ${{ github.workspace }}/ios/BoltCardPoS.xcodeproj
+          xcodebuild -scheme "BoltCardPoS" clean archive -archivePath "BoltCardPoS" -configuration "Release Production" -project ${{ github.workspace }}/ios/BoltCardPoS.xcodeproj
       - name: export ipa
         env:
           EXPORT_PLIST: ${{ secrets.IOS_EXPORT_PRODUCTION }}
@@ -49,12 +49,12 @@ jobs:
           # create export options
           EXPORT_PLIST_PATH=$RUNNER_TEMP/ExportOptions.plist
           echo -n "$EXPORT_PLIST" | base64 --decode --output $EXPORT_PLIST_PATH
-          xcodebuild -exportArchive -archivePath $GITHUB_WORKSPACE/simplepos.xarchive -exportOptionsPlist $EXPORT_PLIST_PATH -exportPath $RUNNER_TEMP/export -project ${{ github.workspace }}/ios/BoltCardPoS.xcodeproj
+          xcodebuild -exportArchive -archivePath $GITHUB_WORKSPACE/BoltCardPoS.xarchive -exportOptionsPlist $EXPORT_PLIST_PATH -exportPath $RUNNER_TEMP/export -project ${{ github.workspace }}/ios/BoltCardPoS.xcodeproj
       - name: Upload application
         uses: actions/upload-artifact@v3
         with:
           name: app
-          path: ${{ runner.temp }}/build/simplepos.ipa
+          path: ${{ runner.temp }}/build/BoltCardPoS.ipa
           # you can also archive the entire directory 
           # path: ${{ runner.temp }}/build
           retention-days: 3
@@ -70,5 +70,5 @@ jobs:
         run: |
           echo "Starting upload. "
           ls ~/private_keys
-          xcrun altool — validate-app -f $RUNNER_TEMP/export/simplepos.ipa -t ios — apiKey ${{ secrets.APPSTORE_API_KEY_ID }} — apiIssuer ${{ secrets.APPSTORE_ISSUER_ID }}
-          xcrun altool — upload-app -f $RUNNER_TEMP/export/simplepos.ipa -t ios — apiKey “${{ secrets.APPSTORE_API_KEY_ID }}” — apiIssuer “${{ secrets.APPSTORE_ISSUER_ID }}”
+          xcrun altool — validate-app -f $RUNNER_TEMP/export/BoltCardPoS.ipa -t ios — apiKey ${{ secrets.APPSTORE_API_KEY_ID }} — apiIssuer ${{ secrets.APPSTORE_ISSUER_ID }}
+          xcrun altool — upload-app -f $RUNNER_TEMP/export/BoltCardPoS.ipa -t ios — apiKey “${{ secrets.APPSTORE_API_KEY_ID }}” — apiIssuer “${{ secrets.APPSTORE_ISSUER_ID }}”
