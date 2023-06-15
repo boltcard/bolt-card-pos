@@ -55,10 +55,12 @@ function LogoTitle() {
 const HomeStack = createNativeStackNavigator();
 const NavigationDefaultOptions = {
   // headerShown:false,
-  stackPresentation: 'modal',
+  
+  // stackPresentation: 'modal',
   headerTitle: (props) => <LogoTitle {...props} />
 };
 const HomeRoot = () => {
+  const isDarkMode = useColorScheme() === 'dark';
   return (
     <HomeStack.Navigator
       initialRouteName="Home"
@@ -72,7 +74,7 @@ const HomeRoot = () => {
       <HomeStack.Screen
         name="SettingsRoot"
         component={SettingsRoot}
-        options={NavigationDefaultOptions}
+        options={{...NavigationDefaultOptions, headerStyle: {backgroundColor: isDarkMode ? '#666' : '#fff'}}}
       />
     </HomeStack.Navigator>
   );
