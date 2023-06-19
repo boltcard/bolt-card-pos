@@ -12,6 +12,7 @@ import Currency from './screens/settings/Currency';
 import Settings from './screens/settings/Settings';
 import ShopName from './screens/settings/ShopName';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import RecentInvoices from './screens/RecentInvoices';
 
 
 const boltPosLogo = require('./img/bolt-card-pos.png');
@@ -23,6 +24,7 @@ const SettingsRoot = () => {
       screenOptions={{headerHideShadow: true, headerShown:false}}
       initialRouteName="Settings">
     <SettingsStack.Screen name="Settings" component={Settings} />
+      <SettingsStack.Screen name="Recent Invoices" component={RecentInvoices} />
       <SettingsStack.Screen name="Connect" component={ConnectToHub} />
       <SettingsStack.Screen name="Currency" component={Currency} />
       <SettingsStack.Screen name="Shop Name" component={ShopName} />

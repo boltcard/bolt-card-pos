@@ -20,6 +20,11 @@ const Settings = () => {
     <>
       <View style={{...styles.root, ...backgroundStyle}}>
         <View style={{flex:2}}>
+        <SimpleListItem
+            title="Recent Invoices"
+            onPress={() => navigate('Recent Invoices')}
+            chevron
+          />
           <SimpleListItem
             title="Connection"
             onPress={() => navigate('Connect')}
