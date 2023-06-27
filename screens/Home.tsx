@@ -491,7 +491,7 @@ function Home({navigation}): React.FC<Props> {
       setTotalAmount(parseInt(hiddenTotal) + parseInt(updatedAmout));
     }
     else {
-      const updatedAmount = (inputAmount === '0') ? twoDP(input*0.01) : twoDP((parseFloat(inputAmount) + parseFloat(input*0.001))*10);
+      const updatedAmount = (inputAmount === '0' || inputAmount === 0) ? twoDP(input*0.01) : twoDP((parseFloat(inputAmount) + parseFloat(input*0.001))*10);
       setInputAmount(updatedAmount);
       setTotalAmount(twoDP(parseFloat(hiddenTotal) + parseFloat(updatedAmount)));
     }
