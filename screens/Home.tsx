@@ -44,9 +44,11 @@ function Home({navigation}): React.FC<Props> {
   const isDarkMode = useColorScheme() === 'dark';
   const {navigate} = useNavigation();
 
-  const [inputAmount, setInputAmount] = useState('');
-  const [fiatAmount, setFiatAmount] = useState('');
-  const [satsAmount, setSatsAmount] = useState('');
+  const [inputAmount, setInputAmount] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [hiddenTotal, setHiddenTotal] = useState(0);
+  const [fiatAmount, setFiatAmount] = useState(0);
+  const [satsAmount, setSatsAmount] = useState(0);
 
   const [initialisingWallet, setInitialisingWallet] = useState<boolean>(true);
   const [walletConfigured, setWalletConfigured] = useState<boolean>(false);
@@ -190,7 +192,7 @@ function Home({navigation}): React.FC<Props> {
       }
       try {
         const result = await lndWallet.addInvoice(
-          parseInt(inputAmount),
+          parseInt(satsAmount),
           shopName,
         );
         console.log('result', result);
@@ -222,7 +224,8 @@ function Home({navigation}): React.FC<Props> {
     console.log('***** Await NFC Tag');
     try {
       // register for the NFC tag with NDEF in it
-      await NfcManager.requestTechnology(NfcTech.Ndef);
+      const result = await NfcManager.requestTechnology(NfcTech.Ndef);
+      console.log('NfcManager.requestTechnology(NfcTech.Ndef)', result);
       // the resolved tag object will contain `ndefMessage` property
       const tag = await NfcManager.getTag();
       const nfcData = tag.ndefMessage[0].payload;
@@ -260,8 +263,8 @@ function Home({navigation}): React.FC<Props> {
         }, 1000);
       }
       console.log(bytesToNdef.substring(1, bytesToNdef.length));
-    } catch (ex) {
-      console.error('NFC Error:', ex);
+    } catch (error) {
+      console.log('*** readNdef() NFC Error:', error);
     } finally {
       // stop the nfc scanning
       stopReadNdef();
@@ -279,13 +282,14 @@ function Home({navigation}): React.FC<Props> {
   async function stopReadNdef() {
     try {
       await NfcManager.cancelTechnologyRequest();
-    } catch (ex) {
-      console.error('NFC stopReadNdef:', ex);
+    } catch (error) {
+      console.log('*** ERROR: NFC stopReadNdef:', error);
     }
   }
 
   const resetInvoice = () => {
-    setInputAmount('');
+    setInputAmount(0);
+    setTotalAmount(0);
     setIsFetchingInvoices(false);
     clearInterval(fetchInvoiceInterval.current);
     fetchInvoiceInterval.current = undefined;
@@ -467,30 +471,53 @@ function Home({navigation}): React.FC<Props> {
   }
 
   const press = (input: string) => {
-    console.log(inputAmount);
     if (input === 'c') {
+      if(inputAmount == 0) {
+        setTotalAmount(0);
+        setHiddenTotal(0);
+        setSatsAmount(0);
+        setFiatAmount(0);
+      }
+      if(inputAmount > 0) setInputAmount('0');
+    } 
+    else if (input === '+') {
+      setTotalAmount(twoDP((parseFloat(hiddenTotal) + parseFloat(inputAmount))));
       setInputAmount('0');
-    } else {
-      setInputAmount(inputAmount === '0' ? input : inputAmount + '' + input);
+      setHiddenTotal(totalAmount);
+    }
+    else if(selectedUnit == 'sats' || selectedUnit == 'btc') {
+      const updatedAmout = (inputAmount === '0') ? input : inputAmount + '' + input;
+      setInputAmount(updatedAmout);
+      setTotalAmount(parseInt(hiddenTotal) + parseInt(updatedAmout));
+    }
+    else {
+      const updatedAmount = (inputAmount === '0' || inputAmount === 0) ? twoDP(input*0.01) : twoDP((parseFloat(inputAmount) + parseFloat(input*0.001))*10);
+      setInputAmount(updatedAmount);
+      setTotalAmount(twoDP(parseFloat(hiddenTotal) + parseFloat(updatedAmount)));
     }
   };
+
+  const twoDP = (input) => {
+    return Math.round(input*100)/100;
+  }
 
   /**
    * Update the various conversions to sats etc.
    */
   useEffect(()=> {
     if(selectedUnit == 'sats') {
-      if(fiatCurrency) setFiatAmount(currency.satoshiToLocalCurrency(inputAmount));
-      setSatsAmount(inputAmount);
+      if(fiatCurrency) setFiatAmount(currency.satoshiToLocalCurrency(totalAmount ? totalAmount : satsAmount));
+      setSatsAmount(totalAmount);
     }
     else if(selectedUnit == 'btc') {
-      setSatsAmount(currency.btcToSatoshi(inputAmount));
-      if(fiatCurrency) setFiatAmount(currency.satoshiToLocalCurrency(currency.btcToSatoshi(inputAmount)));
+      setSatsAmount(currency.btcToSatoshi(totalAmount));
+      if(fiatCurrency) setFiatAmount(currency.satoshiToLocalCurrency(currency.btcToSatoshi(totalAmount)));
     }
     else {
-      if(fiatCurrency) setSatsAmount(currency.btcToSatoshi(currency.fiatToBTC(inputAmount)));
+      if(fiatCurrency) setSatsAmount(currency.btcToSatoshi(currency.fiatToBTC(totalAmount)));
+      if(fiatCurrency) setFiatAmount(totalAmount);
     }
-  },[inputAmount, selectedUnit])
+  },[inputAmount, selectedUnit, totalAmount])
 
   const copyToClipboard = () => {
     Clipboard.setString(lndInvoice);
@@ -529,15 +556,11 @@ function Home({navigation}): React.FC<Props> {
                 <Text
                   style={{...textStyle, fontSize: 35, height:50, marginTop:10, marginLeft:5}}
                 >{selectedUnit != 'sats' && selectedUnit != 'btc' && fiatCurrency?.symbol}</Text>
-                <TextInput
+                <Text
                   style={{...textStyle, fontSize: 40, borderWidth: 1, marginTop: 10, marginLeft:5, flex:3, height:50, padding:0, paddingLeft:10, borderRadius: 8}}
-                  placeholderTextColor="#999" 
-                  keyboardType="numeric"
-                  placeholder="0"
-                  editable={false}
-                  value={inputAmount}
-                  onChangeText={text => setInputAmount(text)}
-                />
+                >
+                  {inputAmount}
+                </Text>
                 <DropDownPicker
                   open={open}
                   value={selectedUnit}
@@ -563,7 +586,6 @@ function Home({navigation}): React.FC<Props> {
             </View>
             {!lndInvoice && (
               <View style={{flex:4, zIndex: -1 }}>
-                
                 <View style={{flex: 1, padding: 10}}>
                 <View style={{marginBottom:10}}>
                   <Pressable
@@ -572,22 +594,33 @@ function Home({navigation}): React.FC<Props> {
                     <View
                       style={{
                         backgroundColor: invoiceLoading ? '#D3D3D3' : '#ff9900',
-                        height: 60,
+                        height: 70,
                         justifyContent: 'center',
                         borderRadius:20
                         
                       }}>
                       {invoiceLoading ? (
-                        <ActivityIndicator size="small" color="#fff" />
+                        <ActivityIndicator size="small" color="#000" />
                       ) : (
-                        <Text
-                          style={{
-                            fontSize: 30,
-                            textAlign: 'center',
-                            color: '#fff',
-                          }}>
-                          Invoice {satsAmount ? satsAmount.toLocaleString() : 0} sats
-                        </Text>
+                        <>
+                          <Text
+                            style={{
+                              fontWeight:'bold',
+                              fontSize: 22,
+                              textAlign: 'center',
+                              color: '#000',
+                            }}>
+                            Charge {fiatAmount ? (fiatAmount + ' ' + fiatCurrency?.endPointKey) : satsAmount.toLocaleString() + ' sats'} {}
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 17,
+                              textAlign: 'center',
+                              color: '#000',
+                            }}>
+                            {satsAmount ? satsAmount.toLocaleString() : 0} sats
+                          </Text>
+                        </>
                       )}
                     </View>
                   </Pressable>
@@ -608,12 +641,11 @@ function Home({navigation}): React.FC<Props> {
                     <PinPadButton number="3" onPress={() => press('3')} />
                   </View>
                   <View style={{flexDirection: 'row'}}>
-                    <PinPadButton number="0" onPress={() => press('0')} />
-                    <PinPadButton number="." onPress={() => press('.')} />
                     <PinPadButton number="C" onPress={() => press('c')} />
+                    <PinPadButton number="0" onPress={() => press('0')} />
+                    <PinPadButton number="+" onPress={() => press('+')} />
                   </View>
                 </View>
-                
               </View>
             )}
             {lndInvoice &&

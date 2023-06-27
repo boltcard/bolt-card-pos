@@ -12,6 +12,7 @@ import Currency from './screens/settings/Currency';
 import Settings from './screens/settings/Settings';
 import ShopName from './screens/settings/ShopName';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import RecentInvoices from './screens/RecentInvoices';
 
 
 const boltPosLogo = require('./img/bolt-card-pos.png');
@@ -23,6 +24,7 @@ const SettingsRoot = () => {
       screenOptions={{headerHideShadow: true, headerShown:false}}
       initialRouteName="Settings">
     <SettingsStack.Screen name="Settings" component={Settings} />
+      <SettingsStack.Screen name="Recent Invoices" component={RecentInvoices} />
       <SettingsStack.Screen name="Connect" component={ConnectToHub} />
       <SettingsStack.Screen name="Currency" component={Currency} />
       <SettingsStack.Screen name="Shop Name" component={ShopName} />
@@ -55,10 +57,12 @@ function LogoTitle() {
 const HomeStack = createNativeStackNavigator();
 const NavigationDefaultOptions = {
   // headerShown:false,
-  stackPresentation: 'modal',
+  
+  // stackPresentation: 'modal',
   headerTitle: (props) => <LogoTitle {...props} />
 };
 const HomeRoot = () => {
+  const isDarkMode = useColorScheme() === 'dark';
   return (
     <HomeStack.Navigator
       initialRouteName="Home"
@@ -72,7 +76,7 @@ const HomeRoot = () => {
       <HomeStack.Screen
         name="SettingsRoot"
         component={SettingsRoot}
-        options={NavigationDefaultOptions}
+        options={{...NavigationDefaultOptions, headerStyle: {backgroundColor: isDarkMode ? '#666' : '#fff'}}}
       />
     </HomeStack.Navigator>
   );

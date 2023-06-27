@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   saveButtonText: {
-    color: 'white',
+    color: '#000',
     textAlign: 'center',
   },
 });
