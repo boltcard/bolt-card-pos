@@ -8,7 +8,7 @@ Polls for successful invoice payments.
 
 [![Playstore](https://bluewallet.io/uploads/play-store-badge-blue.svg)](https://play.google.com/store/apps/details?id=org.boltcard.boltcardpos)
 
-[![AppleStore]([https://github.com/boltcard/bolt-card-pos/assets/3826238/9899981c-da95-4798-9aa2-d4cf8aa9a23f](https://camo.githubusercontent.com/c7140fdffb62f2be8dfc5f895a93f16df04696441cf473cbab01f670915cc828/68747470733a2f2f626c756577616c6c65742e696f2f75706c6f6164732f6170702d73746f72652d62616467652d626c75652e737667))](https://apps.apple.com/us/app/bolt-card-pos/id6448741630)
+[![AppleStore](https://bluewallet.io/uploads/app-store-badge-blue.svg)](https://bluewallet.io/uploads/app-store-badge-blue.svg)](https://apps.apple.com/us/app/bolt-card-pos/id6448741630)
 
 
 ## APK files
