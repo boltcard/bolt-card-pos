@@ -12,6 +12,7 @@ import {
   useColorScheme,
   Platform,
   Image,
+  Modal
 } from 'react-native';
 
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -21,6 +22,7 @@ import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import PinPadButton from '../components/PinPadButton';
+import CircleBorder from '../components/CircleBorder';
 import { ShopSettingsContext } from '../contexts/ShopSettingsContext';
 import { LightningCustodianWallet } from '../wallets/lightning-custodian-wallet.js';
 import ConnectToHub from './settings/ConnectToHub';
@@ -70,6 +72,12 @@ function Home({navigation}): React.FC<Props> {
 
   //shop settings
   const {shopName, lndhub, lndhubUser} = useContext(ShopSettingsContext);
+
+  //PIN
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [pinCode, setPinCode] = useState("");
+  const [callbackUrl, setCallbackUrl] = useState("");
+
 
   const [open, setOpen] = useState(false);
   const [fiatCurrency, setFiatCurrency] = useState(null);
@@ -392,6 +400,21 @@ function Home({navigation}): React.FC<Props> {
             const callback = new URL(data.callback);
             callback.searchParams.set('k1', data.k1);
             callback.searchParams.set('pr', lndInvoice);
+
+            if(data.pinLimit) {
+              //if the card has pin enabled 
+              //check the amount didn't exceed the limit
+              const limitSat = data.pinLimit / 1000;
+              if(limitSat < satsAmount) {
+                console.log('limit', limitSat, satsAmount);
+                //@TODO: need pin to proceed
+                setCallbackUrl(callback);
+                // return;
+              }
+            }
+            const callback = new URL(data.callback);
+            callback.searchParams.set('k1', data.k1);
+            callback.searchParams.set('pr', lndInvoice);
             fetch(callback.toString())
               .then(cbResponse => cbResponse.json())
               .then(cbData => {
@@ -540,9 +563,73 @@ function Home({navigation}): React.FC<Props> {
   if (initialisingWallet) {
     return <ActivityIndicator />;
   }
+
+  const isPinEntered = (pos) => {
+    return pinCode && pos < (pinCode.length + 1);
+  }
+
+  const pinPress = (val) => {
+    if(val == 'X') {
+      setPinCode((prevPin) => {
+        return prevPin.slice(0, -1);
+      })
+    } else {
+      if(pinCode && pinCode.length >= 4) {
+        return;
+      }
+      setPinCode((prevPin) => {
+        return "" + prevPin + val;
+      })
+    }
+  }
+
+  const clearPinAndCallback = () => {
+    setPinCode("");
+    setCallbackUrl(null)
+  }
+
   return (
     <View style={{...backgroundStyle, flex: 1}}>
       <View style={{...backgroundStyle, flex: 1}}>
+        <Modal
+          animationType="fade"
+          transparent={false}
+          visible={showPinModal}
+          onRequestClose={() => {
+            setShowPinModal(!showPinModal);
+            setPinCode("");
+          }}
+        >
+          <View style={{justifyContent: 'center', flex: 1}}>
+            <Text style={{textAlign: 'center', fontSize: 30, marginBottom: 30, fontWeight: 700, color: '#333'}}>Enter PIN</Text>
+            <View style={{flexDirection: 'row', justifyContent: 'center', marginBottom: 30}}>
+              <CircleBorder fill={isPinEntered(1)} containerStyle={{marginRight: 10}}/>
+              <CircleBorder fill={isPinEntered(2)} containerStyle={{marginRight: 10}} />
+              <CircleBorder fill={isPinEntered(3)} containerStyle={{marginRight: 10}} />
+              <CircleBorder fill={isPinEntered(4)}  />
+            </View>
+            <View style={{flexDirection: 'row', alignItems: 'stretch'}}>
+              <PinPadButton number="7" onPress={() => pinPress('7')} />
+              <PinPadButton number="8" onPress={() => pinPress('8')} />
+              <PinPadButton number="9" onPress={() => pinPress('9')} />
+            </View>
+            <View style={{flexDirection: 'row'}}>
+              <PinPadButton number="4" onPress={() => pinPress('4')} />
+              <PinPadButton number="5" onPress={() => pinPress('5')} />
+              <PinPadButton number="6" onPress={() => pinPress('6')} />
+            </View>
+            <View style={{flexDirection: 'row'}}>
+              <PinPadButton number="1" onPress={() => pinPress('1')} />
+              <PinPadButton number="2" onPress={() => pinPress('2')} />
+              <PinPadButton number="3" onPress={() => pinPress('3')} />
+            </View>
+            <View style={{flexDirection: 'row'}}>
+              <PinPadButton number="" />
+              <PinPadButton number="0" onPress={() => pinPress('0')} />
+              <PinPadButton number="X" onPress={() => pinPress('X')} />
+            </View>
+          </View>
+        </Modal>
         {!walletConfigured && (
           <ConnectToHub 
             lndhub={lndhub}
