@@ -516,7 +516,7 @@ function Home({navigation}): React.FC<Props> {
     }
     else if(selectedUnit == 'sats' || selectedUnit == 'btc') {
       const updatedAmout = (inputAmount === '0') ? input : inputAmount + '' + input;
-      setInputAmount(updatedAmout);
+      setInputAmount(parseInt(updatedAmout));
       setTotalAmount(parseInt(hiddenTotal) + parseInt(updatedAmout));
     }
     else {
@@ -673,7 +673,7 @@ function Home({navigation}): React.FC<Props> {
                   style={{...textStyle, fontSize: 35, height:50, marginTop:10, marginLeft:5}}
                 >{selectedUnit != 'sats' && selectedUnit != 'btc' && fiatCurrency?.symbol}</Text>
                 <Text
-                  style={{...textStyle, fontSize: 40, borderWidth: 1, marginTop: 10, marginLeft:5, flex:3, height:50, padding:0, paddingLeft:10, borderRadius: 8}}
+                  style={{...textStyle, fontSize: 40, borderWidth: 1, marginTop: 10, marginLeft:5, flex:3, height:50, paddingHorizontal:10, paddingVertical: 0, paddingLeft:10, borderRadius: 8, textAlign: 'right', backgroundColor: 'white'}}
                 >
                   {inputAmount}
                 </Text>
@@ -824,28 +824,27 @@ function Home({navigation}): React.FC<Props> {
                 </View>
               ) : (
                 <View
-                  style={{...textStyle, flexDirection: 'column', justifyContent: 'center', borderWidth:1, borderRadius:10, margin:10}}>
-                  <View style={{flexDirection: 'row', justifyContent: 'center', paddingLeft:30}}>
-                    <Icon name="checkmark-circle" color="darkgreen" size={200} />
+                  style={{...textStyle, flexDirection: 'column', justifyContent: 'center', borderWidth:1, borderRadius:10, margin:10, backgroundColor: 'white', paddingVertical: 30}}>
+                  <View style={{flexDirection: 'row', justifyContent: 'center', paddingHorizontal:30}}>
+                    <Icon name="checkmark-circle" color="darkgreen" size={150} />
                   </View>
                   <View
                     style={{flexDirection: 'row', justifyContent: 'center'}}>
                     <Text style={{...textStyle, fontSize: 60}}>Paid!</Text>
                   </View>
                   <View style={{padding: 20}}>
-                    <Pressable
+                    <Button
+                      title="Done"
                       onPress={resetInvoice}
+                      buttonStyle={{
+                        backgroundColor: '#ff9900'
+                      }}
+                      titleStyle={{
+                        fontSize: 20,
+                        fontWeight: 600
+                      }}
                     >
-                      <Text style={{
-                        ...textStyle,
-                        backgroundColor: '#ff9900',
-                        height: 45,
-                        lineHeight:40,
-                        fontSize:30,
-                        justifyContent: 'center',
-                        textAlign:'center',
-                      }}>Done</Text>
-                    </Pressable>
+                    </Button>
                   </View>
                 </View>
               ))}
