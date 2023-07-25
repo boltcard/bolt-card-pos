@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Button,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -21,7 +20,9 @@ import QRCode from 'react-native-qrcode-svg';
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { Button } from 'react-native-elements';
 import PinPadButton from '../components/PinPadButton';
+import PinCodeButton from '../components/PinCodeButton';
 import CircleBorder from '../components/CircleBorder';
 import { ShopSettingsContext } from '../contexts/ShopSettingsContext';
 import { LightningCustodianWallet } from '../wallets/lightning-custodian-wallet.js';
@@ -77,6 +78,7 @@ function Home({navigation}): React.FC<Props> {
   const [showPinModal, setShowPinModal] = useState(false);
   const [pinCode, setPinCode] = useState("");
   const [callbackUrl, setCallbackUrl] = useState("");
+  const [pinTimeout, setPintimeout] = useState(0);
 
 
   const [open, setOpen] = useState(false);
@@ -341,8 +343,7 @@ function Home({navigation}): React.FC<Props> {
                 : filteredInvoice.payment_request === lndInvoice,
             )[0];
 
-            console.log(Date.now() + ' ispaid?', updatedUserInvoice.ispaid);
-
+            console.log(Date.now() + ' ispaid?', updatedUserInvoice?.ispaid);
             if (typeof updatedUserInvoice !== 'undefined') {
               if (updatedUserInvoice.ispaid) {
                 // we fetched the invoice, and it is paid :-)
@@ -380,6 +381,48 @@ function Home({navigation}): React.FC<Props> {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFetchingInvoices]);
 
+  const fetchCallback = (callback, pin = null) => {
+    if(pin) {
+      callback.searchParams.set('pin', pin);
+    }
+    return fetch(callback.toString())
+            .then(cbResponse => cbResponse.json())
+            .then(cbData => {
+              console.log('bolt callback', cbData);
+              if (cbData.status == 'ERROR') {
+                console.error(cbData.reason);
+                Toast.show({
+                  type: 'error',
+                  text1: 'Bolt Card Error',
+                  text2: cbData.reason,
+                });
+                setTimeout(() => {
+                  readNdef()
+                }, 1000);
+                setBoltLoading(false);
+              } else {
+                setBoltServiceCallback(true);
+              }
+              
+            })
+            .catch(err => {
+              console.error(err);
+              Toast.show({
+                type: 'error',
+                text1: 'Bolt Card Error',
+                text2: err.message,
+              });
+              setTimeout(() => {
+                readNdef();
+              }, 1000);
+              setBoltLoading(false);
+            })
+            .finally(() => {
+              setNdef(undefined);
+              clearPinAndCallback();
+            });
+  }
+
 
   /**
    * Set with a valid URL from the NFC reader.
@@ -405,51 +448,14 @@ function Home({navigation}): React.FC<Props> {
               //if the card has pin enabled 
               //check the amount didn't exceed the limit
               const limitSat = data.pinLimit / 1000;
-              if(limitSat < satsAmount) {
-                console.log('limit', limitSat, satsAmount);
-                //@TODO: need pin to proceed
+              if(limitSat <= satsAmount) {
                 setCallbackUrl(callback);
-                // return;
+                setPinCode("");
+                setShowPinModal(true);
+                return;
               }
             }
-            const callback = new URL(data.callback);
-            callback.searchParams.set('k1', data.k1);
-            callback.searchParams.set('pr', lndInvoice);
-            fetch(callback.toString())
-              .then(cbResponse => cbResponse.json())
-              .then(cbData => {
-                console.log('bolt callback', cbData);
-                if (cbData.status == 'ERROR') {
-                  console.error(cbData.reason);
-                  Toast.show({
-                    type: 'error',
-                    text1: 'Bolt Card Error',
-                    text2: cbData.reason,
-                  });
-                  setTimeout(() => {
-                    readNdef()
-                  }, 1000);
-                  setBoltLoading(false);
-                } else {
-                  setBoltServiceCallback(true);
-                }
-                
-              })
-              .catch(err => {
-                console.error(err);
-                Toast.show({
-                  type: 'error',
-                  text1: 'Bolt Card Error',
-                  text2: err.message,
-                });
-                setTimeout(() => {
-                  readNdef();
-                }, 1000);
-                setBoltLoading(false);
-              })
-              .finally(() => {
-                setNdef(undefined);
-              });
+            fetchCallback(callback);
           } else if (data.status == 'ERROR') {
             console.error(data.reason);
             Toast.show({
@@ -542,6 +548,15 @@ function Home({navigation}): React.FC<Props> {
     }
   },[inputAmount, selectedUnit, totalAmount])
 
+  useEffect(() => {
+    if(pinCode && pinCode.length == 4) {
+      setTimeout(() => {
+        setShowPinModal(false);
+        fetchCallback(callbackUrl, pinCode);
+      }, 500)
+    }
+  }, [pinCode]);
+
   const copyToClipboard = () => {
     Clipboard.setString(lndInvoice);
     Toast.show({
@@ -580,6 +595,7 @@ function Home({navigation}): React.FC<Props> {
       setPinCode((prevPin) => {
         return "" + prevPin + val;
       })
+
     }
   }
 
@@ -600,7 +616,8 @@ function Home({navigation}): React.FC<Props> {
             setPinCode("");
           }}
         >
-          <View style={{justifyContent: 'center', flex: 1}}>
+          <View style={{justifyContent: 'center', flex: 1, backgroundColor: "#FF9900"}}>
+            <Text style={{textAlign: 'center', fontSize: 25, marginBottom: 20, fontWeight: 600}}>{satsAmount ? satsAmount.toLocaleString() : 0} sats</Text>
             <Text style={{textAlign: 'center', fontSize: 30, marginBottom: 30, fontWeight: 700, color: '#333'}}>Enter PIN</Text>
             <View style={{flexDirection: 'row', justifyContent: 'center', marginBottom: 30}}>
               <CircleBorder fill={isPinEntered(1)} containerStyle={{marginRight: 10}}/>
@@ -608,25 +625,37 @@ function Home({navigation}): React.FC<Props> {
               <CircleBorder fill={isPinEntered(3)} containerStyle={{marginRight: 10}} />
               <CircleBorder fill={isPinEntered(4)}  />
             </View>
-            <View style={{flexDirection: 'row', alignItems: 'stretch'}}>
-              <PinPadButton number="7" onPress={() => pinPress('7')} />
-              <PinPadButton number="8" onPress={() => pinPress('8')} />
-              <PinPadButton number="9" onPress={() => pinPress('9')} />
+            <View style={{flexDirection: 'row', marginBottom: 10}}>
+              <PinCodeButton number="7" onPress={() => pinPress('7')} />
+              <PinCodeButton number="8" onPress={() => pinPress('8')} />
+              <PinCodeButton number="9" onPress={() => pinPress('9')} />
             </View>
-            <View style={{flexDirection: 'row'}}>
-              <PinPadButton number="4" onPress={() => pinPress('4')} />
-              <PinPadButton number="5" onPress={() => pinPress('5')} />
-              <PinPadButton number="6" onPress={() => pinPress('6')} />
+            <View style={{flexDirection: 'row', marginBottom: 10}}>
+              <PinCodeButton number="4" onPress={() => pinPress('4')} />
+              <PinCodeButton number="5" onPress={() => pinPress('5')} />
+              <PinCodeButton number="6" onPress={() => pinPress('6')} />
             </View>
-            <View style={{flexDirection: 'row'}}>
-              <PinPadButton number="1" onPress={() => pinPress('1')} />
-              <PinPadButton number="2" onPress={() => pinPress('2')} />
-              <PinPadButton number="3" onPress={() => pinPress('3')} />
+            <View style={{flexDirection: 'row', marginBottom: 10}}>
+              <PinCodeButton number="1" onPress={() => pinPress('1')} />
+              <PinCodeButton number="2" onPress={() => pinPress('2')} />
+              <PinCodeButton number="3" onPress={() => pinPress('3')} />
             </View>
-            <View style={{flexDirection: 'row'}}>
-              <PinPadButton number="" />
-              <PinPadButton number="0" onPress={() => pinPress('0')} />
-              <PinPadButton number="X" onPress={() => pinPress('X')} />
+            <View style={{flexDirection: 'row', marginBottom: 10}}>
+              <PinCodeButton number="" />
+              <PinCodeButton number="0" onPress={() => pinPress('0')} />
+              <PinCodeButton number={<Icon name="backspace" size={35}/>} onPress={() => pinPress('X')} />
+            </View>
+            <View style={{marginTop: 15, justifyContent: 'center', paddingHorizontal: 20}}>
+              <Button
+                title="Cancel"
+                onPress={() => {
+                  clearPinAndCallback();
+                  setShowPinModal(false);
+                  retryBoltcardPayment()
+                }}
+                buttonStyle={{backgroundColor: "tomato"}}
+                titleStyle={{fontSize: 20}}
+              ></Button>
             </View>
           </View>
         </Modal>
@@ -763,6 +792,7 @@ function Home({navigation}): React.FC<Props> {
                       logoBackgroundColor="transparent"
                     />
                   </View>
+                  
                   {/*<View style={{width:'100%', padding: 20, flexDirection:'row', justifyContent:'space-around'}}>
                     <View  style={{borderWidth:1, borderColor: '#ccc', padding:10, borderRadius:10}}>
                       <Pressable 
@@ -796,7 +826,7 @@ function Home({navigation}): React.FC<Props> {
                 <View
                   style={{...textStyle, flexDirection: 'column', justifyContent: 'center', borderWidth:1, borderRadius:10, margin:10}}>
                   <View style={{flexDirection: 'row', justifyContent: 'center', paddingLeft:30}}>
-                    <Icon name="checkmark-circle" color="#0f0" size={200} />
+                    <Icon name="checkmark-circle" color="darkgreen" size={200} />
                   </View>
                   <View
                     style={{flexDirection: 'row', justifyContent: 'center'}}>
@@ -821,17 +851,17 @@ function Home({navigation}): React.FC<Props> {
               ))}
             {lndInvoice &&
               (!invoiceIsPaid && boltLoading) &&
-              <View style={{position: 'absolute', top:'20%', left:'10%', height:'30%', width:'80%', backgroundColor:'#000', padding:10, borderRadius:10}}>
-                <Text style={{...textStyle, fontSize:20}}>Bolt Card Detected. <Icon name="checkmark" color="#0f0" size={20} /></Text>
+              <View style={{...backgroundStyle, position: 'absolute', top:'20%', left:'10%', height:'30%', width:'80%', padding:10, borderRadius:10}}>
+                <Text style={{...textStyle, fontSize:20}}>Bolt Card Detected. <Icon name="checkmark" color="darkgreen" size={20} /></Text>
                 {boltServiceResponse && 
                   <Text style={{...textStyle, fontSize:20}}>
-                    Bolt Service connected <Icon name="checkmark" color="#0f0" size={20} />
+                    Bolt Service connected <Icon name="checkmark" color="darkgreen" size={20} />
                   </Text>
                 }
                 {boltServiceCallback && 
                   <>
                     <Text style={{...textStyle, fontSize:20}}>
-                      Bolt Service Callback success <Icon name="checkmark" color="#0f0" size={20} />
+                      Bolt Service Callback success <Icon name="checkmark" color="darkgreen" size={20} />
                     </Text>
                     <Text style={{...textStyle, fontSize:20}}>
                       Payment initiated...
