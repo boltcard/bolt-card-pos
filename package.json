@@ -8,7 +8,7 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "postinstall": "rn-nodeify --install events,process,stream,buffer --hack; npx react-native setup-ios-permissions; npx patch-package; npx pod-install"
+    "postinstall": "rn-nodeify --install events,process,stream,buffer --hack; npx react-native setup-ios-permissions; npx patch-package; npx pod-install; rm -rf node_modules/react-native-qrcode-scanner/node_modules/react-native-permissions;"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.17.11",
