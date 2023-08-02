@@ -73,9 +73,9 @@ PODS:
     - FlipperKit/FlipperKitNetworkPlugin
   - fmt (6.2.1)
   - glog (0.3.5)
-  - hermes-engine (0.71.7):
-    - hermes-engine/Pre-built (= 0.71.7)
-  - hermes-engine/Pre-built (0.71.7)
+  - hermes-engine (0.71.11):
+    - hermes-engine/Pre-built (= 0.71.11)
+  - hermes-engine/Pre-built (0.71.11)
   - libevent (2.1.12)
   - OpenSSL-Universal (1.1.1100)
   - RCT-Folly (2021.07.22.00):
@@ -433,6 +433,8 @@ PODS:
     - React-Core
   - RNCClipboard (1.11.2):
     - React-Core
+  - RNDeviceInfo (10.6.0):
+    - React-Core
   - RNGestureHandler (2.9.0):
     - React-Core
   - RNPermissions (3.8.0):
@@ -540,6 +542,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
+  - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
@@ -643,6 +646,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
     :path: "../node_modules/@react-native-clipboard/clipboard"
+  RNDeviceInfo:
+    :path: "../node_modules/react-native-device-info"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNPermissions:
@@ -675,7 +680,7 @@ SPEC CHECKSUMS:
   FlipperKit: cbdee19bdd4e7f05472a66ce290f1b729ba3cb86
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
-  hermes-engine: 4438d2b8bf8bebaba1b1ac0451160bab59e491f8
+  hermes-engine: 34c863b446d0135b85a6536fa5fd89f48196f848
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
@@ -710,6 +715,7 @@ SPEC CHECKSUMS:
   ReactCommon: dbfbe2f7f3c5ce4ce44f43f2fd0d5950d1eb67c5
   RNCAsyncStorage: 8616bd5a58af409453ea4e1b246521bb76578d60
   RNCClipboard: 3f0451a8100393908bea5c5c5b16f96d45f30bfc
+  RNDeviceInfo: 475a4c447168d0ad4c807e48ef5e0963a0f4eb1b
   RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
   RNPermissions: 06845210af313594dc3fe5e8ae6afc820d791409
   RNReanimated: b1220a0e5168745283ff5d53bfc7d2144b2cee1b
@@ -720,6 +726,6 @@ SPEC CHECKSUMS:
   Yoga: d56980c8914db0b51692f55533409e844b66133c
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: c37562ea20935bffba21fbd3ac03a5574dc03b3b
+PODFILE CHECKSUM: bbb4adc7c20f3ef4d9c0cc6a276ff3de72ddb739
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.10.2
