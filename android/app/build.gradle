@@ -98,7 +98,10 @@ android {
         applicationId "org.boltcard.boltcardpos"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 7
+        /*
+         * https://www.epochconverter.com/
+         */
+        versionCode 1691024947
         versionName "0.1.0"
 
         missingDimensionStrategy 'react-native-camera', 'general'
