@@ -58,7 +58,7 @@ function Home({navigation}): React.FC<Props> {
 
   //invoice stuff
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(false);
-  const [lndInvoice, setLndInvoice] = useState<string>();
+  const [lndInvoice, setLndInvoice] = useState<string>(null);
   const [invoiceIsPaid, setInvoiceIsPaid] = useState<boolean>(false);
   const [invoiceLoading, setInvoiceLoading] = useState<boolean>(false);
 
@@ -303,7 +303,7 @@ function Home({navigation}): React.FC<Props> {
     setIsFetchingInvoices(false);
     clearInterval(fetchInvoiceInterval.current);
     fetchInvoiceInterval.current = undefined;
-    setLndInvoice(undefined);
+    setLndInvoice(null);
     setBoltLoading(false);
     setBoltServiceResponse(false);
     setBoltServiceCallback(true);
@@ -626,9 +626,9 @@ function Home({navigation}): React.FC<Props> {
               <CircleBorder fill={isPinEntered(4)}  />
             </View>
             <View style={{flexDirection: 'row', marginBottom: 10}}>
-              <PinCodeButton number="7" onPress={() => pinPress('7')} />
-              <PinCodeButton number="8" onPress={() => pinPress('8')} />
-              <PinCodeButton number="9" onPress={() => pinPress('9')} />
+              <PinCodeButton number="1" onPress={() => pinPress('1')} />
+              <PinCodeButton number="2" onPress={() => pinPress('2')} />
+              <PinCodeButton number="3" onPress={() => pinPress('3')} />
             </View>
             <View style={{flexDirection: 'row', marginBottom: 10}}>
               <PinCodeButton number="4" onPress={() => pinPress('4')} />
@@ -636,9 +636,9 @@ function Home({navigation}): React.FC<Props> {
               <PinCodeButton number="6" onPress={() => pinPress('6')} />
             </View>
             <View style={{flexDirection: 'row', marginBottom: 10}}>
-              <PinCodeButton number="1" onPress={() => pinPress('1')} />
-              <PinCodeButton number="2" onPress={() => pinPress('2')} />
-              <PinCodeButton number="3" onPress={() => pinPress('3')} />
+              <PinCodeButton number="7" onPress={() => pinPress('7')} />
+              <PinCodeButton number="8" onPress={() => pinPress('8')} />
+              <PinCodeButton number="9" onPress={() => pinPress('9')} />
             </View>
             <View style={{flexDirection: 'row', marginBottom: 10}}>
               <PinCodeButton number="" />
@@ -830,7 +830,7 @@ function Home({navigation}): React.FC<Props> {
                   </View>
                   <View
                     style={{flexDirection: 'row', justifyContent: 'center'}}>
-                    <Text style={{...textStyle, fontSize: 60}}>Paid!</Text>
+                    <Text style={{fontSize: 60, color: '#000'}}>Paid!</Text>
                   </View>
                   <View style={{padding: 20}}>
                     <Button
@@ -841,51 +841,60 @@ function Home({navigation}): React.FC<Props> {
                       }}
                       titleStyle={{
                         fontSize: 20,
-                        fontWeight: 600
+                        fontWeight: 600,
+                        color: '#000'
                       }}
                     >
                     </Button>
                   </View>
                 </View>
               ))}
-            {lndInvoice &&
-              (!invoiceIsPaid && boltLoading) &&
-              <View style={{...backgroundStyle, position: 'absolute', top:'20%', left:'10%', height:'30%', width:'80%', padding:10, borderRadius:10}}>
-                <Text style={{...textStyle, fontSize:20}}>Bolt Card Detected. <Icon name="checkmark" color="darkgreen" size={20} /></Text>
-                {boltServiceResponse && 
-                  <Text style={{...textStyle, fontSize:20}}>
-                    Bolt Service connected <Icon name="checkmark" color="darkgreen" size={20} />
-                  </Text>
-                }
-                {boltServiceCallback && 
-                  <>
+
+            <Modal
+              animationType="fade"
+              visible={lndInvoice && (!invoiceIsPaid && boltLoading)}
+              onRequestClose={retryBoltcardPayment}
+              transparent={true}
+            >
+              <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                  <Text style={{...textStyle, fontSize:20}}>Bolt Card Detected. <Icon name="checkmark" color="darkgreen" size={20} /></Text>
+                  {boltServiceResponse && 
                     <Text style={{...textStyle, fontSize:20}}>
-                      Bolt Service Callback success <Icon name="checkmark" color="darkgreen" size={20} />
+                      Bolt Service connected <Icon name="checkmark" color="darkgreen" size={20} />
                     </Text>
-                    <Text style={{...textStyle, fontSize:20}}>
-                      Payment initiated...
-                    </Text>
-                  </>
-                }
-                
-                <ActivityIndicator size="large" color="#ff9900" />
-                <View style={{padding: 20}}>
-                    <Pressable
+                  }
+                  {boltServiceCallback && 
+                    <>
+                      <Text style={{...textStyle, fontSize:20}}>
+                        Bolt Service Callback success <Icon name="checkmark" color="darkgreen" size={20} />
+                      </Text>
+                      <Text style={{...textStyle, fontSize:20}}>
+                        Payment initiated...
+                      </Text>
+                    </>
+                  }
+                  
+                  <ActivityIndicator size="large" color="#ff9900" />
+                  <View style={{padding: 20}}>
+                    <Button
+                      title="Retry Payment"
                       onPress={retryBoltcardPayment}
+                      buttonStyle={{
+                        backgroundColor: '#ff9900'
+                      }}
+                      titleStyle={{
+                        fontSize: 20,
+                        fontWeight: 600,
+                        color: '#000'
+                      }}
                     >
-                      <Text style={{
-                        ...textStyle,
-                        backgroundColor: '#ff9900',
-                        height: 45,
-                        lineHeight:40,
-                        fontSize:30,
-                        justifyContent: 'center',
-                        textAlign:'center',
-                      }}>Retry Payment</Text>
-                    </Pressable>
+                    </Button>
+                    
                   </View>
+                </View>
               </View>
-            }
+            </Modal>
           </>
         )}
       </View>
@@ -909,6 +918,27 @@ const styles = StyleSheet.create({
   },
   highlight: {
     fontWeight: '700',
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });
 
