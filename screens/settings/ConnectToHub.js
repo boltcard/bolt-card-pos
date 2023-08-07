@@ -12,6 +12,7 @@ import Toast from 'react-native-toast-message';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { ShopSettingsContext } from '../../contexts/ShopSettingsContext';
 import QRScanner from '../QRScanner';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const ConnectToHub = (props) => {
     const {lndhub, setLndhub, lndhubUser, setLndhubUser} = useContext(ShopSettingsContext);
@@ -60,52 +61,58 @@ const ConnectToHub = (props) => {
                     style={{...backgroundStyle, ...textStyle}}>
                     <View style={{padding: 20, height:'100%', ...backgroundStyle, ...textStyle}}>
                         <Text style={{fontSize: 30, fontWeight: 'bold', ...textStyle}}>
+                            Setup Instructions
+                        </Text>
+                        <Text style={{fontSize: 20, ...textStyle}}>
+                            1. Install LNBits >10.7 & the LNDHub extension.
+                        </Text>
+                        <Text style={{fontSize: 20, ...textStyle}}>
+                            2. Copy and paste invoice URL or Scan the "invoice" QR Code.
+                        </Text>
+                        <Text style={{fontSize: 20, ...textStyle, color:'orange'}}>
+                            <Icon size={20} name="warning" /> NB: Minimum supported LNBits version is 10.7 and above.
+                        </Text>
+
+                        <Text style={{fontSize: 30, marginTop:20, fontWeight: 'bold', ...textStyle}}>
                             Current Settings
                         </Text>
-                        <Text style={{fontWeight:'bold', ...textStyle}}>LND Hub User:</Text>
-                        <Text style={{...textStyle}}>{lndhubUser && lndhubUser != 'blank' && lndhubUser}</Text>
-                        <Text style={{fontWeight:'bold', ...textStyle}}>LND Hub:</Text>
-                        <Text style={{...textStyle}}>{lndhub && lndhub != 'blank' && lndhub}</Text>
-
-                        <Text style={{...textStyle, marginTop:10}}>Change Hub URL</Text>
+                        <View>
+                            <Text style={{fontWeight:'bold', ...textStyle}}>LND Hub User:</Text>
+                            <Text style={{...textStyle}}>{lndhubUser && lndhubUser != 'blank' && lndhubUser}</Text>
+                            <Text style={{fontWeight:'bold', ...textStyle}}>LND Hub:</Text>
+                            <Text style={{...textStyle}}>{lndhub && lndhub != 'blank' && lndhub}</Text>
+                        </View>
+                        <Button
+                            title="Clear Hub Connection"
+                            onPress={() => {
+                                setLndhubUser(null);
+                                setLndhub(null);
+                            }}
+                        />
+                        <View style={{flexDirection:'row', justifyContent:'space-between', marginVertical: 10}}>
+                            <Text style={{...textStyle, marginTop:10}}>Scan Invoice QR Code</Text>
+                            <Button
+                                
+                                title="Scan QR Code"
+                                onPress={() => setScanMode(!scanMode)}
+                            />
+                        </View>
+                        <Text style={{...textStyle, marginTop:10}}>Paste Hub URL here</Text>
                         <TextInput
                           style={{...textStyle, fontSize: 16, borderWidth: 1, marginVertical: 10, padding: 10}}
                           editable={true}
                           value={hub}
                           onChangeText={text => setHub(text)}
                         />  
-                        <View style={{flexDirection:'row', justifyContent:'space-between'}}>
-                            
-                            <Pressable
-                                onPress={() => setScanMode(!scanMode)}
-                            >
-                                <Text style={{...textStyle, borderWidth:1, padding:10}}>Scan QR Code</Text>
-                            </Pressable>
-                            <Pressable
-                                onPress={() => {
-                                    setLndhubUser(null);
-                                    setLndhub(null);
-                                }}
-                            >
-                                <Text style={{...textStyle, borderWidth:1, padding:10}}>Clear Hub</Text>
-                            </Pressable>
-                            <Pressable
-                                onPress={() => onScanSuccess({data:hub})}
-                            >
-                                <Text style={{...textStyle, borderWidth:1, padding:10}}>Save Hub URL</Text>
-                            </Pressable>
-                        </View>
-
-                        <Text style={{fontSize: 30, fontWeight: 'bold', marginTop:20, ...textStyle}}>
-                            Setup Instructions
-                        </Text>
-                        <Text style={{fontSize: 20, ...textStyle}}>
-                            1. Install LNBits & the LNDHub extension.
-                        </Text>
-                        <Text style={{fontSize: 20, ...textStyle}}>
-                            2. Copy and paste invoice URL or Scan the "invoice" QR Code.
-                        </Text>
                         
+                        <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+                            <Button
+                                title="Save Hub URL"
+                                onPress={() => onScanSuccess({data:hub})}
+                            />
+                        </View>
+                        
+                       
                     </View>
                     
                 </View>
