@@ -17,7 +17,7 @@ import {
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import QRCode from 'react-native-qrcode-svg';
-import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { Button } from 'react-native-elements';
@@ -67,6 +67,7 @@ function Home({navigation}): React.FC<Props> {
   const [boltLoading, setBoltLoading] = useState<boolean>(false);
   const [boltServiceResponse, setBoltServiceResponse] = useState<boolean>(false);
   const [boltServiceCallback, setBoltServiceCallback] = useState<boolean>(false);
+  const [disableNfcButton, setDisableNfcButton] = useState<boolean>(false);
   
   //connection
   const [lndWallet, setLndWallet] = useState<LightningCustodianWallet>();
@@ -230,10 +231,24 @@ function Home({navigation}): React.FC<Props> {
     return result;
   }
 
+  async function stopReadNdef() {
+    try {
+      return await NfcManager.cancelTechnologyRequest().then(() => {
+        setTimeout(() => {
+          console.log('set disable to false')
+          setDisableNfcButton(false);
+        }, 1000)
+      });
+    } catch (error) {
+      console.log('*** ERROR: NFC stopReadNdef:', error);
+    }
+  }
+
   async function readNdef() {
     console.log('***** Await NFC Tag');
     try {
       // register for the NFC tag with NDEF in it
+      setDisableNfcButton(true);
       const result = await NfcManager.requestTechnology(NfcTech.Ndef);
       console.log('NfcManager.requestTechnology(NfcTech.Ndef)', result);
       // the resolved tag object will contain `ndefMessage` property
@@ -249,9 +264,8 @@ function Home({navigation}): React.FC<Props> {
           text1: 'Bolt Card Response Empty',
           text2: 'The bolt card response was empty. Is the card configured?',
         });
-        await NfcManager.cancelTechnologyRequest();
         setTimeout(() => {
-          readNdef();
+          if (Platform.OS !== 'ios') readNdef();
         }, 1000);
       }
 
@@ -267,9 +281,8 @@ function Home({navigation}): React.FC<Props> {
           text1: 'Bolt Card Invalid',
           text2: 'This card did not provide a Bolt service URL',
         });
-        await NfcManager.cancelTechnologyRequest();
         setTimeout(() => {
-          readNdef();
+          if (Platform.OS !== 'ios') readNdef();
         }, 1000);
       }
       console.log(bytesToNdef.substring(1, bytesToNdef.length));
@@ -277,6 +290,7 @@ function Home({navigation}): React.FC<Props> {
       console.log('*** readNdef() NFC Error:', error);
     } finally {
       // stop the nfc scanning
+      console.log('*** finally')
       stopReadNdef();
     }
   }
@@ -286,14 +300,6 @@ function Home({navigation}): React.FC<Props> {
       return Boolean(new URL(urlString));
     } catch (e) {
       return false;
-    }
-  }
-
-  async function stopReadNdef() {
-    try {
-      await NfcManager.cancelTechnologyRequest();
-    } catch (error) {
-      console.log('*** ERROR: NFC stopReadNdef:', error);
     }
   }
 
@@ -397,7 +403,7 @@ function Home({navigation}): React.FC<Props> {
                   text2: cbData.reason,
                 });
                 setTimeout(() => {
-                  readNdef()
+                  if(Platform.OS == 'android') readNdef()
                 }, 1000);
                 setBoltLoading(false);
               } else {
@@ -413,7 +419,7 @@ function Home({navigation}): React.FC<Props> {
                 text2: err.message,
               });
               setTimeout(() => {
-                readNdef();
+                if(Platform.OS == 'android') readNdef();
               }, 1000);
               setBoltLoading(false);
             })
@@ -449,6 +455,7 @@ function Home({navigation}): React.FC<Props> {
               //check the amount didn't exceed the limit
               const limitSat = data.pinLimit / 1000;
               if(limitSat <= satsAmount) {
+                console.log('PIN LIMIT')
                 setCallbackUrl(callback);
                 setPinCode("");
                 setShowPinModal(true);
@@ -464,7 +471,7 @@ function Home({navigation}): React.FC<Props> {
               text2: data.reason,
             });
             setTimeout(() => {
-              readNdef();
+              if(Platform.OS == 'android') readNdef();
             }, 1000);
             setBoltLoading(false);
             setNdef(undefined);
@@ -478,7 +485,7 @@ function Home({navigation}): React.FC<Props> {
             text2: err.message,
           });
           setTimeout(() => {
-            readNdef();
+            if(Platform.OS == 'android') readNdef();
           }, 1000);
           setBoltLoading(false);
         })
@@ -488,14 +495,16 @@ function Home({navigation}): React.FC<Props> {
     }
   }, [ndef]);
 
-  const retryBoltcardPayment = () => {
+  const retryBoltcardPayment = (disableReadNdef = false) => {
     setBoltLoading(false);
     setBoltServiceCallback(false);
     setBoltServiceResponse(false);
-    NfcManager.cancelTechnologyRequest().then(() => {
-      setTimeout(() => {
-        readNdef();
-      }, 1000);
+    stopReadNdef().then(() => {
+      if(!disableReadNdef) {
+        setTimeout(() => {
+          readNdef();
+        }, 1500);
+      }
     });
   }
 
@@ -607,58 +616,6 @@ function Home({navigation}): React.FC<Props> {
   return (
     <View style={{...backgroundStyle, flex: 1}}>
       <View style={{...backgroundStyle, flex: 1}}>
-        <Modal
-          animationType="fade"
-          transparent={false}
-          visible={showPinModal}
-          onRequestClose={() => {
-            setShowPinModal(!showPinModal);
-            setPinCode("");
-          }}
-        >
-          <View style={{justifyContent: 'center', flex: 1, backgroundColor: "#FF9900"}}>
-            <Text style={{textAlign: 'center', fontSize: 25, marginBottom: 20, fontWeight: 600}}>{satsAmount ? satsAmount.toLocaleString() : 0} sats</Text>
-            <Text style={{textAlign: 'center', fontSize: 30, marginBottom: 30, fontWeight: 700, color: '#333'}}>Enter PIN</Text>
-            <View style={{flexDirection: 'row', justifyContent: 'center', marginBottom: 30}}>
-              <CircleBorder fill={isPinEntered(1)} containerStyle={{marginRight: 10}}/>
-              <CircleBorder fill={isPinEntered(2)} containerStyle={{marginRight: 10}} />
-              <CircleBorder fill={isPinEntered(3)} containerStyle={{marginRight: 10}} />
-              <CircleBorder fill={isPinEntered(4)}  />
-            </View>
-            <View style={{flexDirection: 'row', marginBottom: 10}}>
-              <PinCodeButton number="1" onPress={() => pinPress('1')} />
-              <PinCodeButton number="2" onPress={() => pinPress('2')} />
-              <PinCodeButton number="3" onPress={() => pinPress('3')} />
-            </View>
-            <View style={{flexDirection: 'row', marginBottom: 10}}>
-              <PinCodeButton number="4" onPress={() => pinPress('4')} />
-              <PinCodeButton number="5" onPress={() => pinPress('5')} />
-              <PinCodeButton number="6" onPress={() => pinPress('6')} />
-            </View>
-            <View style={{flexDirection: 'row', marginBottom: 10}}>
-              <PinCodeButton number="7" onPress={() => pinPress('7')} />
-              <PinCodeButton number="8" onPress={() => pinPress('8')} />
-              <PinCodeButton number="9" onPress={() => pinPress('9')} />
-            </View>
-            <View style={{flexDirection: 'row', marginBottom: 10}}>
-              <PinCodeButton number="" />
-              <PinCodeButton number="0" onPress={() => pinPress('0')} />
-              <PinCodeButton number={<Icon name="backspace" size={35}/>} onPress={() => pinPress('X')} />
-            </View>
-            <View style={{marginTop: 15, justifyContent: 'center', paddingHorizontal: 20}}>
-              <Button
-                title="Cancel"
-                onPress={() => {
-                  clearPinAndCallback();
-                  setShowPinModal(false);
-                  retryBoltcardPayment()
-                }}
-                buttonStyle={{backgroundColor: "tomato"}}
-                titleStyle={{fontSize: 20}}
-              ></Button>
-            </View>
-          </View>
-        </Modal>
         {!walletConfigured && (
           <ConnectToHub 
             lndhub={lndhub}
@@ -810,13 +767,15 @@ function Home({navigation}): React.FC<Props> {
                     </View>
                   </View>*/}
                   {Platform.OS === 'ios' && (
-                    <View style={{padding: 10, backgroundColor: "#f90", borderRadius:10, marginTop:5}}>
+                    <View style={{padding: 10, borderRadius:10, marginTop:5, backgroundColor: disableNfcButton ? "gainsboro" : "#f90" }}>
                       <Pressable
                         onPress={readNdef}
+                        disabled={disableNfcButton}
                       >
                         <Text style={{fontSize:20, color:"#000"}}>
                           <Icon name="wifi" color="#000" size={20} />
                           Enable Bolt Card NFC
+                          {disableNfcButton && <ActivityIndicator style={{marginLeft: 7}} />}
                         </Text>
                       </Pressable>
                     </View>
@@ -849,52 +808,99 @@ function Home({navigation}): React.FC<Props> {
                   </View>
                 </View>
               ))}
-
-            <Modal
-              animationType="fade"
-              visible={lndInvoice && (!invoiceIsPaid && boltLoading)}
-              onRequestClose={retryBoltcardPayment}
-              transparent={true}
-            >
-              <View style={styles.centeredView}>
-                <View style={styles.modalView}>
-                  <Text style={{...textStyle, fontSize:20}}>Bolt Card Detected. <Icon name="checkmark" color="darkgreen" size={20} /></Text>
-                  {boltServiceResponse && 
-                    <Text style={{...textStyle, fontSize:20}}>
-                      Bolt Service connected <Icon name="checkmark" color="darkgreen" size={20} />
-                    </Text>
-                  }
-                  {boltServiceCallback && 
-                    <>
-                      <Text style={{...textStyle, fontSize:20}}>
-                        Bolt Service Callback success <Icon name="checkmark" color="darkgreen" size={20} />
-                      </Text>
-                      <Text style={{...textStyle, fontSize:20}}>
-                        Payment initiated...
-                      </Text>
-                    </>
-                  }
-                  
-                  <ActivityIndicator size="large" color="#ff9900" />
-                  <View style={{padding: 20}}>
-                    <Button
-                      title="Retry Payment"
-                      onPress={retryBoltcardPayment}
-                      buttonStyle={{
-                        backgroundColor: '#ff9900'
-                      }}
-                      titleStyle={{
-                        fontSize: 20,
-                        fontWeight: 600,
-                        color: '#000'
-                      }}
-                    >
-                    </Button>
-                    
+                <Modal
+                  animationType="fade"
+                  visible={lndInvoice && (!invoiceIsPaid && boltLoading)}
+                  onRequestClose={() => retryBoltcardPayment(Platform.OS == 'ios')}
+                  transparent={true}
+                >
+                  <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                      <Text style={{...textStyle, fontSize:20}}>Bolt Card Detected. <Icon name="checkmark" color="darkgreen" size={20} /></Text>
+                      {boltServiceResponse && 
+                        <Text style={{...textStyle, fontSize:20}}>
+                          Bolt Service connected <Icon name="checkmark" color="darkgreen" size={20} />
+                        </Text>
+                      }
+                      {boltServiceCallback && 
+                        <>
+                          <Text style={{...textStyle, fontSize:20}}>
+                            Bolt Service Callback success <Icon name="checkmark" color="darkgreen" size={20} />
+                          </Text>
+                          <Text style={{...textStyle, fontSize:20}}>
+                            Payment initiated...
+                          </Text>
+                        </>
+                      }
+                      
+                      <ActivityIndicator size="large" color="#ff9900" />
+                      <View style={{padding: 20}}>
+                        <Button
+                          title="Retry Payment"
+                          onPress={() => retryBoltcardPayment(Platform.OS == 'ios')}
+                          buttonStyle={{
+                            backgroundColor: '#ff9900'
+                          }}
+                          titleStyle={styles.buttonText}
+                        >
+                        </Button>
+                        
+                      </View>
+                    </View>
                   </View>
-                </View>
-              </View>
-            </Modal>
+                  <Modal
+                    animationType="fade"
+                    transparent={false}
+                    visible={showPinModal}
+                    onRequestClose={() => {
+                      setShowPinModal(!showPinModal);
+                      setPinCode("");
+                    }}
+                  >
+                    <View style={{justifyContent: 'center', flex: 1, backgroundColor: "#FF9900"}}>
+                      <Text style={{textAlign: 'center', fontSize: 25, marginBottom: 20, fontWeight: 600}}>{satsAmount ? satsAmount.toLocaleString() : 0} sats</Text>
+                      <Text style={{textAlign: 'center', fontSize: 30, marginBottom: 30, fontWeight: 700, color: '#333'}}>Enter PIN</Text>
+                      <View style={{flexDirection: 'row', justifyContent: 'center', marginBottom: 30}}>
+                        <CircleBorder fill={isPinEntered(1)} containerStyle={{marginRight: 10}}/>
+                        <CircleBorder fill={isPinEntered(2)} containerStyle={{marginRight: 10}} />
+                        <CircleBorder fill={isPinEntered(3)} containerStyle={{marginRight: 10}} />
+                        <CircleBorder fill={isPinEntered(4)}  />
+                      </View>
+                      <View style={{flexDirection: 'row', marginBottom: 10}}>
+                        <PinCodeButton number="1" onPress={() => pinPress('1')} />
+                        <PinCodeButton number="2" onPress={() => pinPress('2')} />
+                        <PinCodeButton number="3" onPress={() => pinPress('3')} />
+                      </View>
+                      <View style={{flexDirection: 'row', marginBottom: 10}}>
+                        <PinCodeButton number="4" onPress={() => pinPress('4')} />
+                        <PinCodeButton number="5" onPress={() => pinPress('5')} />
+                        <PinCodeButton number="6" onPress={() => pinPress('6')} />
+                      </View>
+                      <View style={{flexDirection: 'row', marginBottom: 10}}>
+                        <PinCodeButton number="7" onPress={() => pinPress('7')} />
+                        <PinCodeButton number="8" onPress={() => pinPress('8')} />
+                        <PinCodeButton number="9" onPress={() => pinPress('9')} />
+                      </View>
+                      <View style={{flexDirection: 'row', marginBottom: 10}}>
+                        <PinCodeButton number="" />
+                        <PinCodeButton number="0" onPress={() => pinPress('0')} />
+                        <PinCodeButton number={<Icon name="backspace" size={35}/>} onPress={() => pinPress('X')} />
+                      </View>
+                      <View style={{marginTop: 15, justifyContent: 'center', paddingHorizontal: 20}}>
+                        <Button
+                          title="Cancel"
+                          onPress={() => {
+                            clearPinAndCallback();
+                            setShowPinModal(false);
+                            retryBoltcardPayment(Platform.OS == 'ios')
+                          }}
+                          buttonStyle={{backgroundColor: "tomato"}}
+                          titleStyle={{fontSize: 20}}
+                        ></Button>
+                      </View>
+                    </View>
+                  </Modal>
+                </Modal>
           </>
         )}
       </View>
@@ -940,6 +946,22 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  buttonText: {
+    fontSize: 20,
+    color: '#000',
+    ...Platform.select({
+      ios: {
+        fontWeight: 500
+      },
+      android: {
+        fontWeight: 600
+      },
+      default: {
+        fontWeight: 500
+      }
+      
+    })
+  }
 });
 
 export default Home;
