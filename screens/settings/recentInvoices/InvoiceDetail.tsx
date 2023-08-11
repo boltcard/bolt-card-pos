@@ -42,7 +42,7 @@ const InvoiceDetail = ({route}) => {
       `,
       fileName: 'receipt',
       directory: 'Documents',
-      height: 1300,
+      height: 1400,
       width: 595
     };
 
@@ -66,10 +66,15 @@ const InvoiceDetail = ({route}) => {
                 onPress={print}
               />
             </View>
-            <Text>{invoice.amt} sats</Text>
+            <View style={{flexDirection: 'row', marginBottom: 10, alignItems: 'center'}}>
+              <Text>
+                {invoice.amt} sats
+              </Text>
+              {invoice.ispaid ? <Badge status="success" value="Paid" containerStyle={styles.badgeContainer} badgeStyle={styles.badge} textStyle={styles.badgeText} /> : <Badge status="warning" value="Unpaid" containerStyle={styles.badgeContainer} badgeStyle={styles.badge} textStyle={styles.badgeText} />}
+            </View>
             <Text style={{marginBottom: 20}}>Payment Hash: {invoice.payment_hash}</Text>
             <QRCode
-              value={JSON.stringify({payment_request: invoice.payment_request})}
+              value={JSON.stringify({payment_hash: invoice.payment_hash})}
               getRef={qrRef}
               size={230}
             />
@@ -89,6 +94,16 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20
   },
-});
+  badgeContainer: {
+    marginLeft: 5,
+  },
+  badge: {
+    height: 22
+  },
+  badgeText: {
+    fontSize: 13,
+    lineHeight: 20
+  }
+})
 
 export default InvoiceDetail;

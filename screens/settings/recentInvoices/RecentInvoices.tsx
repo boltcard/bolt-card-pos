@@ -1,7 +1,6 @@
 import React, {useState, useContext, useEffect, useCallback} from 'react';
 import {
   StyleSheet,
-  Text,
   View,
   ScrollView,
   TextInput,
@@ -10,7 +9,7 @@ import {
   FlatList
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {ListItem, Text as ElementText, Badge} from 'react-native-elements';
+import {ListItem, Text, Badge, Button} from 'react-native-elements';
 import Toast from 'react-native-toast-message';
 import {ShopSettingsContext} from '../../../contexts/ShopSettingsContext';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
@@ -39,7 +38,7 @@ const RecentInvoices = () => {
         await shopWallet.authorize();
         const foundInvoices = await shopWallet?.getUserInvoices(queryLimit, offset);
         if (foundInvoices && Array.isArray(foundInvoices)) {
-          if(invoices.length == foundInvoices.length) setQueryEndReached(true);
+          if(foundInvoices.length < offset + queryLimit) setQueryEndReached(true);
           setInvoices(foundInvoices);
         }
         setRefreshing(false)
@@ -78,7 +77,17 @@ const RecentInvoices = () => {
     <>
       <View />
       <View style={{...styles.root, ...backgroundStyle}}>
-        <ElementText h3 h3Style={{marginBottom: 20}}>Recent Invocies</ElementText>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <Text h3 h3Style={{marginBottom: 20}}>Recent Invocies</Text>
+          <Button
+            icon={{
+              name: 'qrcode-scan',
+              type: 'material-community'
+            }}
+            type="clear"
+            onPress={() => navigate('ScanInvoice')}
+          ></Button>
+        </View>
         <FlatList
           data={invoices}
           renderItem={({item: inv}) => {

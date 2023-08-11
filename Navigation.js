@@ -3,7 +3,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, {useContext} from 'react';
 import {Image, View, Text, useColorScheme} from 'react-native';
 import Home from './screens/Home';
-import ScanInvoice from './screens/ScanInvoice';
 
 import { ShopSettingsContext } from './contexts/ShopSettingsContext';
 import { useNavigation } from '@react-navigation/native';
@@ -15,6 +14,7 @@ import ShopName from './screens/settings/ShopName';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import RecentInvoices from './screens/settings/recentInvoices/RecentInvoices';
 import InvoiceDetail from './screens/settings/recentInvoices/InvoiceDetail';
+import ScanInvoice from './screens/settings/recentInvoices/ScanInvoice';
 
 
 const boltPosLogo = require('./img/bolt-card-pos.png');
@@ -24,9 +24,13 @@ const InvoiceRoot = () => {
   return (
     <InvoiceStack.Navigator
       screenOptions={{headerHideShadow: true, headerShown: false}}
-      initialRouteName="Recent Invoices">
-      <InvoiceStack.Screen name="Recent Invoices" component={RecentInvoices} />
+      initialRouteName="Recent Invoice List">
+      <InvoiceStack.Screen name="Recent Invoice List" component={RecentInvoices} />
       <InvoiceStack.Screen name="Invoice Detail" component={InvoiceDetail} />
+      <InvoiceStack.Screen
+        name="ScanInvoice"
+        component={ScanInvoice}
+      />
     </InvoiceStack.Navigator>
   );
 }
@@ -90,11 +94,6 @@ const HomeRoot = () => {
       <HomeStack.Screen
         name="SettingsRoot"
         component={SettingsRoot}
-        options={{...NavigationDefaultOptions, headerStyle: {backgroundColor: isDarkMode ? '#666' : '#fff'}}}
-      />
-      <HomeStack.Screen
-        name="ScanInvoice"
-        component={ScanInvoice}
         options={{...NavigationDefaultOptions, headerStyle: {backgroundColor: isDarkMode ? '#666' : '#fff'}}}
       />
     </HomeStack.Navigator>
