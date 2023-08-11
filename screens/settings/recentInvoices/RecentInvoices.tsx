@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {ListItem, Text as ElementText, Badge} from 'react-native-elements';
+import Toast from 'react-native-toast-message';
 import {ShopSettingsContext} from '../../../contexts/ShopSettingsContext';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { LightningCustodianWallet } from '../../../wallets/lightning-custodian-wallet.js';
@@ -23,6 +24,7 @@ const RecentInvoices = () => {
   const {shopName, lndhub, lndhubUser, shopWallet} = useContext(ShopSettingsContext);
   const [invoices, setInvoices] = useState([]);
 
+  const [refreshing, setRefreshing] = useState(false);
   //pagination
   const [queryOffset, setQueryOffset] = useState(0);
   const [queryEndReached, setQueryEndReached] = useState(false);
@@ -33,27 +35,37 @@ const RecentInvoices = () => {
   };
 
   const fetchInvoices = useCallback(async (offset = 0) => {
-    console.log('OFFSET', offset);
       try{
         await shopWallet.authorize();
         const foundInvoices = await shopWallet?.getUserInvoices(queryLimit, offset);
         if (foundInvoices && Array.isArray(foundInvoices)) {
           if(invoices.length == foundInvoices.length) setQueryEndReached(true);
-          console.log('foundInvoices length', foundInvoices.length)
           setInvoices(foundInvoices);
         }
+        setRefreshing(false)
       } catch(err) {
+        Toast.show({
+          type: 'error',
+          text1: 'Fetch invoice error',
+          text2: err
+        });
         console.log(err);
       }
 
   }, [shopWallet, invoices])
 
   const onRefresh = () => {
-
+    setRefreshing(true);
+    setQueryEndReached(false);
+    if(queryOffset == 0) {
+      fetchInvoices();
+    } else {
+      setQueryOffset(0);
+    }
   }
 
   useEffect(() => {
-    console.log('queryOffset', queryOffset);
+    // console.log('queryOffset', queryOffset);
     fetchInvoices(queryOffset);
   }, [queryOffset])
 
@@ -100,7 +112,8 @@ const RecentInvoices = () => {
             if(!queryEndReached) setQueryOffset((prevOffset) => prevOffset + queryLimit)
           }}
           onEndReachedThreshold={0.2}
-          // onRefresh={onRefresh}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
         />
         <View style={{paddingVertical: 30}}></View>
       </View>
