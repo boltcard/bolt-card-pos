@@ -40,7 +40,7 @@ const InvoiceDetail = ({route}) => {
         <p style="font-size: 60px; overflow-wrap: break-word; word-break: break-all;">Payment Hash: ${invoice.payment_hash}</p>
         <img src="data:image/jpeg;base64,${qrData}" width="100%" height="auto"/>
       `,
-      fileName: 'receipt',
+      fileName: 'receipt_'+invoice.payment_hash,
       directory: 'Documents',
       height: 1400,
       width: 595
