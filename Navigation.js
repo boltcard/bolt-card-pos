@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, {useContext} from 'react';
 import {Image, View, Text, useColorScheme} from 'react-native';
 import Home from './screens/Home';
+import ScanInvoice from './screens/ScanInvoice';
 
 import { ShopSettingsContext } from './contexts/ShopSettingsContext';
 import { useNavigation } from '@react-navigation/native';
@@ -12,10 +13,23 @@ import Currency from './screens/settings/Currency';
 import Settings from './screens/settings/Settings';
 import ShopName from './screens/settings/ShopName';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import RecentInvoices from './screens/RecentInvoices';
+import RecentInvoices from './screens/settings/recentInvoices/RecentInvoices';
+import InvoiceDetail from './screens/settings/recentInvoices/InvoiceDetail';
 
 
 const boltPosLogo = require('./img/bolt-card-pos.png');
+
+const InvoiceStack = createNativeStackNavigator();
+const InvoiceRoot = () => {
+  return (
+    <InvoiceStack.Navigator
+      screenOptions={{headerHideShadow: true, headerShown: false}}
+      initialRouteName="Recent Invoices">
+      <InvoiceStack.Screen name="Recent Invoices" component={RecentInvoices} />
+      <InvoiceStack.Screen name="Invoice Detail" component={InvoiceDetail} />
+    </InvoiceStack.Navigator>
+  );
+}
 
 const SettingsStack = createNativeStackNavigator();
 const SettingsRoot = () => {
@@ -23,8 +37,8 @@ const SettingsRoot = () => {
     <SettingsStack.Navigator
       screenOptions={{headerHideShadow: true, headerShown:false}}
       initialRouteName="Settings">
-    <SettingsStack.Screen name="Settings" component={Settings} />
-      <SettingsStack.Screen name="Recent Invoices" component={RecentInvoices} />
+      <SettingsStack.Screen name="Settings" component={Settings} />
+      <SettingsStack.Screen name="Recent Invoices" component={InvoiceRoot} />
       <SettingsStack.Screen name="Connect" component={ConnectToHub} />
       <SettingsStack.Screen name="Currency" component={Currency} />
       <SettingsStack.Screen name="Shop Name" component={ShopName} />
@@ -76,6 +90,11 @@ const HomeRoot = () => {
       <HomeStack.Screen
         name="SettingsRoot"
         component={SettingsRoot}
+        options={{...NavigationDefaultOptions, headerStyle: {backgroundColor: isDarkMode ? '#666' : '#fff'}}}
+      />
+      <HomeStack.Screen
+        name="ScanInvoice"
+        component={ScanInvoice}
         options={{...NavigationDefaultOptions, headerStyle: {backgroundColor: isDarkMode ? '#666' : '#fff'}}}
       />
     </HomeStack.Navigator>
