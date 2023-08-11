@@ -14,6 +14,7 @@ import Toast from 'react-native-toast-message';
 import {ShopSettingsContext} from '../../../contexts/ShopSettingsContext';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { LightningCustodianWallet } from '../../../wallets/lightning-custodian-wallet.js';
+import moment from 'moment';
 
 const queryLimit = 10;
 
@@ -91,8 +92,7 @@ const RecentInvoices = () => {
         <FlatList
           data={invoices}
           renderItem={({item: inv}) => {
-            const date = new Date(inv.timestamp * 1000);
-            const formattedDate = date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear();
+            const formattedDate = moment(inv.timestamp * 1000).format('DD/MM/YY HH:mm:ss');
             return (
               <ListItem bottomDivider onPress={() => navigate('Invoice Detail', {invoice: inv})}>
                 <ListItem.Content>
@@ -105,7 +105,7 @@ const RecentInvoices = () => {
                   <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
                     <ListItem.Subtitle numberOfLines={1} style={{flex: 1}}>{inv.payment_hash}</ListItem.Subtitle>
                     <ListItem.Subtitle style={{textAlign: 'right'}}>
-                      {inv.ispaid ? <Badge status="success" value="Paid" /> : <Badge status="warning" value="Unpaid" />}
+                      {inv.ispaid ? <Badge status="success" value="Paid" /> : <Badge status="warning" value="Pending" />}
                     </ListItem.Subtitle>
                   </View>
                 </ListItem.Content>

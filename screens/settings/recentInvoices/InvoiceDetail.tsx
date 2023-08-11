@@ -12,6 +12,8 @@ import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 import QRCode from 'react-native-qrcode-svg';
 
+import moment from 'moment';
+
 const InvoiceDetail = ({route}) => {
 
 
@@ -31,12 +33,17 @@ const InvoiceDetail = ({route}) => {
     qrRef.current?.toDataURL(dataURL => setQrData(dataURL));
   }, [qrRef])
 
+  const formatDate = (timestamp) => {
+    return moment(timestamp * 1000).format('DD/MM/YY HH:mm:ss');
+  }
+
   const print = async () => {
      let options = {
       html: `
         <h1 style="font-size: 100px">Bolt Card POS</h1>
-        <h1 style="font-size: 80px">${invoice.description}</h1>
-        <p style="font-size: 60px;">${invoice.amt} sats</p>
+        <h2 style="font-size: 80px">${invoice.description}</h2>
+        <p style="font-size: 50px">Transaction time: <br/>${formatDate(invoice.timestamp)}</p>
+        <p style="font-size: 60px;">${invoice.amt} sats <span style="font-weight: 600;">${invoice.ispaid ? "(PAID)" : "(PENDING)"}</span></p>
         <p style="font-size: 60px; overflow-wrap: break-word; word-break: break-all;">Payment Hash: ${invoice.payment_hash}</p>
         <img src="data:image/jpeg;base64,${qrData}" width="100%" height="auto"/>
       `,
@@ -66,11 +73,12 @@ const InvoiceDetail = ({route}) => {
                 onPress={print}
               />
             </View>
+            <Text style={{...styles.bold, marginBottom: 13, fontSize: 16}}>{formatDate(invoice.timestamp)}</Text>
             <View style={{flexDirection: 'row', marginBottom: 10, alignItems: 'center'}}>
               <Text>
                 {invoice.amt} sats
               </Text>
-              {invoice.ispaid ? <Badge status="success" value="Paid" containerStyle={styles.badgeContainer} badgeStyle={styles.badge} textStyle={styles.badgeText} /> : <Badge status="warning" value="Unpaid" containerStyle={styles.badgeContainer} badgeStyle={styles.badge} textStyle={styles.badgeText} />}
+              {invoice.ispaid ? <Badge status="success" value="Paid" containerStyle={styles.badgeContainer} badgeStyle={styles.badge} textStyle={styles.badgeText} /> : <Badge status="warning" value="Pending" containerStyle={styles.badgeContainer} badgeStyle={styles.badge} textStyle={styles.badgeText} />}
             </View>
             <Text style={{marginBottom: 20}}>Payment Hash: {invoice.payment_hash}</Text>
             <QRCode
@@ -103,7 +111,15 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: 13,
     lineHeight: 20
-  }
+  },
+  bold: Platform.select({
+    ios: {
+      fontWeight: 600
+    },
+    android: {
+      fontWeight: 700
+    }
+  })
 })
 
 export default InvoiceDetail;
