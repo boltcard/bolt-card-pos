@@ -15,7 +15,7 @@ import {ShopSettingsContext} from '../../../contexts/ShopSettingsContext';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { LightningCustodianWallet } from '../../../wallets/lightning-custodian-wallet.js';
 
-const queryLimit = 7;
+const queryLimit = 10;
 
 const RecentInvoices = () => {
   const {navigate} = useNavigation();

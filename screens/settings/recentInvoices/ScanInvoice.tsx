@@ -17,7 +17,7 @@ import {ShopSettingsContext} from '../../../contexts/ShopSettingsContext';
 
 import QRCodeScanner from 'react-native-qrcode-scanner';
 
-const queryLimit = 2;
+const queryLimit = 20;
 
 const ScanInvoice = () => {
   const {navigate, goBack} = useNavigation();
