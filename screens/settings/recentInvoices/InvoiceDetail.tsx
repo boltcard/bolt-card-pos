@@ -11,6 +11,7 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 import QRCode from 'react-native-qrcode-svg';
+import Toast from 'react-native-toast-message';
 
 import moment from 'moment';
 
@@ -56,8 +57,17 @@ const InvoiceDetail = ({route}) => {
       width: 595
     };
 
-    let file = await RNHTMLtoPDF.convert(options)
-    if(file?.filePath) FileViewer.open(file?.filePath);
+    try {
+      let file = await RNHTMLtoPDF.convert(options)
+      if(file?.filePath) FileViewer.open(file?.filePath);
+    } catch(err) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error opening pdf',
+        text2: err,
+      });
+      console.log(err);
+    }
   }
 
   return (
