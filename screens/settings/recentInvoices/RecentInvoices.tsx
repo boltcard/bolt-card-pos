@@ -33,6 +33,9 @@ const RecentInvoices = () => {
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+  const textStyle = {
+    color: isDarkMode ? "#fff" : "#000",
+  };
 
   const fetchInvoices = useCallback(async (offset = 0) => {
       try{
@@ -79,11 +82,12 @@ const RecentInvoices = () => {
       <View />
       <View style={{...styles.root, ...backgroundStyle}}>
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <Text h3 h3Style={{marginBottom: 20}}>Recent Invocies</Text>
+          <Text h3 h3Style={{...textStyle, marginBottom: 20}}>Recent Invocies</Text>
           <Button
             icon={{
               name: 'qrcode-scan',
-              type: 'material-community'
+              type: 'material-community',
+              color: isDarkMode ? "#fff" : "#000"
             }}
             type="clear"
             onPress={() => navigate('ScanInvoice')}
@@ -94,16 +98,16 @@ const RecentInvoices = () => {
           renderItem={({item: inv}) => {
             const formattedDate = moment(inv.timestamp * 1000).format('DD/MM/YY HH:mm:ss');
             return (
-              <ListItem bottomDivider onPress={() => navigate('Invoice Detail', {invoice: inv})}>
+              <ListItem bottomDivider onPress={() => navigate('Invoice Detail', {invoice: inv})} containerStyle={{...backgroundStyle}}>
                 <ListItem.Content>
                   <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
-                    <ListItem.Title>{formattedDate}</ListItem.Title>
-                    <ListItem.Subtitle style={{textAlign: 'right'}}>
+                    <ListItem.Title style={textStyle}>{formattedDate}</ListItem.Title>
+                    <ListItem.Subtitle style={{...textStyle, textAlign: 'right'}}>
                       {inv.amt} sats
                     </ListItem.Subtitle>
                   </View>
                   <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
-                    <ListItem.Subtitle numberOfLines={1} style={{flex: 1}}>{inv.payment_hash}</ListItem.Subtitle>
+                    <ListItem.Subtitle numberOfLines={1} style={{...textStyle, flex: 1}}>{inv.payment_hash}</ListItem.Subtitle>
                     <ListItem.Subtitle style={{textAlign: 'right'}}>
                       {inv.ispaid ? <Badge status="success" value="Paid" /> : <Badge status="warning" value="Pending" />}
                     </ListItem.Subtitle>
@@ -123,6 +127,7 @@ const RecentInvoices = () => {
           onEndReachedThreshold={0.2}
           refreshing={refreshing}
           onRefresh={onRefresh}
+          style={backgroundStyle}
         />
         <View style={{paddingVertical: 30}}></View>
       </View>

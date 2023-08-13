@@ -23,6 +23,9 @@ const InvoiceDetail = ({route}) => {
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+  const textStyle = {
+    color: isDarkMode ? "#fff" : "#000",
+  };
 
   const {invoice} = route.params;
 
@@ -64,32 +67,35 @@ const InvoiceDetail = ({route}) => {
         {invoice ?
           <View>
             <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20}}>
-              <Text h3>Invoice detail</Text>
+              <Text h3 h3Style={textStyle}>Invoice detail</Text>
               <Button 
                 icon={{
-                  name: 'print'
+                  name: 'print',
+                  color: isDarkMode ? "#fff" : "#000"
                 }}
                 type="clear"
                 onPress={print}
               />
             </View>
-            <Text style={{...styles.bold, marginBottom: 13, fontSize: 16}}>{formatDate(invoice.timestamp)}</Text>
+            <Text style={{...styles.bold, ...textStyle, marginBottom: 13, fontSize: 16}}>{formatDate(invoice.timestamp)}</Text>
             <View style={{flexDirection: 'row', marginBottom: 10, alignItems: 'center'}}>
-              <Text>
+              <Text style={textStyle}>
                 {invoice.amt} sats
               </Text>
               {invoice.ispaid ? <Badge status="success" value="Paid" containerStyle={styles.badgeContainer} badgeStyle={styles.badge} textStyle={styles.badgeText} /> : <Badge status="warning" value="Pending" containerStyle={styles.badgeContainer} badgeStyle={styles.badge} textStyle={styles.badgeText} />}
             </View>
-            <Text style={{marginBottom: 20}}>Payment Hash: {invoice.payment_hash}</Text>
+            <Text style={{...textStyle, marginBottom: 20}}>Payment Hash: {invoice.payment_hash}</Text>
             <QRCode
               value={JSON.stringify({payment_hash: invoice.payment_hash})}
               getRef={qrRef}
               size={230}
+              backgroundColor={isDarkMode ? "#000" : "#fff"}
+              color={isDarkMode ? "#fff" : "#000"}
             />
             
           </View>
           :
-          <Text>No invoice passed</Text>
+          <Text style={textStyle}>No invoice passed</Text>
         }
         
       </ScrollView>

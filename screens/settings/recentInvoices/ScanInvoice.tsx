@@ -36,6 +36,9 @@ const ScanInvoice = () => {
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+  const textStyle = {
+    color: isDarkMode ? "#fff" : "#000",
+  };
 
   const reset = () => {
     setScannedPaymentHash("");
@@ -115,6 +118,7 @@ const ScanInvoice = () => {
           text1: 'Invalid QR Code',
           text2: 'Payment hash value is null',
         });
+        reset();
       } else {
         //find the invoice
         setScannedPaymentHash(jsonData.payment_hash);
@@ -147,7 +151,7 @@ const ScanInvoice = () => {
             onRead={onRead}
             // flashMode={RNCamera.Constants.FlashMode.torch}
             topContent={
-              <Text style={styles.centerText}>
+              <Text style={[styles.centerText, textStyle]}>
                 Scan QRcode to check the invoice
               </Text>
             }
