@@ -858,18 +858,18 @@ function Home({navigation}): React.FC<Props> {
             >
               <View style={styles.centeredView}>
                 <View style={styles.modalView}>
-                  <Text style={{...textStyle, fontSize:20}}>Bolt Card Detected. <Icon name="checkmark" color="darkgreen" size={20} /></Text>
+                  <Text style={{color: '#000', fontSize:20}}>Bolt Card Detected. <Icon name="checkmark" color="darkgreen" size={20} /></Text>
                   {boltServiceResponse && 
-                    <Text style={{...textStyle, fontSize:20}}>
+                    <Text style={{color: '#000', fontSize:20}}>
                       Bolt Service connected <Icon name="checkmark" color="darkgreen" size={20} />
                     </Text>
                   }
                   {boltServiceCallback && 
                     <>
-                      <Text style={{...textStyle, fontSize:20}}>
+                      <Text style={{color: '#000', fontSize:20}}>
                         Bolt Service Callback success <Icon name="checkmark" color="darkgreen" size={20} />
                       </Text>
-                      <Text style={{...textStyle, fontSize:20}}>
+                      <Text style={{color: '#000', fontSize:20}}>
                         Payment initiated...
                       </Text>
                     </>
