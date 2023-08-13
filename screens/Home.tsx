@@ -673,7 +673,7 @@ function Home({navigation}): React.FC<Props> {
                   style={{...textStyle, fontSize: 35, height:50, marginTop:10, marginLeft:5}}
                 >{selectedUnit != 'sats' && selectedUnit != 'btc' && fiatCurrency?.symbol}</Text>
                 <Text
-                  style={{...textStyle, fontSize: 40, borderWidth: 1, marginTop: 10, marginLeft:5, flex:3, height:50, paddingHorizontal:10, paddingVertical: 0, paddingLeft:10, borderRadius: 8, textAlign: 'right', backgroundColor: 'white'}}
+                  style={{color: '#000', fontSize: 40, borderWidth: 1, marginTop: 10, marginLeft:5, flex:3, height:50, paddingHorizontal:10, paddingVertical: 0, paddingLeft:10, borderRadius: 8, textAlign: 'right', backgroundColor: 'white'}}
                 >
                   {inputAmount}
                 </Text>
