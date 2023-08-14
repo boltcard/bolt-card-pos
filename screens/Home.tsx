@@ -31,11 +31,14 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import DropDownPicker from 'react-native-dropdown-picker';
 import dateFormat from "dateformat";
 
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import FileViewer from 'react-native-file-viewer';
+import moment from 'moment';
+
 const currency = require('../helper/currency');
 
 const boltLogo = require('../img/bolt-card-icon.png');
 const boltPosLogo = require('../img/bolt-card-pos.png');
-
 
 export type Props = {
   navigation: any;
@@ -61,6 +64,10 @@ function Home({navigation}): React.FC<Props> {
   const [lndInvoice, setLndInvoice] = useState<string>(null);
   const [invoiceIsPaid, setInvoiceIsPaid] = useState<boolean>(false);
   const [invoiceLoading, setInvoiceLoading] = useState<boolean>(false);
+  const [currentInvoiceObj, setCurrentInvoiceObj] = useState(); 
+
+  const qrRef = useRef(null)
+  const [qrData, setQrData] = useState(null);
 
   //NFC shizzle
   const [ndef, setNdef] = useState<string>();
@@ -95,6 +102,10 @@ function Home({navigation}): React.FC<Props> {
     color: isDarkMode ? '#fff' : '#000',
     borderColor: isDarkMode ? '#fff' : '#000',
   };
+
+  useEffect(() => {
+    qrRef.current?.toDataURL(dataURL => setQrData(dataURL));
+  }, [qrRef, currentInvoiceObj])
 
   useFocusEffect(
     React.useCallback(() => {
@@ -307,6 +318,7 @@ function Home({navigation}): React.FC<Props> {
     setBoltLoading(false);
     setBoltServiceResponse(false);
     setBoltServiceCallback(true);
+    setCurrentInvoiceObj(null);
 
     stopReadNdef();
   };
@@ -350,6 +362,7 @@ function Home({navigation}): React.FC<Props> {
                 setInvoiceIsPaid(true);
                 setBoltLoading(false);
                 setIsFetchingInvoices(false);
+                setCurrentInvoiceObj(updatedUserInvoice);
                 clearInterval(fetchInvoiceInterval.current);
                 fetchInvoiceInterval.current = undefined;
               } else {
@@ -604,6 +617,35 @@ function Home({navigation}): React.FC<Props> {
     setCallbackUrl(null)
   }
 
+  const onPrint = async (invoice) => {
+    let options = {
+      html: `
+        <h1 style="font-size: 100px">Bolt Card POS</h1>
+        <h2 style="font-size: 80px">${invoice.description}</h2>
+        <p style="font-size: 50px">Transaction time: <br/>${moment(invoice.timestamp * 1000).format('DD/MM/YY HH:mm:ss')}</p>
+        <p style="font-size: 60px;">${invoice.amt} sats <span style="font-weight: 600;">${invoice.ispaid ? "(PAID)" : "(PENDING)"}</span></p>
+        <p style="font-size: 60px; overflow-wrap: break-word; word-break: break-all;">Payment Hash: ${invoice.payment_hash}</p>
+        <img src="data:image/jpeg;base64,${qrData}" width="100%" height="auto"/>
+      `,
+      fileName: 'receipt_'+invoice.payment_hash,
+      directory: 'Documents',
+      height: 1400,
+      width: 595
+    };
+
+    try {
+      let file = await RNHTMLtoPDF.convert(options)
+      if(file?.filePath) FileViewer.open(file?.filePath);
+    } catch(err) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error opening pdf',
+        text2: err,
+      });
+      console.log(err);
+    }
+  }
+
   return (
     <View style={{...backgroundStyle, flex: 1}}>
       <View style={{...backgroundStyle, flex: 1}}>
@@ -825,6 +867,24 @@ function Home({navigation}): React.FC<Props> {
               ) : (
                 <View
                   style={{...textStyle, flexDirection: 'column', justifyContent: 'center', borderWidth:1, borderRadius:10, margin:10, backgroundColor: 'white', paddingVertical: 30}}>
+                  {currentInvoiceObj &&
+                    <View style={{alignItems: 'flex-end'}}>
+                      <View>
+                        <QRCode
+                          value={JSON.stringify({payment_hash: currentInvoiceObj.payment_hash})}
+                          getRef={qrRef}
+                          size={0}
+                        />
+                      </View>
+                      <Button 
+                        icon={{
+                          name: 'print',
+                        }}
+                        type="clear"
+                        onPress={() => onPrint(currentInvoiceObj)}
+                      />
+                    </View>
+                  }
                   <View style={{flexDirection: 'row', justifyContent: 'center', paddingHorizontal:30}}>
                     <Icon name="checkmark-circle" color="darkgreen" size={150} />
                   </View>
