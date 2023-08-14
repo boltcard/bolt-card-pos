@@ -44,16 +44,16 @@ const InvoiceDetail = ({route}) => {
   const print = async () => {
      let options = {
       html: `
-        <h1 style="font-size: 100px">Bolt Card POS</h1>
-        <h2 style="font-size: 80px">${invoice.description}</h2>
-        <p style="font-size: 50px">Transaction time: <br/>${formatDate(invoice.timestamp)}</p>
+        <h1 style="font-size: 100px">${invoice.description}</h1>
+        <p style="font-size: 50px">Payment made in Bitcoin</p>
+        <p style="font-size: 50px">${formatDate(invoice.timestamp)}</p>
         <p style="font-size: 60px;">${invoice.amt} sats <span style="font-weight: 600;">${invoice.ispaid ? "(PAID)" : "(PENDING)"}</span></p>
         <p style="font-size: 60px; overflow-wrap: break-word; word-break: break-all;">Payment Hash: ${invoice.payment_hash}</p>
         <img src="data:image/jpeg;base64,${qrData}" width="100%" height="auto"/>
       `,
       fileName: 'receipt_'+invoice.payment_hash,
       directory: 'Documents',
-      height: 1400,
+      height: 1500,
       width: 595
     };
 
