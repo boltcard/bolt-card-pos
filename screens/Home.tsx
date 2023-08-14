@@ -869,11 +869,11 @@ function Home({navigation}): React.FC<Props> {
                   style={{...textStyle, flexDirection: 'column', justifyContent: 'center', borderWidth:1, borderRadius:10, margin:10, backgroundColor: 'white', paddingVertical: 30}}>
                   {currentInvoiceObj &&
                     <View style={{alignItems: 'flex-end'}}>
-                      <View>
+                      <View style={{height: 0, width: 0, opacity: 0}}>
                         <QRCode
                           value={JSON.stringify({payment_hash: currentInvoiceObj.payment_hash})}
                           getRef={qrRef}
-                          size={0}
+                          size={400}
                         />
                       </View>
                       <Button 
