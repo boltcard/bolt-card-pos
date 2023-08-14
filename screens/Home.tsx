@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState, useCallback } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -30,6 +30,7 @@ import ConnectToHub from './settings/ConnectToHub';
 import Clipboard from '@react-native-clipboard/clipboard';
 import DropDownPicker from 'react-native-dropdown-picker';
 import dateFormat from "dateformat";
+import LottieView from "lottie-react-native"
 
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
@@ -92,6 +93,12 @@ function Home({navigation}): React.FC<Props> {
   const [fiatCurrency, setFiatCurrency] = useState(null);
   const [lastRate, setLastRate] = useState(null);
   const [selectedUnit, setSelectedUnit] = useState('sats');
+
+  const animationRef = useCallback((ref) => {
+      if(ref) {
+          ref.play();
+      }
+  }, []);
 
 
   const backgroundStyle = {
@@ -891,8 +898,15 @@ function Home({navigation}): React.FC<Props> {
                       />
                     </View>
                   }
-                  <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                    <Icon name="checkmark-circle" color="darkgreen" size={150} />
+                  <View>
+                    <LottieView
+                      source={require('../img/success_animation.json')}
+                      autoplay={true} 
+                      loop={true} 
+                      style={{height: 140}}
+                      ref={animationRef}
+                      resizeMode = 'cover'
+                    />
                   </View>
                   <View
                     style={{flexDirection: 'row', justifyContent: 'center'}}>

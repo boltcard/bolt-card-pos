@@ -25,6 +25,7 @@
     "dateformat": "^5.0.3",
     "events": "^1.1.1",
     "frisbee": "^3.1.4",
+    "lottie-react-native": "^6.1.2",
     "moment": "^2.29.4",
     "process": "^0.11.10",
     "react": "18.2.0",
