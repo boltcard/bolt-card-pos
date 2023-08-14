@@ -898,14 +898,14 @@ function Home({navigation}): React.FC<Props> {
                       />
                     </View>
                   }
-                  <View>
+                  <View style={{height: 170}}>
                     <LottieView
                       source={require('../img/success_animation.json')}
                       autoplay={true} 
-                      loop={true} 
-                      style={{height: 140}}
+                      loop={false} 
+                      style={{flex: 1}}
                       ref={animationRef}
-                      resizeMode = 'cover'
+                      resizeMode = 'contain'
                     />
                   </View>
                   <View
