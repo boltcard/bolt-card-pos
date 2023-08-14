@@ -716,11 +716,15 @@ function Home({navigation}): React.FC<Props> {
                 <Text
                   style={{...textStyle, fontSize: 35, height:50, marginTop:10, marginLeft:5}}
                 >{selectedUnit != 'sats' && selectedUnit != 'btc' && fiatCurrency?.symbol}</Text>
-                <Text
-                  style={{color: '#000', fontSize: 40, borderWidth: 1, marginTop: 10, marginLeft:5, flex:3, height:50, paddingHorizontal:10, paddingVertical: 0, paddingLeft:10, borderRadius: 8, textAlign: 'right', backgroundColor: 'white'}}
-                >
-                  {inputAmount}
-                </Text>
+                <View
+                  style={{borderRadius: 8, flex:3, marginTop: 10, marginLeft:5, overflow: 'hidden', borderBottomLeftRadius: 8, borderBottomRightRadius: 8, height:50}}>
+                  <Text
+                    style={{borderRadius: 8, color: '#000', fontSize: 40, borderWidth: 1, paddingHorizontal:10, paddingVertical: 0, paddingLeft:10, textAlign: 'right', backgroundColor: 'white'}}
+                  >
+                    {inputAmount}
+                  </Text>
+
+                </View>
                 <DropDownPicker
                   open={open}
                   value={selectedUnit}
@@ -887,7 +891,7 @@ function Home({navigation}): React.FC<Props> {
                       />
                     </View>
                   }
-                  <View style={{flexDirection: 'row', justifyContent: 'center', paddingHorizontal:30}}>
+                  <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                     <Icon name="checkmark-circle" color="darkgreen" size={150} />
                   </View>
                   <View
