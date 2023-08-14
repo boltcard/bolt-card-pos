@@ -506,9 +506,11 @@ function Home({navigation}): React.FC<Props> {
     setBoltServiceCallback(false);
     setBoltServiceResponse(false);
     NfcManager.cancelTechnologyRequest().then(() => {
-      setTimeout(() => {
-        readNdef();
-      }, 1000);
+      if(Platform.OS == 'android') {
+        setTimeout(() => {
+          readNdef();
+        }, 1000);
+      }
     });
   }
 
@@ -878,7 +880,7 @@ function Home({navigation}): React.FC<Props> {
                       </View>
                       <Button 
                         icon={{
-                          name: 'print',
+                          name: 'print'
                         }}
                         type="clear"
                         onPress={() => onPrint(currentInvoiceObj)}

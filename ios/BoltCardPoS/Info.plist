@@ -41,6 +41,12 @@
 	<string>$(PRODUCT_NAME) only needs access to your Camera to allow you to scan your LNDHub connection QR code. This will import the connection details into this app.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Ionicons.ttf</string>
+		<string>MaterialIcons.ttf</string>
+		<string>MaterialCommunityIcons.ttf</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UISupportedInterfaceOrientations</key>
@@ -55,11 +61,6 @@
 	<array>
 		<string>D2760000850100</string>
 		<string>D2760000850101</string>
-	</array>
-	<key>UIAppFonts</key>
-	<array>
-		<string>Ionicons.ttf</string>
-		<string>MaterialIcons.ttf</string>
 	</array>
 </dict>
 </plist>
