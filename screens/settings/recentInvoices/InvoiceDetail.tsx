@@ -95,13 +95,15 @@ const InvoiceDetail = ({route}) => {
               {invoice.ispaid ? <Badge status="success" value="Paid" containerStyle={styles.badgeContainer} badgeStyle={styles.badge} textStyle={styles.badgeText} /> : <Badge status="warning" value="Pending" containerStyle={styles.badgeContainer} badgeStyle={styles.badge} textStyle={styles.badgeText} />}
             </View>
             <Text style={{...textStyle, marginBottom: 20}}>Payment Hash: {invoice.payment_hash}</Text>
-            <QRCode
-              value={JSON.stringify({payment_hash: invoice.payment_hash})}
-              getRef={qrRef}
-              size={230}
-              backgroundColor={isDarkMode ? "#000" : "#fff"}
-              color={isDarkMode ? "#fff" : "#000"}
-            />
+            <View style={{justifyContent: 'flex-start', alignItems: 'flex-start'}}>
+              <View style={{padding: 10, backgroundColor: 'white'}}>
+                <QRCode
+                  value={JSON.stringify({payment_hash: invoice.payment_hash})}
+                  getRef={qrRef}
+                  size={230}
+                />
+              </View>
+            </View>
             
           </View>
           :
