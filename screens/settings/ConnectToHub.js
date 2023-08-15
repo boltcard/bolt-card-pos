@@ -1,13 +1,14 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
 import {
-    Button,
     Text,
     useColorScheme,
     View,
     TextInput,
-    Pressable
+    Pressable,
+    ScrollView
 } from 'react-native';
+import { Button } from 'react-native-elements';
 import Toast from 'react-native-toast-message';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { ShopSettingsContext } from '../../contexts/ShopSettingsContext';
@@ -17,6 +18,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 const ConnectToHub = (props) => {
     const {lndhub, setLndhub, lndhubUser, setLndhubUser} = useContext(ShopSettingsContext);
     const [hub, setHub] = useState('');
+    const [showLnbitsInstr, setShowLnbitsInstr] = useState(false);
+    const [showBtcPayInstr, setShowBtcPayInstr] = useState(false);
     const {navigate} = useNavigation();
     const isDarkMode = useColorScheme() === 'dark';
     const backgroundStyle = {
@@ -57,21 +60,59 @@ const ConnectToHub = (props) => {
                     onScanSuccess={onScanSuccess}
                 />
             :
-                <View
+                <ScrollView
                     style={{...backgroundStyle, ...textStyle}}>
                     <View style={{padding: 20, height:'100%', ...backgroundStyle, ...textStyle}}>
-                        <Text style={{fontSize: 30, fontWeight: 'bold', ...textStyle}}>
+                        <Text style={{fontSize: 30, fontWeight: 'bold', marginBottom: 7, ...textStyle}}>
                             Setup Instructions
                         </Text>
-                        <Text style={{fontSize: 20, ...textStyle}}>
-                            1. Install LNBits >10.7 & the LNDHub extension.
-                        </Text>
-                        <Text style={{fontSize: 20, ...textStyle}}>
-                            2. Copy and paste invoice URL or Scan the "invoice" QR Code.
-                        </Text>
-                        <Text style={{fontSize: 20, ...textStyle, color:'orange'}}>
-                            <Icon size={20} name="warning" /> NB: Minimum supported LNBits version is 10.7 and above.
-                        </Text>
+                        <Button
+                            title="Set up instructions for LNBits"
+                            onPress={() => setShowLnbitsInstr(!showLnbitsInstr)}
+                            type="clear"
+                            buttonStyle={{ justifyContent: 'flex-start', paddingLeft: 0 }}
+                        ></Button>
+                        {showLnbitsInstr &&
+                            <View style={{marginBottom: 10}}>
+                                <Text style={{fontSize: 25, fontWeight: 'bold', marginBottom: 4, ...textStyle}}>
+                                    LNBits
+                                </Text>
+                                <Text style={{fontSize: 20, ...textStyle}}>
+                                    1. Install LNBits >10.7 & the LNDHub extension.
+                                </Text>
+                                <Text style={{fontSize: 20, ...textStyle}}>
+                                    2. Copy and paste invoice URL or Scan the "invoice" QR Code.
+                                </Text>
+                                <Text style={{fontSize: 20, ...textStyle, color:'orange'}}>
+                                    <Icon size={20} name="warning" /> NB: Minimum supported LNBits version is 10.7 and above.
+                                </Text>
+                            </View>
+                        }
+                        <Button
+                            title="Set up instructions for BTCPay Server"
+                            onPress={() => setShowBtcPayInstr(!showBtcPayInstr)}
+                            type="clear"
+                            buttonStyle={{ justifyContent: 'flex-start', paddingLeft: 0 }}
+                        ></Button>
+                        {showBtcPayInstr &&
+                            <View>
+                                <Text style={{fontSize: 25, fontWeight: 'bold', marginBottom: 4, ...textStyle}}>
+                                    BTCPay Server
+                                </Text>
+                                <Text style={{fontSize: 20, ...textStyle}}>
+                                    1. Install BTCPay Server & the LNbank extension.
+                                </Text>
+                                <Text style={{fontSize: 20, ...textStyle}}>
+                                    2. Enable Lightning wallet in BTCPay server.
+                                </Text>
+                                <Text style={{fontSize: 20, ...textStyle}}>
+                                    3. Create a LNbank wallet.
+                                </Text>
+                                <Text style={{fontSize: 20, ...textStyle}}>
+                                    4. Go to settings in LNbank Wallet and either copy and paste the access URL or scan the QR code.
+                                </Text>
+                            </View>
+                        }
 
                         <Text style={{fontSize: 30, marginTop:20, fontWeight: 'bold', ...textStyle}}>
                             Current Settings
@@ -115,7 +156,7 @@ const ConnectToHub = (props) => {
                        
                     </View>
                     
-                </View>
+                </ScrollView>
             
             }
         </>
