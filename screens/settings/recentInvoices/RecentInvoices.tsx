@@ -50,8 +50,9 @@ const RecentInvoices = () => {
         Toast.show({
           type: 'error',
           text1: 'Fetch invoice error',
-          text2: err
+          text2: err.message
         });
+        setRefreshing(false)
         console.log(err);
       }
 
@@ -68,8 +69,7 @@ const RecentInvoices = () => {
   }
 
   useEffect(() => {
-    // console.log('queryOffset', queryOffset);
-    fetchInvoices(queryOffset);
+    if(shopWallet) fetchInvoices(queryOffset);
   }, [queryOffset])
 
   useEffect(()=> {
