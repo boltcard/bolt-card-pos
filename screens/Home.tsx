@@ -197,12 +197,23 @@ function Home({navigation}): React.FC<Props> {
 
   const makeLndInvoice = async () => {
     if (!lndWallet) {
-      throw new Error(
-        'Wallet not configured, please reconnect to the hub in the settings',
-      );
+      Toast.show({
+        type: 'error',
+        text1: 'Configuration error',
+        text2: 'Wallet not configured, please reconnect to the hub in the settings',
+      });
+      return;
     }
 
     if (lndWallet) {
+      if (parseInt(satsAmount) <= 0) {
+        Toast.show({
+          type: 'error',
+          text1: 'Add invoice error',
+          text2: 'Not a valid amount',
+        });
+        return;
+      }
       setInvoiceLoading(true);
       console.log('invoicing...');
       setInvoiceIsPaid(false);
