@@ -5,7 +5,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
   useColorScheme,
@@ -17,19 +16,17 @@ import {
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import QRCode from 'react-native-qrcode-svg';
-import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { Button } from 'react-native-elements';
 import PinPadButton from '../components/PinPadButton';
-import PinCodeButton from '../components/PinCodeButton';
-import CircleBorder from '../components/CircleBorder';
+import PinCodeModal from '../components/PinCodeModal';
 import { ShopSettingsContext } from '../contexts/ShopSettingsContext';
 import { LightningCustodianWallet } from '../wallets/lightning-custodian-wallet.js';
 import ConnectToHub from './settings/ConnectToHub';
 import Clipboard from '@react-native-clipboard/clipboard';
 import DropDownPicker from 'react-native-dropdown-picker';
-import dateFormat from "dateformat";
 import LottieView from "lottie-react-native"
 
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
@@ -450,7 +447,7 @@ function Home({navigation}): React.FC<Props> {
             })
             .finally(() => {
               setNdef(undefined);
-              clearPinAndCallback();
+              setCallbackUrl("");
             });
   }
 
@@ -581,15 +578,6 @@ function Home({navigation}): React.FC<Props> {
     }
   },[inputAmount, selectedUnit, totalAmount])
 
-  useEffect(() => {
-    if(pinCode && pinCode.length == 4) {
-      setTimeout(() => {
-        setShowPinModal(false);
-        fetchCallback(callbackUrl, pinCode);
-      }, 500)
-    }
-  }, [pinCode]);
-
   const copyToClipboard = () => {
     Clipboard.setString(lndInvoice);
     Toast.show({
@@ -612,29 +600,10 @@ function Home({navigation}): React.FC<Props> {
     return <ActivityIndicator />;
   }
 
-  const isPinEntered = (pos) => {
-    return pinCode && pos < (pinCode.length + 1);
-  }
-
-  const pinPress = (val) => {
-    if(val == 'X') {
-      setPinCode((prevPin) => {
-        return prevPin.slice(0, -1);
-      })
-    } else {
-      if(pinCode && pinCode.length >= 4) {
-        return;
-      }
-      setPinCode((prevPin) => {
-        return "" + prevPin + val;
-      })
-
-    }
-  }
-
-  const clearPinAndCallback = () => {
-    setPinCode("");
+  const cancelPinCodeModal = () => {
     setCallbackUrl(null)
+    setShowPinModal(false);
+    retryBoltcardPayment()
   }
 
   const onPrint = async (invoice) => {
@@ -669,58 +638,16 @@ function Home({navigation}): React.FC<Props> {
   return (
     <View style={{...backgroundStyle, flex: 1}}>
       <View style={{...backgroundStyle, flex: 1}}>
-        <Modal
-          animationType="fade"
-          transparent={false}
-          visible={showPinModal}
-          onRequestClose={() => {
-            setShowPinModal(!showPinModal);
-            setPinCode("");
+        <PinCodeModal
+          showModal={showPinModal}
+          onCancel={cancelPinCodeModal}
+          onPinChange={(pin) => setPinCode(pin)}
+          topText={<Text style={{textAlign: 'center', fontSize: 25, marginBottom: 20, fontWeight: 600}}>{satsAmount ? satsAmount.toLocaleString() : 0} sats</Text>}
+          onEnter={() => {
+            setShowPinModal(false);
+            fetchCallback(callbackUrl, pinCode);
           }}
-        >
-          <View style={{justifyContent: 'center', flex: 1, backgroundColor: "#FF9900"}}>
-            <Text style={{textAlign: 'center', fontSize: 25, marginBottom: 20, fontWeight: 600}}>{satsAmount ? satsAmount.toLocaleString() : 0} sats</Text>
-            <Text style={{textAlign: 'center', fontSize: 30, marginBottom: 30, fontWeight: 700, color: '#333'}}>Enter PIN</Text>
-            <View style={{flexDirection: 'row', justifyContent: 'center', marginBottom: 30}}>
-              <CircleBorder fill={isPinEntered(1)} containerStyle={{marginRight: 10}}/>
-              <CircleBorder fill={isPinEntered(2)} containerStyle={{marginRight: 10}} />
-              <CircleBorder fill={isPinEntered(3)} containerStyle={{marginRight: 10}} />
-              <CircleBorder fill={isPinEntered(4)}  />
-            </View>
-            <View style={{flexDirection: 'row', marginBottom: 10}}>
-              <PinCodeButton number="1" onPress={() => pinPress('1')} />
-              <PinCodeButton number="2" onPress={() => pinPress('2')} />
-              <PinCodeButton number="3" onPress={() => pinPress('3')} />
-            </View>
-            <View style={{flexDirection: 'row', marginBottom: 10}}>
-              <PinCodeButton number="4" onPress={() => pinPress('4')} />
-              <PinCodeButton number="5" onPress={() => pinPress('5')} />
-              <PinCodeButton number="6" onPress={() => pinPress('6')} />
-            </View>
-            <View style={{flexDirection: 'row', marginBottom: 10}}>
-              <PinCodeButton number="7" onPress={() => pinPress('7')} />
-              <PinCodeButton number="8" onPress={() => pinPress('8')} />
-              <PinCodeButton number="9" onPress={() => pinPress('9')} />
-            </View>
-            <View style={{flexDirection: 'row', marginBottom: 10}}>
-              <PinCodeButton number="" />
-              <PinCodeButton number="0" onPress={() => pinPress('0')} />
-              <PinCodeButton number={<Icon name="backspace" size={35}/>} onPress={() => pinPress('X')} />
-            </View>
-            <View style={{marginTop: 15, justifyContent: 'center', paddingHorizontal: 20}}>
-              <Button
-                title="Cancel"
-                onPress={() => {
-                  clearPinAndCallback();
-                  setShowPinModal(false);
-                  retryBoltcardPayment()
-                }}
-                buttonStyle={{backgroundColor: "tomato"}}
-                titleStyle={{fontSize: 20}}
-              ></Button>
-            </View>
-          </View>
-        </Modal>
+        />
         {!walletConfigured && (
           <ConnectToHub 
             lndhub={lndhub}
