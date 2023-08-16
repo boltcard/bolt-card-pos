@@ -95,6 +95,7 @@ const RecentInvoices = () => {
         </View>
         <FlatList
           data={invoices}
+          ListEmptyComponent={<Text style={textStyle}>There are no invoices to show</Text>}
           renderItem={({item: inv}) => {
             const formattedDate = moment(inv.timestamp * 1000).format('DD/MM/YY HH:mm:ss');
             return (
