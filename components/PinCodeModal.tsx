@@ -74,12 +74,12 @@ const PinCodeModal = (props: any) => {
         </View>
         <View style={{flexDirection: 'row', marginBottom: 10}}>
           <PinCodeButton
-            number={<Icon name="backspace" size={35} />}
+            childComponent={<Icon name="backspace" size={35} />}
             onPress={() => pinPress('X')}
           />
           <PinCodeButton number="0" onPress={() => pinPress('0')} />
           <PinCodeButton
-            number={<Icon name="check" size={35} />}
+            childComponent={<Icon name="check" size={35} />}
             onPress={() => {
               props.onEnter();
             }}
@@ -95,7 +95,7 @@ const PinCodeModal = (props: any) => {
             title="Cancel"
             onPress={() => {
               setPinCode('');
-              props.onCancel();
+              if(props.onCancel) props.onCancel();
             }}
             buttonStyle={{backgroundColor: 'tomato'}}
             titleStyle={{fontSize: 20}}></Button>

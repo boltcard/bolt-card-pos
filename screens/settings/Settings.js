@@ -32,14 +32,14 @@ const Settings = () => {
       const managerPin = await AsyncStorage.getItem('manager-pin');
       if(managerPin) setShowPinScreen(true);
     } catch(err) {
-      goBack();
+      navigate("Home");
       Toast.show({
         type: 'error',
         text1: 'PIN error',
         text2: err.message
       });
     } finally {
-      setInitLoading(false);
+      // setInitLoading(false);
     }
   }
 
@@ -51,7 +51,7 @@ const Settings = () => {
     <>
       <View style={{...styles.root, ...backgroundStyle}}>
         {initLoading ?
-          <View style={{alignItems: 'center'}}>
+          <View style={{alignItems: 'center', flex: 1, justifyContent: 'center'}}>
             <ActivityIndicator size="large" />
           </View>
         :
@@ -109,13 +109,17 @@ const Settings = () => {
         <PinCodeModal
           showModal={showPinScreen}
           onCancel={() => {
-            navigate('Home')
+            setShowPinScreen(false);
+            setTimeout(() => {
+              navigate('Home')
+            }, 500)
           }}
           onEnter={ async () => {
             try {
               const managerPin = await AsyncStorage.getItem('manager-pin');
               if(pinCode == managerPin) {
                 setShowPinScreen(false)
+                setInitLoading(false);
               } else {
                 Toast.show({
                   type: 'error',
