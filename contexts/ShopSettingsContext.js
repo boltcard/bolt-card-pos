@@ -4,6 +4,7 @@ import { FiatUnit } from '../models/fiatUnit';
 
 import { LightningCustodianWallet } from '../wallets/lightning-custodian-wallet.js';
 
+import currency from '../helper/currency';
 
 const ShopSettingsContext = createContext();
 
@@ -15,7 +16,7 @@ const ShopSettingsProvider = ({children}) => {
   const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState(FiatUnit.USD);
   
   const getPreferredCurrency = async () => {
-    const item = await getPreferredCurrencyAsyncStorage();
+    const item = await currency.getPreferredCurrency();
     _setPreferredFiatCurrency(item);
   };
 
@@ -61,6 +62,7 @@ const ShopSettingsProvider = ({children}) => {
           lndhubUser: lndhubUser?.toString(),
           lndhub: lndhub?.toString(),
         }));
+        await currency.setPrefferedCurrency(FiatUnit.USD);
         console.log('Saved shop settings');
       } catch (error) {
         console.error('Failed to save shop name to storage:', error);
