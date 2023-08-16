@@ -19,19 +19,28 @@ export default function PinCodeButton(props): JSX.Element {
                         width: 85,
                         justifyContent: 'center'
                     }}>
-                    <Text
-                        style={{
-                            opacity: 1,
-                            fontSize:30,
-                            textAlign:'center',
-                            padding:10,
-                            fontWeight:'bold',
-                            margin:1,
-                            color:'#000',
-                            ...props.textStyle
-                    }}>
-                        {props.number}
-                    </Text>
+                        <>
+                            {props.childComponent && props.childComponent}
+                        </>
+                        {props.number && 
+                            <Text
+                                style={{
+                                    opacity: 1,
+                                    fontSize:30,
+                                    textAlign:'center',
+                                    padding:10,
+                                    fontWeight:'bold',
+                                    margin:1,
+                                    color:'#000',
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    ...props.textStyle
+                            }}>
+                                {props.number}
+                            </Text>
+                        }
+                    
 
                 </View>
         </Pressable>

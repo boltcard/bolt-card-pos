@@ -1,11 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState, useCallback } from 'react';
 import {
   ActivityIndicator,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
   useColorScheme,
@@ -17,25 +16,27 @@ import {
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import QRCode from 'react-native-qrcode-svg';
-import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { Button } from 'react-native-elements';
 import PinPadButton from '../components/PinPadButton';
-import PinCodeButton from '../components/PinCodeButton';
-import CircleBorder from '../components/CircleBorder';
+import PinCodeModal from '../components/PinCodeModal';
 import { ShopSettingsContext } from '../contexts/ShopSettingsContext';
 import { LightningCustodianWallet } from '../wallets/lightning-custodian-wallet.js';
 import ConnectToHub from './settings/ConnectToHub';
 import Clipboard from '@react-native-clipboard/clipboard';
 import DropDownPicker from 'react-native-dropdown-picker';
-import dateFormat from "dateformat";
+import LottieView from "lottie-react-native"
+
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import FileViewer from 'react-native-file-viewer';
+import moment from 'moment';
 
 const currency = require('../helper/currency');
 
 const boltLogo = require('../img/bolt-card-icon.png');
 const boltPosLogo = require('../img/bolt-card-pos.png');
-
 
 export type Props = {
   navigation: any;
@@ -61,6 +62,10 @@ function Home({navigation}): React.FC<Props> {
   const [lndInvoice, setLndInvoice] = useState<string>(null);
   const [invoiceIsPaid, setInvoiceIsPaid] = useState<boolean>(false);
   const [invoiceLoading, setInvoiceLoading] = useState<boolean>(false);
+  const [currentInvoiceObj, setCurrentInvoiceObj] = useState(); 
+
+  const qrRef = useRef(null)
+  const [qrData, setQrData] = useState(null);
 
   //NFC shizzle
   const [ndef, setNdef] = useState<string>();
@@ -76,7 +81,7 @@ function Home({navigation}): React.FC<Props> {
 
   //PIN
   const [showPinModal, setShowPinModal] = useState(false);
-  const [pinCode, setPinCode] = useState("");
+  const [pinCode, setPinCode] = useState<string>("");
   const [callbackUrl, setCallbackUrl] = useState("");
   const [pinTimeout, setPintimeout] = useState(0);
 
@@ -85,6 +90,12 @@ function Home({navigation}): React.FC<Props> {
   const [fiatCurrency, setFiatCurrency] = useState(null);
   const [lastRate, setLastRate] = useState(null);
   const [selectedUnit, setSelectedUnit] = useState('sats');
+
+  const animationRef = useCallback((ref) => {
+      if(ref) {
+          ref.play();
+      }
+  }, []);
 
 
   const backgroundStyle = {
@@ -95,6 +106,10 @@ function Home({navigation}): React.FC<Props> {
     color: isDarkMode ? '#fff' : '#000',
     borderColor: isDarkMode ? '#fff' : '#000',
   };
+
+  useEffect(() => {
+    qrRef.current?.toDataURL(dataURL => setQrData(dataURL));
+  }, [qrRef, currentInvoiceObj])
 
   useFocusEffect(
     React.useCallback(() => {
@@ -120,12 +135,21 @@ function Home({navigation}): React.FC<Props> {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('SettingsRoot');
-          }}>
-          <Icon name="cog" color={isDarkMode ? '#fff' : '#000'} size={30} />
-        </TouchableOpacity>
+        <>
+          <TouchableOpacity
+            style={{marginRight: 7}}
+            onPress={() => {
+              navigation.navigate('Recent Invoices');
+            }}>
+            <Icon name="list" color={isDarkMode ? '#fff' : '#000'} size={30} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('SettingsRoot');
+            }}>
+            <Icon name="cog" color={isDarkMode ? '#fff' : '#000'} size={30} />
+          </TouchableOpacity>
+        </>
       ),
       headerShown: true,
       title: shopName,
@@ -179,12 +203,23 @@ function Home({navigation}): React.FC<Props> {
 
   const makeLndInvoice = async () => {
     if (!lndWallet) {
-      throw new Error(
-        'Wallet not configured, please reconnect to the hub in the settings',
-      );
+      Toast.show({
+        type: 'error',
+        text1: 'Configuration error',
+        text2: 'Wallet not configured, please reconnect to the hub in the settings',
+      });
+      return;
     }
 
     if (lndWallet) {
+      if (parseInt(satsAmount) <= 0) {
+        Toast.show({
+          type: 'error',
+          text1: 'Add invoice error',
+          text2: 'Not a valid amount',
+        });
+        return;
+      }
       setInvoiceLoading(true);
       console.log('invoicing...');
       setInvoiceIsPaid(false);
@@ -221,14 +256,6 @@ function Home({navigation}): React.FC<Props> {
       setInvoiceLoading(false);
     }
   };
-
-  function bin2String(array) {
-    var result = '';
-    for (var i = 0; i < array.length; i++) {
-      result += String.fromCharCode(parseInt(array[i], 2));
-    }
-    return result;
-  }
 
   async function readNdef() {
     console.log('***** Await NFC Tag');
@@ -300,6 +327,9 @@ function Home({navigation}): React.FC<Props> {
   const resetInvoice = () => {
     setInputAmount(0);
     setTotalAmount(0);
+    setFiatAmount(0);
+    setSatsAmount(0);
+    setHiddenTotal(0);
     setIsFetchingInvoices(false);
     clearInterval(fetchInvoiceInterval.current);
     fetchInvoiceInterval.current = undefined;
@@ -307,6 +337,7 @@ function Home({navigation}): React.FC<Props> {
     setBoltLoading(false);
     setBoltServiceResponse(false);
     setBoltServiceCallback(true);
+    setCurrentInvoiceObj(null);
 
     stopReadNdef();
   };
@@ -350,6 +381,7 @@ function Home({navigation}): React.FC<Props> {
                 setInvoiceIsPaid(true);
                 setBoltLoading(false);
                 setIsFetchingInvoices(false);
+                setCurrentInvoiceObj(updatedUserInvoice);
                 clearInterval(fetchInvoiceInterval.current);
                 fetchInvoiceInterval.current = undefined;
               } else {
@@ -419,7 +451,7 @@ function Home({navigation}): React.FC<Props> {
             })
             .finally(() => {
               setNdef(undefined);
-              clearPinAndCallback();
+              setCallbackUrl("");
             });
   }
 
@@ -493,9 +525,11 @@ function Home({navigation}): React.FC<Props> {
     setBoltServiceCallback(false);
     setBoltServiceResponse(false);
     NfcManager.cancelTechnologyRequest().then(() => {
-      setTimeout(() => {
-        readNdef();
-      }, 1000);
+      if(Platform.OS == 'android') {
+        setTimeout(() => {
+          readNdef();
+        }, 1000);
+      }
     });
   }
 
@@ -548,15 +582,6 @@ function Home({navigation}): React.FC<Props> {
     }
   },[inputAmount, selectedUnit, totalAmount])
 
-  useEffect(() => {
-    if(pinCode && pinCode.length == 4) {
-      setTimeout(() => {
-        setShowPinModal(false);
-        fetchCallback(callbackUrl, pinCode);
-      }, 500)
-    }
-  }, [pinCode]);
-
   const copyToClipboard = () => {
     Clipboard.setString(lndInvoice);
     Toast.show({
@@ -579,86 +604,55 @@ function Home({navigation}): React.FC<Props> {
     return <ActivityIndicator />;
   }
 
-  const isPinEntered = (pos) => {
-    return pinCode && pos < (pinCode.length + 1);
-  }
-
-  const pinPress = (val) => {
-    if(val == 'X') {
-      setPinCode((prevPin) => {
-        return prevPin.slice(0, -1);
-      })
-    } else {
-      if(pinCode && pinCode.length >= 4) {
-        return;
-      }
-      setPinCode((prevPin) => {
-        return "" + prevPin + val;
-      })
-
-    }
-  }
-
-  const clearPinAndCallback = () => {
-    setPinCode("");
+  const cancelPinCodeModal = () => {
     setCallbackUrl(null)
+    setShowPinModal(false);
+    retryBoltcardPayment()
+  }
+
+  const onPrint = async (invoice) => {
+    let options = {
+      html: `
+        <h1 style="font-size: 100px">${invoice.description}</h1>
+        <p style="font-size: 50px">Payment made in Bitcoin</p>
+        <p style="font-size: 50px">${moment(invoice.timestamp * 1000).format('DD/MM/YY HH:mm:ss')}</p>
+        <p style="font-size: 60px;">${invoice.amt} sats <span style="font-weight: 600;">${invoice.ispaid ? "(PAID)" : "(PENDING)"}</span></p>
+        <p style="font-size: 60px; overflow-wrap: break-word; word-break: break-all;">Payment Hash: ${invoice.payment_hash}</p>
+        <img src="data:image/jpeg;base64,${qrData}" width="100%" height="auto"/>
+      `,
+      fileName: 'receipt_'+invoice.payment_hash,
+      directory: 'Documents',
+      height: 1500,
+      width: 595
+    };
+
+    try {
+      let file = await RNHTMLtoPDF.convert(options)
+      if(file?.filePath) FileViewer.open(file?.filePath);
+    } catch(err) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error opening pdf',
+        text2: err,
+      });
+      console.log(err);
+    }
   }
 
   return (
     <View style={{...backgroundStyle, flex: 1}}>
       <View style={{...backgroundStyle, flex: 1}}>
-        <Modal
-          animationType="fade"
-          transparent={false}
-          visible={showPinModal}
-          onRequestClose={() => {
-            setShowPinModal(!showPinModal);
-            setPinCode("");
+        <PinCodeModal
+          showModal={showPinModal}
+          onCancel={cancelPinCodeModal}
+          topText={<Text style={{textAlign: 'center', fontSize: 25, marginBottom: 20, fontWeight: 600}}>{satsAmount ? satsAmount.toLocaleString() : 0} sats</Text>}
+          onEnter={() => {
+            setShowPinModal(false);
+            fetchCallback(callbackUrl, pinCode);
           }}
-        >
-          <View style={{justifyContent: 'center', flex: 1, backgroundColor: "#FF9900"}}>
-            <Text style={{textAlign: 'center', fontSize: 25, marginBottom: 20, fontWeight: 600}}>{satsAmount ? satsAmount.toLocaleString() : 0} sats</Text>
-            <Text style={{textAlign: 'center', fontSize: 30, marginBottom: 30, fontWeight: 700, color: '#333'}}>Enter PIN</Text>
-            <View style={{flexDirection: 'row', justifyContent: 'center', marginBottom: 30}}>
-              <CircleBorder fill={isPinEntered(1)} containerStyle={{marginRight: 10}}/>
-              <CircleBorder fill={isPinEntered(2)} containerStyle={{marginRight: 10}} />
-              <CircleBorder fill={isPinEntered(3)} containerStyle={{marginRight: 10}} />
-              <CircleBorder fill={isPinEntered(4)}  />
-            </View>
-            <View style={{flexDirection: 'row', marginBottom: 10}}>
-              <PinCodeButton number="1" onPress={() => pinPress('1')} />
-              <PinCodeButton number="2" onPress={() => pinPress('2')} />
-              <PinCodeButton number="3" onPress={() => pinPress('3')} />
-            </View>
-            <View style={{flexDirection: 'row', marginBottom: 10}}>
-              <PinCodeButton number="4" onPress={() => pinPress('4')} />
-              <PinCodeButton number="5" onPress={() => pinPress('5')} />
-              <PinCodeButton number="6" onPress={() => pinPress('6')} />
-            </View>
-            <View style={{flexDirection: 'row', marginBottom: 10}}>
-              <PinCodeButton number="7" onPress={() => pinPress('7')} />
-              <PinCodeButton number="8" onPress={() => pinPress('8')} />
-              <PinCodeButton number="9" onPress={() => pinPress('9')} />
-            </View>
-            <View style={{flexDirection: 'row', marginBottom: 10}}>
-              <PinCodeButton number="" />
-              <PinCodeButton number="0" onPress={() => pinPress('0')} />
-              <PinCodeButton number={<Icon name="backspace" size={35}/>} onPress={() => pinPress('X')} />
-            </View>
-            <View style={{marginTop: 15, justifyContent: 'center', paddingHorizontal: 20}}>
-              <Button
-                title="Cancel"
-                onPress={() => {
-                  clearPinAndCallback();
-                  setShowPinModal(false);
-                  retryBoltcardPayment()
-                }}
-                buttonStyle={{backgroundColor: "tomato"}}
-                titleStyle={{fontSize: 20}}
-              ></Button>
-            </View>
-          </View>
-        </Modal>
+          pinCode={pinCode}
+          setPinCode={setPinCode}
+        />
         {!walletConfigured && (
           <ConnectToHub 
             lndhub={lndhub}
@@ -672,11 +666,15 @@ function Home({navigation}): React.FC<Props> {
                 <Text
                   style={{...textStyle, fontSize: 35, height:50, marginTop:10, marginLeft:5}}
                 >{selectedUnit != 'sats' && selectedUnit != 'btc' && fiatCurrency?.symbol}</Text>
-                <Text
-                  style={{...textStyle, fontSize: 40, borderWidth: 1, marginTop: 10, marginLeft:5, flex:3, height:50, paddingHorizontal:10, paddingVertical: 0, paddingLeft:10, borderRadius: 8, textAlign: 'right', backgroundColor: 'white'}}
-                >
-                  {inputAmount}
-                </Text>
+                <View
+                  style={{borderRadius: 8, flex:3, marginTop: 10, marginLeft:5, overflow: 'hidden', borderBottomLeftRadius: 8, borderBottomRightRadius: 8, height:50}}>
+                  <Text
+                    style={{borderRadius: 8, color: '#000', fontSize: 40, borderWidth: 1, paddingHorizontal:10, paddingVertical: 0, paddingLeft:10, textAlign: 'right', backgroundColor: 'white'}}
+                  >
+                    {inputAmount}
+                  </Text>
+
+                </View>
                 <DropDownPicker
                   open={open}
                   value={selectedUnit}
@@ -825,8 +823,33 @@ function Home({navigation}): React.FC<Props> {
               ) : (
                 <View
                   style={{...textStyle, flexDirection: 'column', justifyContent: 'center', borderWidth:1, borderRadius:10, margin:10, backgroundColor: 'white', paddingVertical: 30}}>
-                  <View style={{flexDirection: 'row', justifyContent: 'center', paddingHorizontal:30}}>
-                    <Icon name="checkmark-circle" color="darkgreen" size={150} />
+                  {currentInvoiceObj &&
+                    <View style={{alignItems: 'flex-end'}}>
+                      <View style={{height: 0, width: 0, opacity: 0}}>
+                        <QRCode
+                          value={JSON.stringify({payment_hash: currentInvoiceObj.payment_hash})}
+                          getRef={qrRef}
+                          size={400}
+                        />
+                      </View>
+                      <Button 
+                        icon={{
+                          name: 'print'
+                        }}
+                        type="clear"
+                        onPress={() => onPrint(currentInvoiceObj)}
+                      />
+                    </View>
+                  }
+                  <View style={{height: 170}}>
+                    <LottieView
+                      source={require('../img/success_animation.json')}
+                      autoplay={true} 
+                      loop={false} 
+                      style={{flex: 1}}
+                      ref={animationRef}
+                      resizeMode = 'contain'
+                    />
                   </View>
                   <View
                     style={{flexDirection: 'row', justifyContent: 'center'}}>
@@ -858,18 +881,18 @@ function Home({navigation}): React.FC<Props> {
             >
               <View style={styles.centeredView}>
                 <View style={styles.modalView}>
-                  <Text style={{...textStyle, fontSize:20}}>Bolt Card Detected. <Icon name="checkmark" color="darkgreen" size={20} /></Text>
+                  <Text style={{color: '#000', fontSize:18}}>Bolt Card Detected. <Icon name="checkmark" color="darkgreen" size={20} /></Text>
                   {boltServiceResponse && 
-                    <Text style={{...textStyle, fontSize:20}}>
+                    <Text style={{color: '#000', fontSize:18}}>
                       Bolt Service connected <Icon name="checkmark" color="darkgreen" size={20} />
                     </Text>
                   }
                   {boltServiceCallback && 
                     <>
-                      <Text style={{...textStyle, fontSize:20}}>
-                        Bolt Service Callback success <Icon name="checkmark" color="darkgreen" size={20} />
+                      <Text style={{color: '#000', fontSize:18}}>
+                        Bolt Service Callback <Icon name="checkmark" color="darkgreen" size={20} />
                       </Text>
-                      <Text style={{...textStyle, fontSize:20}}>
+                      <Text style={{color: '#000', fontSize:18}}>
                         Payment initiated...
                       </Text>
                     </>

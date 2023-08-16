@@ -12,10 +12,28 @@ import Currency from './screens/settings/Currency';
 import Settings from './screens/settings/Settings';
 import ShopName from './screens/settings/ShopName';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import RecentInvoices from './screens/RecentInvoices';
+import RecentInvoices from './screens/recentInvoices/RecentInvoices';
+import InvoiceDetail from './screens/recentInvoices/InvoiceDetail';
+import ScanInvoice from './screens/recentInvoices/ScanInvoice';
 
 
 const boltPosLogo = require('./img/bolt-card-pos.png');
+
+const InvoiceStack = createNativeStackNavigator();
+const InvoiceRoot = () => {
+  return (
+    <InvoiceStack.Navigator
+      screenOptions={{headerHideShadow: true, headerShown: false}}
+      initialRouteName="Recent Invoice List">
+      <InvoiceStack.Screen name="Recent Invoice List" component={RecentInvoices} />
+      <InvoiceStack.Screen name="Invoice Detail" component={InvoiceDetail} />
+      <InvoiceStack.Screen
+        name="ScanInvoice"
+        component={ScanInvoice}
+      />
+    </InvoiceStack.Navigator>
+  );
+}
 
 const SettingsStack = createNativeStackNavigator();
 const SettingsRoot = () => {
@@ -23,8 +41,7 @@ const SettingsRoot = () => {
     <SettingsStack.Navigator
       screenOptions={{headerHideShadow: true, headerShown:false}}
       initialRouteName="Settings">
-    <SettingsStack.Screen name="Settings" component={Settings} />
-      <SettingsStack.Screen name="Recent Invoices" component={RecentInvoices} />
+      <SettingsStack.Screen name="Settings" component={Settings} />
       <SettingsStack.Screen name="Connect" component={ConnectToHub} />
       <SettingsStack.Screen name="Currency" component={Currency} />
       <SettingsStack.Screen name="Shop Name" component={ShopName} />
@@ -78,6 +95,11 @@ const HomeRoot = () => {
         component={SettingsRoot}
         options={{...NavigationDefaultOptions, headerStyle: {backgroundColor: isDarkMode ? '#666' : '#fff'}}}
       />
+      <HomeStack.Screen 
+        name="Recent Invoices" 
+        component={InvoiceRoot}
+        options={{...NavigationDefaultOptions, headerStyle: {backgroundColor: isDarkMode ? '#666' : '#fff'}}}
+       />
     </HomeStack.Navigator>
   );
 };

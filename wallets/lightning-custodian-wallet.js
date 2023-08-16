@@ -158,10 +158,15 @@ export class LightningCustodianWallet extends LegacyWallet {
    *
    * @return {Promise.<Array>}
    */
-  async getUserInvoices(limit = false) {
+  async getUserInvoices(limit = false, offset = false) {
     let limitString = '';
+    let offsetString = '';
     if (limit) limitString = '?limit=' + parseInt(limit);
-    const response = await this._api.get('/getuserinvoices' + limitString, {
+    if (offset) {
+      offsetString = limit ? '&' : '?'
+      offsetString += 'offset=' + parseInt(offset);
+    }
+    const response = await this._api.get('/getuserinvoices' + limitString + offsetString, {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
@@ -177,7 +182,7 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
-    if (limit) {
+    if (limit || offset) {
       // need to merge existing invoices with the ones that arrived
       // but the ones received later should overwrite older ones
 
@@ -197,7 +202,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     }
 
     this.user_invoices_raw = json.sort(function (a, b) {
-      return a.timestamp - b.timestamp;
+      return b.timestamp - a.timestamp;
     });
 
     return this.user_invoices_raw;
@@ -607,8 +612,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     const apiCall = new Frisbee({
       baseURI: address,
     });
-    //call /getinfobolt from the hub to make sure this is a bolt card hub
-    const response = await apiCall.get('/getinfobolt', {
+    const response = await apiCall.get('/getinfo', {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
@@ -619,7 +623,7 @@ export class LightningCustodianWallet extends LegacyWallet {
       return false;
     }
 
-    if (json && json.code && json.code !== 1) {
+    if (json && json.code && json.code !== 1 && json.code !== "unauthenticated") {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
     return true;

@@ -101,8 +101,8 @@ android {
         /*
          * https://www.epochconverter.com/
          */
-        versionCode 1691384818
-        versionName "0.1.1"
+        versionCode 1692166430
+        versionName "1.2.0"
 
         missingDimensionStrategy 'react-native-camera', 'general'
 
@@ -185,6 +185,6 @@ dependencies {
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
 
 project.ext.vectoricons = [
-    iconFontNames: [ 'Ionicons.ttf', 'MaterialIcons.ttf' ] // Name of the font files you want to copy
+    iconFontNames: [ 'Ionicons.ttf', 'MaterialIcons.ttf', "MaterialCommunityIcons.ttf" ] // Name of the font files you want to copy
 ]
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
