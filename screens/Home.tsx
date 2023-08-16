@@ -257,14 +257,6 @@ function Home({navigation}): React.FC<Props> {
     }
   };
 
-  function bin2String(array) {
-    var result = '';
-    for (var i = 0; i < array.length; i++) {
-      result += String.fromCharCode(parseInt(array[i], 2));
-    }
-    return result;
-  }
-
   async function readNdef() {
     console.log('***** Await NFC Tag');
     try {
@@ -335,6 +327,9 @@ function Home({navigation}): React.FC<Props> {
   const resetInvoice = () => {
     setInputAmount(0);
     setTotalAmount(0);
+    setFiatAmount(0);
+    setSatsAmount(0);
+    setHiddenTotal(0);
     setIsFetchingInvoices(false);
     clearInterval(fetchInvoiceInterval.current);
     fetchInvoiceInterval.current = undefined;
