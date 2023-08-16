@@ -101,8 +101,8 @@ android {
         /*
          * https://www.epochconverter.com/
          */
-        versionCode 1691384818
-        versionName "0.1.1"
+        versionCode 1692166430
+        versionName "1.2.0"
 
         missingDimensionStrategy 'react-native-camera', 'general'
 
