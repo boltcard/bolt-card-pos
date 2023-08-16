@@ -32,7 +32,6 @@ const PinSetScreen = (props: any) => {
     let toastMessage = null;
     try {
       await AsyncStorage.setItem('manager-pin', pinCode);
-      console.log(await AsyncStorage.getItem('manager-pin'));
       toastMessage = {
         type: 'success',
         text1: 'PIN saved',
@@ -40,14 +39,14 @@ const PinSetScreen = (props: any) => {
       if(props.successMessage) {
         toastMessage.text2 = props.successMessage;
       }
-      props.successCallback();
+      if(props.successCallback) props.successCallback();
     } catch (err) {
       toastMessage = {
         type: 'error',
         text1: 'Error saving PIN',
         text2: err.message,
       };
-      props.failCallback();
+      if(props.failCallback) props.failCallback();
     } finally {
       closeModal();
       if(toastMessage) {
