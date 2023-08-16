@@ -11,9 +11,9 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {ListItem, Text, Badge, Button} from 'react-native-elements';
 import Toast from 'react-native-toast-message';
-import {ShopSettingsContext} from '../../../contexts/ShopSettingsContext';
+import {ShopSettingsContext} from '../../contexts/ShopSettingsContext';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import { LightningCustodianWallet } from '../../../wallets/lightning-custodian-wallet.js';
+import { LightningCustodianWallet } from '../../wallets/lightning-custodian-wallet.js';
 import moment from 'moment';
 
 const queryLimit = 10;

@@ -135,12 +135,21 @@ function Home({navigation}): React.FC<Props> {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('SettingsRoot');
-          }}>
-          <Icon name="cog" color={isDarkMode ? '#fff' : '#000'} size={30} />
-        </TouchableOpacity>
+        <>
+          <TouchableOpacity
+            style={{marginRight: 7}}
+            onPress={() => {
+              navigation.navigate('Recent Invoices');
+            }}>
+            <Icon name="list" color={isDarkMode ? '#fff' : '#000'} size={30} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('SettingsRoot');
+            }}>
+            <Icon name="cog" color={isDarkMode ? '#fff' : '#000'} size={30} />
+          </TouchableOpacity>
+        </>
       ),
       headerShown: true,
       title: shopName,

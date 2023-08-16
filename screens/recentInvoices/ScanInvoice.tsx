@@ -13,7 +13,7 @@ import {Button, Text} from 'react-native-elements';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import Toast from 'react-native-toast-message';
 
-import {ShopSettingsContext} from '../../../contexts/ShopSettingsContext';
+import {ShopSettingsContext} from '../../contexts/ShopSettingsContext';
 
 import QRCodeScanner from 'react-native-qrcode-scanner';
 
