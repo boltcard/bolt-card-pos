@@ -30,7 +30,11 @@ const Settings = () => {
     try {
       setInitLoading(true);
       const managerPin = await AsyncStorage.getItem('manager-pin');
-      if(managerPin) setShowPinScreen(true);
+      if(managerPin) {
+        setShowPinScreen(true);
+      } else {
+        setInitLoading(false);
+      }
     } catch(err) {
       navigate("Home");
       Toast.show({
