@@ -17,7 +17,7 @@ import {navigationRef} from './NavigationService';
 import Navigation from './Navigation';
 import {ShopSettingsProvider} from './contexts/ShopSettingsContext';
 
-import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+import Toast, { SuccessToast, ErrorToast } from 'react-native-toast-message';
 const currency = require('./helper/currency');
 
 
@@ -27,7 +27,7 @@ const toastConfig = {
     by modifying the existing `BaseToast` component
   */
   success: props => (
-    <BaseToast
+    <SuccessToast
       {...props}
       contentContainerStyle={{paddingHorizontal: 15}}
       text2NumberOfLines={5}

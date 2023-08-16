@@ -14,6 +14,7 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { ShopSettingsContext } from '../../contexts/ShopSettingsContext';
 import QRScanner from '../QRScanner';
 import Icon from 'react-native-vector-icons/Ionicons';
+import PinSetScreen from './PinSetScreen';
 
 const ConnectToHub = (props) => {
     const {lndhub, setLndhub, lndhubUser, setLndhubUser} = useContext(ShopSettingsContext);
@@ -26,6 +27,9 @@ const ConnectToHub = (props) => {
       backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
     };
     const [scanMode, setScanMode] = useState(false);
+
+    const [showPinSetScreen, setShowPinSetScreen] = useState(false);
+    
     const textStyle = {
         color: isDarkMode ? '#fff' : '#000',
         borderColor: isDarkMode ? '#fff' : '#000',
@@ -43,13 +47,14 @@ const ConnectToHub = (props) => {
           const hubData = e.data.split('@');
           setLndhubUser(hubData[0]);
           setLndhub(hubData[1]);
-    
+          
           Toast.show({
             type: 'success',
             text1: 'LND Connect',
             text2: 'LND Hub Save Success.',
           });
           setScanMode(false);
+          setShowPinSetScreen(true);
         }
       };
     return (
@@ -159,6 +164,12 @@ const ConnectToHub = (props) => {
                 </ScrollView>
             
             }
+            <PinSetScreen
+                showBaseModal={showPinSetScreen}
+                onClose={() =>setShowPinSetScreen(false)}
+                title="Set PIN"
+                successMessage="LND Hub Save Success."
+            />
         </>
     );
 }

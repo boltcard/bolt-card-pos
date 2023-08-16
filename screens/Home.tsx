@@ -81,7 +81,7 @@ function Home({navigation}): React.FC<Props> {
 
   //PIN
   const [showPinModal, setShowPinModal] = useState(false);
-  const [pinCode, setPinCode] = useState("");
+  const [pinCode, setPinCode] = useState<string>("");
   const [callbackUrl, setCallbackUrl] = useState("");
   const [pinTimeout, setPintimeout] = useState(0);
 
@@ -641,12 +641,13 @@ function Home({navigation}): React.FC<Props> {
         <PinCodeModal
           showModal={showPinModal}
           onCancel={cancelPinCodeModal}
-          onPinChange={(pin) => setPinCode(pin)}
           topText={<Text style={{textAlign: 'center', fontSize: 25, marginBottom: 20, fontWeight: 600}}>{satsAmount ? satsAmount.toLocaleString() : 0} sats</Text>}
           onEnter={() => {
             setShowPinModal(false);
             fetchCallback(callbackUrl, pinCode);
           }}
+          pinCode={pinCode}
+          setPinCode={setPinCode}
         />
         {!walletConfigured && (
           <ConnectToHub 
