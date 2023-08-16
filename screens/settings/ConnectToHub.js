@@ -1,12 +1,13 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import {
     Text,
     useColorScheme,
     View,
     TextInput,
     Pressable,
-    ScrollView
+    ScrollView,
+    BackHandler
 } from 'react-native';
 import { Button } from 'react-native-elements';
 import Toast from 'react-native-toast-message';
@@ -21,6 +22,7 @@ const ConnectToHub = (props) => {
     const [hub, setHub] = useState('');
     const [showLnbitsInstr, setShowLnbitsInstr] = useState(false);
     const [showBtcPayInstr, setShowBtcPayInstr] = useState(false);
+    const [hubData, setHubData] = useState([]);
     const {navigate} = useNavigation();
     const isDarkMode = useColorScheme() === 'dark';
     const backgroundStyle = {
@@ -44,19 +46,30 @@ const ConnectToHub = (props) => {
           });
           console.log('Toast.show');
         } else {
-          const hubData = e.data.split('@');
-          setLndhubUser(hubData[0]);
-          setLndhub(hubData[1]);
-          
-          Toast.show({
-            type: 'success',
-            text1: 'LND Connect',
-            text2: 'LND Hub Save Success.',
-          });
           setScanMode(false);
           setShowPinSetScreen(true);
+          
+          setHubData(e.data.split('@'));
         }
       };
+
+    useEffect(() => {
+      const backAction = () => {
+        console.log('scanMode', scanMode)
+        if(scanMode) {
+          setScanMode(false);
+          return true;
+        }
+        return false;
+      }
+
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backAction,
+      );
+  
+      return () => backHandler.remove();
+    }, [scanMode]);
     return (
         <>
             {scanMode ? 
@@ -167,8 +180,21 @@ const ConnectToHub = (props) => {
             <PinSetScreen
                 showBaseModal={showPinSetScreen}
                 onClose={() =>setShowPinSetScreen(false)}
-                title="Set PIN"
+                title="Set Admin Access PIN"
                 successMessage="LND Hub Save Success."
+                successCallback={() => {
+                  setLndhubUser(hubData[0]);
+                  setLndhub(hubData[1]);
+                  Toast.show({
+                    type: 'success',
+                    text1: 'LND Connect',
+                    text2: 'LND Hub Save Success.',
+                  });
+                  setHubData([])
+                }}
+                failCallback={() => {
+                  setHubData([])
+                }}
             />
         </>
     );

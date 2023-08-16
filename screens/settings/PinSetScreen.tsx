@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import PinCodeModal from '../../components/PinCodeModal';
-import {Modal, StyleSheet, View} from 'react-native';
+import {Modal, StyleSheet, View, BackHandler, Alert} from 'react-native';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -10,13 +10,15 @@ const PinSetScreen = (props: any) => {
   const [showPinModal, setShowPinModal] = useState(false);
   const [showConfirmPinModal, setShowConfirmPinModal] = useState(false);
 
+  const {showBaseModal} = props;
+
   useEffect(() => {
-    if(props.showBaseModal) {
+    if(showBaseModal) {
       reset();
     } else {
       closeModal();
     }
-  }, [props.showBaseModal])
+  }, [showBaseModal])
 
   const closeModal = () => {
     setPinCode('');
@@ -38,12 +40,14 @@ const PinSetScreen = (props: any) => {
       if(props.successMessage) {
         toastMessage.text2 = props.successMessage;
       }
+      props.successCallback();
     } catch (err) {
       toastMessage = {
         type: 'error',
         text1: 'Error saving PIN',
         text2: err.message,
       };
+      props.failCallback();
     } finally {
       closeModal();
       if(toastMessage) {
@@ -61,7 +65,7 @@ const PinSetScreen = (props: any) => {
 
   return (
     <Modal
-      visible={props.showBaseModal}
+      visible={showBaseModal}
       transparent={false}
     >
       <View style={{backgroundColor: '#FF9900', flex: 1}}>
@@ -97,7 +101,7 @@ const PinSetScreen = (props: any) => {
               setTimeout(() => {
                 Toast.show({
                   type: 'error',
-                  text1: 'PIN not matched',
+                  text1: 'Incorrect PIN',
                   text2: 'Please try again',
                 });
               }, 500);
