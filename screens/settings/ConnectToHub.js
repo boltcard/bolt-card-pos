@@ -16,9 +16,10 @@ import { ShopSettingsContext } from '../../contexts/ShopSettingsContext';
 import QRScanner from '../QRScanner';
 import Icon from 'react-native-vector-icons/Ionicons';
 import PinSetScreen from './PinSetScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ConnectToHub = (props) => {
-    const {lndhub, setLndhub, lndhubUser, setLndhubUser} = useContext(ShopSettingsContext);
+    const {lndhub, setLndhub, lndhubUser, setLndhubUser, setShopWallet} = useContext(ShopSettingsContext);
     const [hub, setHub] = useState('');
     const [showLnbitsInstr, setShowLnbitsInstr] = useState(false);
     const [showBtcPayInstr, setShowBtcPayInstr] = useState(false);
@@ -143,9 +144,20 @@ const ConnectToHub = (props) => {
                         </View>
                         <Button
                             title="Clear Hub Connection"
-                            onPress={() => {
-                                setLndhubUser(null);
-                                setLndhub(null);
+                            onPress={async () => {
+                                try {
+                                    setLndhubUser(null);
+                                    setLndhub(null);
+                                    setShopWallet(null);
+                                    await AsyncStorage.setItem('manager-pin', '');
+                                } catch(err) {
+                                    Toast.show({
+                                        type: 'error',
+                                        text1: 'PIN reset error',
+                                        text2: err.message
+                                    })
+                                }
+
                             }}
                         />
                         <View style={{flexDirection:'row', justifyContent:'space-between', marginVertical: 10}}>
