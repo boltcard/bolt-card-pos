@@ -30,5 +30,6 @@
         <!-- If you don't know the MIME type in advance, set "mimeType" to "*/*". -->
         <data android:mimeType="application/pdf" />
       </intent>
+        <package android:name="net.nyx.printerservice"/>
     </queries>
 </manifest>

@@ -1,3 +1,11 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive"
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "editor.formatOnSave": true,
+  "prettier.tabWidth": 4,
+  "workbench.colorTheme": "Default Dark Modern",
+  "editor.detectIndentation": false,
+  "prettier.printWidth": 120,
+  "prettier.bracketSameLine": false,
+  "prettier.htmlWhitespaceSensitivity": "strict",
+  "prettier.bracketSpacing": true
 }

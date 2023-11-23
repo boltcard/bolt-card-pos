@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useRef, useState, useCallback } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+} from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -10,16 +16,17 @@ import {
   useColorScheme,
   Platform,
   Image,
-  Modal
+  Modal,
+  NativeModules,
 } from 'react-native';
 
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import NfcManager, { NfcTech } from 'react-native-nfc-manager';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import NfcManager, {NfcTech} from 'react-native-nfc-manager';
 import QRCode from 'react-native-qrcode-svg';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
-import { Button } from 'react-native-elements';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {Button} from 'react-native-elements';
 import PinPadButton from '../components/PinPadButton';
 import PinCodeModal from '../components/PinCodeModal';
 import { ShopSettingsContext } from '../contexts/ShopSettingsContext';
@@ -62,17 +69,19 @@ function Home({navigation}): React.FC<Props> {
   const [lndInvoice, setLndInvoice] = useState<string>(null);
   const [invoiceIsPaid, setInvoiceIsPaid] = useState<boolean>(false);
   const [invoiceLoading, setInvoiceLoading] = useState<boolean>(false);
-  const [currentInvoiceObj, setCurrentInvoiceObj] = useState(); 
+  const [currentInvoiceObj, setCurrentInvoiceObj] = useState();
 
-  const qrRef = useRef(null)
+  const qrRef = useRef(null);
   const [qrData, setQrData] = useState(null);
 
   //NFC shizzle
   const [ndef, setNdef] = useState<string>();
   const [boltLoading, setBoltLoading] = useState<boolean>(false);
-  const [boltServiceResponse, setBoltServiceResponse] = useState<boolean>(false);
-  const [boltServiceCallback, setBoltServiceCallback] = useState<boolean>(false);
-  
+  const [boltServiceResponse, setBoltServiceResponse] =
+    useState<boolean>(false);
+  const [boltServiceCallback, setBoltServiceCallback] =
+    useState<boolean>(false);
+
   //connection
   const [lndWallet, setLndWallet] = useState<LightningCustodianWallet>();
 
@@ -85,18 +94,16 @@ function Home({navigation}): React.FC<Props> {
   const [callbackUrl, setCallbackUrl] = useState("");
   const [pinTimeout, setPintimeout] = useState(0);
 
-
   const [open, setOpen] = useState(false);
   const [fiatCurrency, setFiatCurrency] = useState(null);
   const [lastRate, setLastRate] = useState(null);
   const [selectedUnit, setSelectedUnit] = useState('sats');
 
-  const animationRef = useCallback((ref) => {
-      if(ref) {
-          ref.play();
-      }
+  const animationRef = useCallback(ref => {
+    if (ref) {
+      ref.play();
+    }
   }, []);
-
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -109,12 +116,12 @@ function Home({navigation}): React.FC<Props> {
 
   useEffect(() => {
     qrRef.current?.toDataURL(dataURL => setQrData(dataURL));
-  }, [qrRef, currentInvoiceObj])
+  }, [qrRef, currentInvoiceObj]);
 
   useFocusEffect(
     React.useCallback(() => {
       console.log('useFocusEffect', shopName, lndhub, lndhubUser);
-      if(!shopName || !lndhub || !lndhubUser) {
+      if (!shopName || !lndhub || !lndhubUser) {
         setWalletConfigured(false);
       }
 
@@ -129,7 +136,7 @@ function Home({navigation}): React.FC<Props> {
         });
       });
       // return () => unsubscribe();
-    }, [lndhub, lndhubUser])
+    }, [lndhub, lndhubUser]),
   );
 
   useEffect(() => {
@@ -165,7 +172,7 @@ function Home({navigation}): React.FC<Props> {
   }, [navigation, shopName]);
 
   //once the connections details have been loaded from local store
-  //set up the connection objects to connect to the hub 
+  //set up the connection objects to connect to the hub
   useEffect(() => {
     async function initWallet() {
       console.log('initialising wallet...');
@@ -195,10 +202,9 @@ function Home({navigation}): React.FC<Props> {
     } else if (lndhub && lndhubUser) {
       setWalletConfigured(true);
 
-      console.log('init with lndhub, lndhubUser', lndhub, lndhubUser)
+      console.log('init with lndhub, lndhubUser', lndhub, lndhubUser);
       initWallet();
     }
-
   }, [lndhub, lndhubUser]);
 
   const makeLndInvoice = async () => {
@@ -233,7 +239,6 @@ function Home({navigation}): React.FC<Props> {
           text2: error.message,
         });
         setInvoiceLoading(false);
-
       }
       try {
         const result = await lndWallet.addInvoice(
@@ -269,7 +274,7 @@ function Home({navigation}): React.FC<Props> {
       // console.log('Tag found', tag);
       // console.log('NDEF', nfcData);
 
-      if(!nfcData || nfcData == "") {
+      if (!nfcData || nfcData == '') {
         console.log('NDEF empty');
         Toast.show({
           type: 'error',
@@ -314,7 +319,7 @@ function Home({navigation}): React.FC<Props> {
     } catch (e) {
       return false;
     }
-  }
+  };
 
   async function stopReadNdef() {
     try {
@@ -414,7 +419,7 @@ function Home({navigation}): React.FC<Props> {
   }, [isFetchingInvoices]);
 
   const fetchCallback = (callback, pin = null) => {
-    if(pin) {
+    if (pin) {
       callback.searchParams.set('pin', pin);
     }
     return fetch(callback.toString())
@@ -476,13 +481,13 @@ function Home({navigation}): React.FC<Props> {
             callback.searchParams.set('k1', data.k1);
             callback.searchParams.set('pr', lndInvoice);
 
-            if(data.pinLimit) {
-              //if the card has pin enabled 
+            if (data.pinLimit) {
+              //if the card has pin enabled
               //check the amount didn't exceed the limit
               const limitSat = data.pinLimit / 1000;
-              if(limitSat <= satsAmount) {
+              if (limitSat <= satsAmount) {
                 setCallbackUrl(callback);
-                setPinCode("");
+                setPinCode('');
                 setShowPinModal(true);
                 return;
               }
@@ -525,62 +530,81 @@ function Home({navigation}): React.FC<Props> {
     setBoltServiceCallback(false);
     setBoltServiceResponse(false);
     NfcManager.cancelTechnologyRequest().then(() => {
-      if(Platform.OS == 'android') {
+      if (Platform.OS == 'android') {
         setTimeout(() => {
           readNdef();
         }, 1000);
       }
     });
-  }
+  };
 
   const press = (input: string) => {
     if (input === 'c') {
-      if(inputAmount == 0) {
+      if (inputAmount == 0) {
         setTotalAmount(0);
         setHiddenTotal(0);
         setSatsAmount(0);
         setFiatAmount(0);
       }
-      if(inputAmount > 0) setInputAmount('0');
-    } 
-    else if (input === '+') {
-      setTotalAmount(twoDP((parseFloat(hiddenTotal) + parseFloat(inputAmount))));
+      if (inputAmount > 0) setInputAmount('0');
+    } else if (input === '+') {
+      setTotalAmount(twoDP(parseFloat(hiddenTotal) + parseFloat(inputAmount)));
       setInputAmount('0');
       setHiddenTotal(totalAmount);
-    }
-    else if(selectedUnit == 'sats' || selectedUnit == 'btc') {
-      const updatedAmout = (inputAmount === '0') ? input : inputAmount + '' + input;
+    } else if (selectedUnit == 'sats' || selectedUnit == 'btc') {
+      const updatedAmout =
+        inputAmount === '0' ? input : inputAmount + '' + input;
       setInputAmount(parseInt(updatedAmout));
       setTotalAmount(parseInt(hiddenTotal) + parseInt(updatedAmout));
-    }
-    else {
-      const updatedAmount = (inputAmount === '0' || inputAmount === 0) ? twoDP(input*0.01) : twoDP((parseFloat(inputAmount) + parseFloat(input*0.001))*10);
+    } else {
+      const updatedAmount =
+        inputAmount === '0' || inputAmount === 0
+          ? twoDP(input * 0.01)
+          : twoDP((parseFloat(inputAmount) + parseFloat(input * 0.001)) * 10);
       setInputAmount(updatedAmount);
-      setTotalAmount(twoDP(parseFloat(hiddenTotal) + parseFloat(updatedAmount)));
+      setTotalAmount(
+        twoDP(parseFloat(hiddenTotal) + parseFloat(updatedAmount)),
+      );
     }
   };
 
-  const twoDP = (input) => {
-    return Math.round(input*100)/100;
-  }
+  const twoDP = input => {
+    return Math.round(input * 100) / 100;
+  };
 
   /**
    * Update the various conversions to sats etc.
    */
-  useEffect(()=> {
-    if(selectedUnit == 'sats') {
-      if(fiatCurrency) setFiatAmount(currency.satoshiToLocalCurrency(totalAmount ? totalAmount : satsAmount));
+  useEffect(() => {
+    if (selectedUnit == 'sats') {
+      if (fiatCurrency)
+        setFiatAmount(
+          currency.satoshiToLocalCurrency(
+            totalAmount ? totalAmount : satsAmount,
+          ),
+        );
       setSatsAmount(totalAmount);
-    }
-    else if(selectedUnit == 'btc') {
+    } else if (selectedUnit == 'btc') {
       setSatsAmount(currency.btcToSatoshi(totalAmount));
-      if(fiatCurrency) setFiatAmount(currency.satoshiToLocalCurrency(currency.btcToSatoshi(totalAmount)));
+      if (fiatCurrency)
+        setFiatAmount(
+          currency.satoshiToLocalCurrency(currency.btcToSatoshi(totalAmount)),
+        );
+    } else {
+      if (fiatCurrency)
+        setSatsAmount(currency.btcToSatoshi(currency.fiatToBTC(totalAmount)));
+      if (fiatCurrency) setFiatAmount(totalAmount);
     }
-    else {
-      if(fiatCurrency) setSatsAmount(currency.btcToSatoshi(currency.fiatToBTC(totalAmount)));
-      if(fiatCurrency) setFiatAmount(totalAmount);
+  }, [inputAmount, selectedUnit, totalAmount]);
+
+  useEffect(() => {
+    if (pinCode && pinCode.length == 4) {
+      setTimeout(() => {
+        setShowPinModal(false);
+        fetchCallback(callbackUrl, pinCode);
+      }, 500);
     }
-  },[inputAmount, selectedUnit, totalAmount])
+  }, [pinCode]);
 
   const copyToClipboard = () => {
     Clipboard.setString(lndInvoice);
@@ -589,15 +613,18 @@ function Home({navigation}): React.FC<Props> {
       text1: 'Copied to clipboard',
       text2: 'Invoice has been copied to clipboard',
     });
-  }
+  };
 
   const currencyItems = [
     {label: 'Sats', value: 'sats'},
-    {label: 'BTC', value: 'btc'}
+    {label: 'BTC', value: 'btc'},
   ];
 
-  if(fiatCurrency) {
-    currencyItems.push({label: fiatCurrency.endPointKey, value: fiatCurrency.endPointKey});
+  if (fiatCurrency) {
+    currencyItems.push({
+      label: fiatCurrency.endPointKey,
+      value: fiatCurrency.endPointKey,
+    });
   }
 
   if (initialisingWallet) {
@@ -610,26 +637,34 @@ function Home({navigation}): React.FC<Props> {
     retryBoltcardPayment()
   }
 
-  const onPrint = async (invoice) => {
+  const onPDF = async invoice => {
     let options = {
       html: `
         <h1 style="font-size: 100px">${invoice.description}</h1>
         <p style="font-size: 50px">Payment made in Bitcoin</p>
-        <p style="font-size: 50px">${moment(invoice.timestamp * 1000).format('DD/MM/YY HH:mm:ss')}</p>
-        <p style="font-size: 60px;">${invoice.amt} sats <span style="font-weight: 600;">${invoice.ispaid ? "(PAID)" : "(PENDING)"}</span></p>
-        <p style="font-size: 60px; overflow-wrap: break-word; word-break: break-all;">Payment Hash: ${invoice.payment_hash}</p>
+        <p style="font-size: 50px">${moment(invoice.timestamp * 1000).format(
+          'DD/MM/YY HH:mm:ss',
+        )}</p>
+        <p style="font-size: 60px;">${
+          invoice.amt
+        } sats <span style="font-weight: 600;">${
+        invoice.ispaid ? '(PAID)' : '(PENDING)'
+      }</span></p>
+        <p style="font-size: 60px; overflow-wrap: break-word; word-break: break-all;">Payment Hash: ${
+          invoice.payment_hash
+        }</p>
         <img src="data:image/jpeg;base64,${qrData}" width="100%" height="auto"/>
       `,
-      fileName: 'receipt_'+invoice.payment_hash,
+      fileName: 'receipt_' + invoice.payment_hash,
       directory: 'Documents',
       height: 1500,
-      width: 595
+      width: 595,
     };
 
     try {
-      let file = await RNHTMLtoPDF.convert(options)
-      if(file?.filePath) FileViewer.open(file?.filePath);
-    } catch(err) {
+      let file = await RNHTMLtoPDF.convert(options);
+      if (file?.filePath) FileViewer.open(file?.filePath);
+    } catch (err) {
       Toast.show({
         type: 'error',
         text1: 'Error opening pdf',
@@ -637,7 +672,37 @@ function Home({navigation}): React.FC<Props> {
       });
       console.log(err);
     }
-  }
+  };
+
+  const onPrint = async invoice => {
+    await NativeModules.PrintModule.printText(invoice.description, 32);
+    await NativeModules.PrintModule.paperOut(24);
+
+    await NativeModules.PrintModule.printText('Payment made in Bitcoin', 24);
+    await NativeModules.PrintModule.paperOut(24);
+
+    await NativeModules.PrintModule.printText(
+      moment(invoice.timestamp * 1000).format('DD/MM/YY HH:mm:ss'),
+      24,
+    );
+    await NativeModules.PrintModule.paperOut(24);
+
+    await NativeModules.PrintModule.printText(
+      invoice.amt + ' sats ' + (invoice.ispaid ? '(PAID)' : '(PENDING)'),
+      32,
+    );
+    await NativeModules.PrintModule.paperOut(24);
+
+    await NativeModules.PrintModule.printText(invoice.payment_hash, 24);
+    await NativeModules.PrintModule.paperOut(24);
+    await NativeModules.PrintModule.printQRCode(
+      JSON.stringify({payment_hash: invoice.payment_hash}),
+      400,
+      400,
+    );
+
+    await NativeModules.PrintModule.paperOut(100);
+  };
 
   return (
     <View style={{...backgroundStyle, flex: 1}}>
@@ -654,26 +719,49 @@ function Home({navigation}): React.FC<Props> {
           setPinCode={setPinCode}
         />
         {!walletConfigured && (
-          <ConnectToHub 
-            lndhub={lndhub}
-            lndhubUser={lndhubUser}
-          />
+          <ConnectToHub lndhub={lndhub} lndhubUser={lndhubUser} />
         )}
         {walletConfigured && (
           <>
-            <View style={{flexDirection: 'column',  margin:0, padding:0}}>
-              <View style={{flexDirection: 'row',  margin:0, padding:0}}>
+            <View style={{flexDirection: 'column', margin: 0, padding: 0}}>
+              <View style={{flexDirection: 'row', margin: 0, padding: 0}}>
                 <Text
-                  style={{...textStyle, fontSize: 35, height:50, marginTop:10, marginLeft:5}}
-                >{selectedUnit != 'sats' && selectedUnit != 'btc' && fiatCurrency?.symbol}</Text>
+                  style={{
+                    ...textStyle,
+                    fontSize: 35,
+                    height: 50,
+                    marginTop: 10,
+                    marginLeft: 5,
+                  }}>
+                  {selectedUnit != 'sats' &&
+                    selectedUnit != 'btc' &&
+                    fiatCurrency?.symbol}
+                </Text>
                 <View
-                  style={{borderRadius: 8, flex:3, marginTop: 10, marginLeft:5, overflow: 'hidden', borderBottomLeftRadius: 8, borderBottomRightRadius: 8, height:50}}>
+                  style={{
+                    borderRadius: 8,
+                    flex: 3,
+                    marginTop: 10,
+                    marginLeft: 5,
+                    overflow: 'hidden',
+                    borderBottomLeftRadius: 8,
+                    borderBottomRightRadius: 8,
+                    height: 50,
+                  }}>
                   <Text
-                    style={{borderRadius: 8, color: '#000', fontSize: 40, borderWidth: 1, paddingHorizontal:10, paddingVertical: 0, paddingLeft:10, textAlign: 'right', backgroundColor: 'white'}}
-                  >
+                    style={{
+                      borderRadius: 8,
+                      color: '#000',
+                      fontSize: 40,
+                      borderWidth: 1,
+                      paddingHorizontal: 10,
+                      paddingVertical: 0,
+                      paddingLeft: 10,
+                      textAlign: 'right',
+                      backgroundColor: 'white',
+                    }}>
                     {inputAmount}
                   </Text>
-
                 </View>
                 <DropDownPicker
                   open={open}
@@ -682,7 +770,7 @@ function Home({navigation}): React.FC<Props> {
                   setOpen={setOpen}
                   setValue={setSelectedUnit}
                   // setItems={setItems}
-                  theme={isDarkMode ? "DARK" : "LIGHT"}
+                  theme={isDarkMode ? 'DARK' : 'LIGHT'}
                   multiple={false}
                   containerStyle={{
                     margin: 10,
@@ -690,55 +778,73 @@ function Home({navigation}): React.FC<Props> {
                   }}
                 />
               </View>
-              <View style={{flexDirection: 'column', zIndex: -1, marginHorizontal:10, marginTop:0, alignItems:'center' }}>
-                  <>
-                    <Text style={{...textStyle, fontSize: 15}}>
-                    {lastRate && ('Rate update ' +Math.round((new Date()-lastRate.LastUpdated )/1000/60) +' min ago')}
-                    </Text>
-                  </>
-                </View>
+              <View
+                style={{
+                  flexDirection: 'column',
+                  zIndex: -1,
+                  marginHorizontal: 10,
+                  marginTop: 0,
+                  alignItems: 'center',
+                }}>
+                <>
+                  <Text style={{...textStyle, fontSize: 15}}>
+                    {lastRate &&
+                      'Rate update ' +
+                        Math.round(
+                          (new Date() - lastRate.LastUpdated) / 1000 / 60,
+                        ) +
+                        ' min ago'}
+                  </Text>
+                </>
+              </View>
             </View>
             {!lndInvoice && (
-              <View style={{flex:4, zIndex: -1 }}>
+              <View style={{flex: 4, zIndex: -1}}>
                 <View style={{flex: 1, padding: 10}}>
-                <View style={{marginBottom:10}}>
-                  <Pressable
-                    onPress={() => makeLndInvoice()}
-                    disabled={invoiceLoading}>
-                    <View
-                      style={{
-                        backgroundColor: invoiceLoading ? '#D3D3D3' : '#ff9900',
-                        height: 70,
-                        justifyContent: 'center',
-                        borderRadius:20
-                        
-                      }}>
-                      {invoiceLoading ? (
-                        <ActivityIndicator size="small" color="#000" />
-                      ) : (
-                        <>
-                          <Text
-                            style={{
-                              fontWeight:'bold',
-                              fontSize: 22,
-                              textAlign: 'center',
-                              color: '#000',
-                            }}>
-                            Charge {fiatAmount ? (fiatAmount + ' ' + fiatCurrency?.endPointKey) : satsAmount.toLocaleString() + ' sats'} {}
-                          </Text>
-                          <Text
-                            style={{
-                              fontSize: 17,
-                              textAlign: 'center',
-                              color: '#000',
-                            }}>
-                            {satsAmount ? satsAmount.toLocaleString() : 0} sats
-                          </Text>
-                        </>
-                      )}
-                    </View>
-                  </Pressable>
-                </View>
+                  <View style={{marginBottom: 10}}>
+                    <Pressable
+                      onPress={() => makeLndInvoice()}
+                      disabled={invoiceLoading}>
+                      <View
+                        style={{
+                          backgroundColor: invoiceLoading
+                            ? '#D3D3D3'
+                            : '#ff9900',
+                          height: 70,
+                          justifyContent: 'center',
+                          borderRadius: 20,
+                        }}>
+                        {invoiceLoading ? (
+                          <ActivityIndicator size="small" color="#000" />
+                        ) : (
+                          <>
+                            <Text
+                              style={{
+                                fontWeight: 'bold',
+                                fontSize: 22,
+                                textAlign: 'center',
+                                color: '#000',
+                              }}>
+                              Charge{' '}
+                              {fiatAmount
+                                ? fiatAmount + ' ' + fiatCurrency?.endPointKey
+                                : satsAmount.toLocaleString() + ' sats'}{' '}
+                              {}
+                            </Text>
+                            <Text
+                              style={{
+                                fontSize: 17,
+                                textAlign: 'center',
+                                color: '#000',
+                              }}>
+                              {satsAmount ? satsAmount.toLocaleString() : 0}{' '}
+                              sats
+                            </Text>
+                          </>
+                        )}
+                      </View>
+                    </Pressable>
+                  </View>
                   <View style={{flexDirection: 'row', alignItems: 'stretch'}}>
                     <PinPadButton number="7" onPress={() => press('7')} />
                     <PinPadButton number="8" onPress={() => press('8')} />
@@ -763,23 +869,41 @@ function Home({navigation}): React.FC<Props> {
               </View>
             )}
             {lndInvoice &&
-              (!invoiceIsPaid  ? (
+              (!invoiceIsPaid ? (
                 <View style={{flexDirection: 'column', alignItems: 'center'}}>
-                  <View style={{flexDirection: 'row', alignItems: 'center', marginVertical:5}}>
-                    <Text style={{...textStyle, fontSize:25, margin: 0, lineHeight:30, marginRight:10}}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      marginVertical: 5,
+                    }}>
+                    <Text
+                      style={{
+                        ...textStyle,
+                        fontSize: 25,
+                        margin: 0,
+                        lineHeight: 30,
+                        marginRight: 10,
+                      }}>
                       Pay {satsAmount ? satsAmount.toLocaleString() : 0} sats.
-                    </Text> 
-                    {!boltLoading && 
-                    <View style={{padding: 0}}>
-                      <View style={{paddingVertical: 10, paddingHorizontal:30, backgroundColor: "#f00", borderRadius:20}}>
-                        <Pressable
-                          onPress={resetInvoice}
-                        >
-                          <Text style={{fontSize:20, color:"#fff"}}>Cancel</Text>
-                        </Pressable>
+                    </Text>
+                    {!boltLoading && (
+                      <View style={{padding: 0}}>
+                        <View
+                          style={{
+                            paddingVertical: 10,
+                            paddingHorizontal: 30,
+                            backgroundColor: '#f00',
+                            borderRadius: 20,
+                          }}>
+                          <Pressable onPress={resetInvoice}>
+                            <Text style={{fontSize: 20, color: '#fff'}}>
+                              Cancel
+                            </Text>
+                          </Pressable>
+                        </View>
                       </View>
-                    </View>
-                    }
+                    )}
                   </View>
                   <View style={{padding: 20, backgroundColor: '#fff'}}>
                     <QRCode
@@ -790,7 +914,7 @@ function Home({navigation}): React.FC<Props> {
                       logoBackgroundColor="transparent"
                     />
                   </View>
-                  
+
                   {/*<View style={{width:'100%', padding: 20, flexDirection:'row', justifyContent:'space-around'}}>
                     <View  style={{borderWidth:1, borderColor: '#ccc', padding:10, borderRadius:10}}>
                       <Pressable 
@@ -808,11 +932,15 @@ function Home({navigation}): React.FC<Props> {
                     </View>
                   </View>*/}
                   {Platform.OS === 'ios' && (
-                    <View style={{padding: 10, backgroundColor: "#f90", borderRadius:10, marginTop:5}}>
-                      <Pressable
-                        onPress={readNdef}
-                      >
-                        <Text style={{fontSize:20, color:"#000"}}>
+                    <View
+                      style={{
+                        padding: 10,
+                        backgroundColor: '#f90',
+                        borderRadius: 10,
+                        marginTop: 5,
+                      }}>
+                      <Pressable onPress={readNdef}>
+                        <Text style={{fontSize: 20, color: '#000'}}>
                           <Icon name="wifi" color="#000" size={20} />
                           Enable Bolt Card NFC
                         </Text>
@@ -822,33 +950,51 @@ function Home({navigation}): React.FC<Props> {
                 </View>
               ) : (
                 <View
-                  style={{...textStyle, flexDirection: 'column', justifyContent: 'center', borderWidth:1, borderRadius:10, margin:10, backgroundColor: 'white', paddingVertical: 30}}>
-                  {currentInvoiceObj &&
+                  style={{
+                    ...textStyle,
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    borderWidth: 1,
+                    borderRadius: 10,
+                    margin: 10,
+                    backgroundColor: 'white',
+                    paddingVertical: 30,
+                  }}>
+                  {currentInvoiceObj && (
                     <View style={{alignItems: 'flex-end'}}>
                       <View style={{height: 0, width: 0, opacity: 0}}>
                         <QRCode
-                          value={JSON.stringify({payment_hash: currentInvoiceObj.payment_hash})}
+                          value={JSON.stringify({
+                            payment_hash: currentInvoiceObj.payment_hash,
+                          })}
                           getRef={qrRef}
                           size={400}
                         />
                       </View>
-                      <Button 
+                      <Button
                         icon={{
-                          name: 'print'
+                          name: 'description',
+                        }}
+                        type="clear"
+                        onPress={() => onPDF(currentInvoiceObj)}
+                      />
+                      <Button
+                        icon={{
+                          name: 'print',
                         }}
                         type="clear"
                         onPress={() => onPrint(currentInvoiceObj)}
                       />
                     </View>
-                  }
+                  )}
                   <View style={{height: 170}}>
                     <LottieView
                       source={require('../img/success_animation.json')}
-                      autoplay={true} 
-                      loop={false} 
+                      autoplay={true}
+                      loop={false}
                       style={{flex: 1}}
                       ref={animationRef}
-                      resizeMode = 'contain'
+                      resizeMode="contain"
                     />
                   </View>
                   <View
@@ -860,25 +1006,22 @@ function Home({navigation}): React.FC<Props> {
                       title="Done"
                       onPress={resetInvoice}
                       buttonStyle={{
-                        backgroundColor: '#ff9900'
+                        backgroundColor: '#ff9900',
                       }}
                       titleStyle={{
                         fontSize: 20,
                         fontWeight: 600,
-                        color: '#000'
-                      }}
-                    >
-                    </Button>
+                        color: '#000',
+                      }}></Button>
                   </View>
                 </View>
               ))}
 
             <Modal
               animationType="fade"
-              visible={lndInvoice && (!invoiceIsPaid && boltLoading)}
+              visible={lndInvoice && !invoiceIsPaid && boltLoading}
               onRequestClose={retryBoltcardPayment}
-              transparent={true}
-            >
+              transparent={true}>
               <View style={styles.centeredView}>
                 <View style={styles.modalView}>
                   <Text style={{color: '#000', fontSize:18}}>Bolt Card Detected. <Icon name="checkmark" color="darkgreen" size={20} /></Text>
@@ -886,8 +1029,8 @@ function Home({navigation}): React.FC<Props> {
                     <Text style={{color: '#000', fontSize:18}}>
                       Bolt Service connected <Icon name="checkmark" color="darkgreen" size={20} />
                     </Text>
-                  }
-                  {boltServiceCallback && 
+                  )}
+                  {boltServiceCallback && (
                     <>
                       <Text style={{color: '#000', fontSize:18}}>
                         Bolt Service Callback <Icon name="checkmark" color="darkgreen" size={20} />
@@ -896,24 +1039,21 @@ function Home({navigation}): React.FC<Props> {
                         Payment initiated...
                       </Text>
                     </>
-                  }
-                  
+                  )}
+
                   <ActivityIndicator size="large" color="#ff9900" />
                   <View style={{padding: 20}}>
                     <Button
                       title="Retry Payment"
                       onPress={retryBoltcardPayment}
                       buttonStyle={{
-                        backgroundColor: '#ff9900'
+                        backgroundColor: '#ff9900',
                       }}
                       titleStyle={{
                         fontSize: 20,
                         fontWeight: 600,
-                        color: '#000'
-                      }}
-                    >
-                    </Button>
-                    
+                        color: '#000',
+                      }}></Button>
                   </View>
                 </View>
               </View>

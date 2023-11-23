@@ -1,3 +1,36 @@
 <resources>
     <string name="app_name">Bolt Card PoS</string>
+
+    <string name="result_sent_err">Send error</string>
+    <string name="result_recv_err">Receiver error</string>
+    <string name="result_timeout">communication timeout</string>
+    <string name="result_params_err">Params error</string>
+    <string name="result_unknown_err">Unknown error</string>
+    <string name="result_device_not_conn">Device not connected</string>
+    <string name="result_device_disconnect">Device disconnected</string>
+    <string name="result_conn_err">Device connect error</string>
+    <string name="result_device_connected">Device connected</string>
+    <string name="result_device_not_support">Device not support</string>
+    <string name="result_device_not_found">Device not found</string>
+    <string name="result_device_open_err">Device open error</string>
+    <string name="result_device_no_permission">Device no permission</string>
+    <string name="result_bt_not_open">Bluetooth not open</string>
+    <string name="result_bt_no_location">Location not open</string>
+    <string name="result_bt_no_bonded">No bonded device</string>
+    <string name="result_bt_scan_timeout">Bluetooth scan timeout</string>
+    <string name="result_bt_scan_err">Bluetooth scan error</string>
+    <string name="result_bt_scan_stop">Bluetooth stop scan</string>
+    <string name="result_prn_cover_open">Printer cover open</string>
+    <string name="result_prn_params_err">Printer params error</string>
+    <string name="result_prn_no_paper">Printer no paper</string>
+    <string name="result_prn_overheat">Printer overheat</string>
+    <string name="result_prn_unknown_err">Printer unknown error</string>
+    <string name="result_prn_printing">Printer is printing</string>
+    <string name="result_prn_no_nfc">Printer no NFC</string>
+    <string name="result_nfc_no_paper">Printer NFC no paper</string>
+    <string name="result_prn_low_battery">Printer low battery</string>
+    <string name="result_prn_locate_err">Printer locate error</string>
+    <string name="result_prn_detect_err">Printer label detect error</string>
+    <string name="result_prn_no_detect">Printer label not detected</string>
+    <string name="result_unknown_cmd">Unknown error</string>
 </resources>
