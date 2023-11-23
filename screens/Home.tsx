@@ -29,12 +29,12 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {Button} from 'react-native-elements';
 import PinPadButton from '../components/PinPadButton';
 import PinCodeModal from '../components/PinCodeModal';
-import { ShopSettingsContext } from '../contexts/ShopSettingsContext';
-import { LightningCustodianWallet } from '../wallets/lightning-custodian-wallet.js';
+import {ShopSettingsContext} from '../contexts/ShopSettingsContext';
+import {LightningCustodianWallet} from '../wallets/lightning-custodian-wallet.js';
 import ConnectToHub from './settings/ConnectToHub';
 import Clipboard from '@react-native-clipboard/clipboard';
 import DropDownPicker from 'react-native-dropdown-picker';
-import LottieView from "lottie-react-native"
+import LottieView from 'lottie-react-native';
 
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
@@ -90,8 +90,8 @@ function Home({navigation}): React.FC<Props> {
 
   //PIN
   const [showPinModal, setShowPinModal] = useState(false);
-  const [pinCode, setPinCode] = useState<string>("");
-  const [callbackUrl, setCallbackUrl] = useState("");
+  const [pinCode, setPinCode] = useState<string>('');
+  const [callbackUrl, setCallbackUrl] = useState('');
   const [pinTimeout, setPintimeout] = useState(0);
 
   const [open, setOpen] = useState(false);
@@ -212,7 +212,8 @@ function Home({navigation}): React.FC<Props> {
       Toast.show({
         type: 'error',
         text1: 'Configuration error',
-        text2: 'Wallet not configured, please reconnect to the hub in the settings',
+        text2:
+          'Wallet not configured, please reconnect to the hub in the settings',
       });
       return;
     }
@@ -423,43 +424,41 @@ function Home({navigation}): React.FC<Props> {
       callback.searchParams.set('pin', pin);
     }
     return fetch(callback.toString())
-            .then(cbResponse => cbResponse.json())
-            .then(cbData => {
-              console.log('bolt callback', cbData);
-              if (cbData.status == 'ERROR') {
-                console.error(cbData.reason);
-                Toast.show({
-                  type: 'error',
-                  text1: 'Bolt Card Error',
-                  text2: cbData.reason,
-                });
-                setTimeout(() => {
-                  readNdef()
-                }, 1000);
-                setBoltLoading(false);
-              } else {
-                setBoltServiceCallback(true);
-              }
-              
-            })
-            .catch(err => {
-              console.error(err);
-              Toast.show({
-                type: 'error',
-                text1: 'Bolt Card Error',
-                text2: err.message,
-              });
-              setTimeout(() => {
-                readNdef();
-              }, 1000);
-              setBoltLoading(false);
-            })
-            .finally(() => {
-              setNdef(undefined);
-              setCallbackUrl("");
-            });
-  }
-
+      .then(cbResponse => cbResponse.json())
+      .then(cbData => {
+        console.log('bolt callback', cbData);
+        if (cbData.status == 'ERROR') {
+          console.error(cbData.reason);
+          Toast.show({
+            type: 'error',
+            text1: 'Bolt Card Error',
+            text2: cbData.reason,
+          });
+          setTimeout(() => {
+            readNdef();
+          }, 1000);
+          setBoltLoading(false);
+        } else {
+          setBoltServiceCallback(true);
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        Toast.show({
+          type: 'error',
+          text1: 'Bolt Card Error',
+          text2: err.message,
+        });
+        setTimeout(() => {
+          readNdef();
+        }, 1000);
+        setBoltLoading(false);
+      })
+      .finally(() => {
+        setNdef(undefined);
+        setCallbackUrl('');
+      });
+  };
 
   /**
    * Set with a valid URL from the NFC reader.
@@ -632,10 +631,10 @@ function Home({navigation}): React.FC<Props> {
   }
 
   const cancelPinCodeModal = () => {
-    setCallbackUrl(null)
+    setCallbackUrl(null);
     setShowPinModal(false);
-    retryBoltcardPayment()
-  }
+    retryBoltcardPayment();
+  };
 
   const onPDF = async invoice => {
     let options = {
@@ -710,7 +709,17 @@ function Home({navigation}): React.FC<Props> {
         <PinCodeModal
           showModal={showPinModal}
           onCancel={cancelPinCodeModal}
-          topText={<Text style={{textAlign: 'center', fontSize: 25, marginBottom: 20, fontWeight: 600}}>{satsAmount ? satsAmount.toLocaleString() : 0} sats</Text>}
+          topText={
+            <Text
+              style={{
+                textAlign: 'center',
+                fontSize: 25,
+                marginBottom: 20,
+                fontWeight: 600,
+              }}>
+              {satsAmount ? satsAmount.toLocaleString() : 0} sats
+            </Text>
+          }
           onEnter={() => {
             setShowPinModal(false);
             fetchCallback(callbackUrl, pinCode);
@@ -958,33 +967,45 @@ function Home({navigation}): React.FC<Props> {
                     borderRadius: 10,
                     margin: 10,
                     backgroundColor: 'white',
-                    paddingVertical: 30,
+                    paddingVertical: 10,
                   }}>
                   {currentInvoiceObj && (
-                    <View style={{alignItems: 'flex-end'}}>
-                      <View style={{height: 0, width: 0, opacity: 0}}>
-                        <QRCode
-                          value={JSON.stringify({
-                            payment_hash: currentInvoiceObj.payment_hash,
-                          })}
-                          getRef={qrRef}
-                          size={400}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                      }}>
+                      <View style={{}}>
+                        <Button
+                          size="lg"
+                          icon={{
+                            name: 'description',
+                            size: 50,
+                          }}
+                          type="clear"
+                          onPress={() => onPDF(currentInvoiceObj)}
                         />
                       </View>
-                      <Button
-                        icon={{
-                          name: 'description',
-                        }}
-                        type="clear"
-                        onPress={() => onPDF(currentInvoiceObj)}
-                      />
-                      <Button
-                        icon={{
-                          name: 'print',
-                        }}
-                        type="clear"
-                        onPress={() => onPrint(currentInvoiceObj)}
-                      />
+                      <View style={{}}>
+                        <Button
+                          size="lg"
+                          icon={{
+                            name: 'print',
+                            size: 50,
+                          }}
+                          type="clear"
+                          onPress={() => onPrint(currentInvoiceObj)}
+                        />
+                        <View style={{height: 0, width: 0, opacity: 0}}>
+                          <QRCode
+                            value={JSON.stringify({
+                              payment_hash: currentInvoiceObj.payment_hash,
+                            })}
+                            getRef={qrRef}
+                            size={400}
+                          />
+                        </View>
+                      </View>
                     </View>
                   )}
                   <View style={{height: 170}}>
@@ -1024,18 +1045,23 @@ function Home({navigation}): React.FC<Props> {
               transparent={true}>
               <View style={styles.centeredView}>
                 <View style={styles.modalView}>
-                  <Text style={{color: '#000', fontSize:18}}>Bolt Card Detected. <Icon name="checkmark" color="darkgreen" size={20} /></Text>
-                  {boltServiceResponse && 
-                    <Text style={{color: '#000', fontSize:18}}>
-                      Bolt Service connected <Icon name="checkmark" color="darkgreen" size={20} />
+                  <Text style={{color: '#000', fontSize: 18}}>
+                    Bolt Card Detected.{' '}
+                    <Icon name="checkmark" color="darkgreen" size={20} />
+                  </Text>
+                  {boltServiceResponse && (
+                    <Text style={{color: '#000', fontSize: 18}}>
+                      Bolt Service connected{' '}
+                      <Icon name="checkmark" color="darkgreen" size={20} />
                     </Text>
                   )}
                   {boltServiceCallback && (
                     <>
-                      <Text style={{color: '#000', fontSize:18}}>
-                        Bolt Service Callback <Icon name="checkmark" color="darkgreen" size={20} />
+                      <Text style={{color: '#000', fontSize: 18}}>
+                        Bolt Service Callback{' '}
+                        <Icon name="checkmark" color="darkgreen" size={20} />
                       </Text>
-                      <Text style={{color: '#000', fontSize:18}}>
+                      <Text style={{color: '#000', fontSize: 18}}>
                         Payment initiated...
                       </Text>
                     </>
