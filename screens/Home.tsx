@@ -18,6 +18,7 @@ import {
   Image,
   Modal,
   NativeModules,
+  Alert,
 } from 'react-native';
 
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
@@ -674,33 +675,39 @@ function Home({navigation}): React.FC<Props> {
   };
 
   const onPrint = async invoice => {
-    await NativeModules.PrintModule.printText(invoice.description, 32);
-    await NativeModules.PrintModule.paperOut(24);
+    try {
+      await NativeModules.PrintModule.printText(invoice.description, 32);
+      await NativeModules.PrintModule.paperOut(24);
 
-    await NativeModules.PrintModule.printText('Payment made in Bitcoin', 24);
-    await NativeModules.PrintModule.paperOut(24);
+      await NativeModules.PrintModule.printText('Payment made in Bitcoin', 24);
+      await NativeModules.PrintModule.paperOut(24);
 
-    await NativeModules.PrintModule.printText(
-      moment(invoice.timestamp * 1000).format('DD/MM/YY HH:mm:ss'),
-      24,
-    );
-    await NativeModules.PrintModule.paperOut(24);
+      await NativeModules.PrintModule.printText(
+        moment(invoice.timestamp * 1000).format('DD/MM/YY HH:mm:ss'),
+        24,
+      );
+      await NativeModules.PrintModule.paperOut(24);
 
-    await NativeModules.PrintModule.printText(
-      invoice.amt + ' sats ' + (invoice.ispaid ? '(PAID)' : '(PENDING)'),
-      32,
-    );
-    await NativeModules.PrintModule.paperOut(24);
+      await NativeModules.PrintModule.printText(
+        invoice.amt + ' sats ' + (invoice.ispaid ? '(PAID)' : '(PENDING)'),
+        32,
+      );
+      await NativeModules.PrintModule.paperOut(24);
 
-    await NativeModules.PrintModule.printText(invoice.payment_hash, 24);
-    await NativeModules.PrintModule.paperOut(24);
-    await NativeModules.PrintModule.printQRCode(
-      JSON.stringify({payment_hash: invoice.payment_hash}),
-      400,
-      400,
-    );
+      await NativeModules.PrintModule.printText(invoice.payment_hash, 24);
+      await NativeModules.PrintModule.paperOut(24);
+      await NativeModules.PrintModule.printQRCode(
+        JSON.stringify({payment_hash: invoice.payment_hash}),
+        400,
+        400,
+      );
 
-    await NativeModules.PrintModule.paperOut(100);
+      await NativeModules.PrintModule.paperOut(100);
+    } catch (e) {
+      Alert.alert('Error', 'There was an error when printing ' + e.message, [
+        {text: 'OK', onPress: () => console.log('OK Pressed')},
+      ]);
+    }
   };
 
   return (

@@ -10,6 +10,8 @@ import {
   TouchableOpacity,
   Linking,
   ActivityIndicator,
+  Alert,
+  NativeModules,
 } from 'react-native';
 import {SimpleListItem} from '../../SimpleComponents';
 import {Colors} from 'react-native/Libraries/NewAppScreen';

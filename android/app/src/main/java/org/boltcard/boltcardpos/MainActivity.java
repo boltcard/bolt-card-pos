@@ -69,16 +69,17 @@ public class MainActivity extends ReactActivity {
       }
   };
 
-  private void bindService() {
-      Intent intent = new Intent();
-      intent.setPackage("net.nyx.printerservice");
-      intent.setAction("net.nyx.printerservice.IPrinterService");
-      bindService(intent, connService, Context.BIND_AUTO_CREATE);
-  }
+    private void bindService() {
+        Log.d(TAG,"bindService");
+        Intent intent = new Intent();
+        intent.setPackage("net.nyx.printerservice");
+        intent.setAction("net.nyx.printerservice.IPrinterService");
+        bindService(intent, connService, Context.BIND_AUTO_CREATE);
+    }
 
-  private void unbindService() {
-      unbindService(connService);
-  }
+    private void unbindService() {
+        unbindService(connService);
+    }
 
     public void printText(String text, int size) {
         try {
@@ -95,7 +96,7 @@ public class MainActivity extends ReactActivity {
             PrintTextFormat textFormat = new PrintTextFormat();
             if(size > 0) textFormat.setTextSize(size); // default is 24
             int ret = printerService.printText(text, textFormat);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             // callBack.invoke("Error: "+e.getMessage());
         }
@@ -114,7 +115,7 @@ public class MainActivity extends ReactActivity {
              */
             int ret = printerService.printQrCode(text, width, height, 1);
             // callBack.invoke(msg(ret));
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             // callBack.invoke("Error: "+e.getMessage());
         }
@@ -133,7 +134,7 @@ public class MainActivity extends ReactActivity {
             printerService.paperOut(100);
             callBack.invoke(msg(ret));
 
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             callBack.invoke("Error: "+e.getMessage());
 
@@ -144,7 +145,7 @@ public class MainActivity extends ReactActivity {
         try {
             printerService.paperOut(pixels);
             // callBack.invoke("paperOut "+pixels);
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             // callBack.invoke("Error: "+e.getMessage());
         }
