@@ -52,5 +52,10 @@ public class PrintModule extends ReactContextBaseJavaModule {
         if(activity != null) activity.testPrint(callBack);
     }
 
+    @ReactMethod
+    public void testPrintCiontek() {
+        MainActivity activity = (MainActivity) getCurrentActivity();
+        if(activity != null) activity.testPrintCiontek();
+    }
 
 }

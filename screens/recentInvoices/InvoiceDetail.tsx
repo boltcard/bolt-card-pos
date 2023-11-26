@@ -109,14 +109,14 @@ const InvoiceDetail = ({route}) => {
 
           await NativeModules.PrintModule.printText(invoice.payment_hash, 24);
           await NativeModules.PrintModule.paperOut(24);
-          //   await NativeModules.PrintModule.printQRCode(
-          //     JSON.stringify({payment_hash: invoice.payment_hash}),
-          //     400,
-          //     400,
-          //     result => {
-          //       console.log(result);
-          //     },
-          //   );
+          await NativeModules.PrintModule.printQRCode(
+            JSON.stringify({payment_hash: invoice.payment_hash}),
+            400,
+            400,
+            result => {
+              console.log(result);
+            },
+          );
 
           await NativeModules.PrintModule.paperOut(100);
         },

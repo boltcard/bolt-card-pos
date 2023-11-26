@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, useEffect, useState } from 'react';
-import { FiatUnit } from '../models/fiatUnit';
+import React, {createContext, useEffect, useState} from 'react';
+import {FiatUnit} from '../models/fiatUnit';
 
-import { LightningCustodianWallet } from '../wallets/lightning-custodian-wallet.js';
+import {LightningCustodianWallet} from '../wallets/lightning-custodian-wallet.js';
 
 import currency from '../helper/currency';
 
@@ -10,11 +10,14 @@ const ShopSettingsContext = createContext();
 
 const ShopSettingsProvider = ({children}) => {
   const [shopName, setShopName] = useState('');
+  const [printer, setPrinter] = useState('');
   const [lndhubUser, setLndhubUser] = useState('');
   const [lndhub, setLndhub] = useState('');
   const [shopWallet, setShopWallet] = useState('');
-  const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState(FiatUnit.USD);
-  
+  const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState(
+    FiatUnit.USD,
+  );
+
   const getPreferredCurrency = async () => {
     const item = await currency.getPreferredCurrency();
     _setPreferredFiatCurrency(item);
@@ -24,11 +27,12 @@ const ShopSettingsProvider = ({children}) => {
     getPreferredCurrency();
   };
 
-
   useEffect(() => {
     async function getShopName() {
       try {
-        const retrievedShopSettings = await AsyncStorage.getItem('shopSettings');
+        const retrievedShopSettings = await AsyncStorage.getItem(
+          'shopSettings',
+        );
         console.log('loading settings...');
         if (retrievedShopSettings !== null) {
           const settings = JSON.parse(retrievedShopSettings);
@@ -37,14 +41,15 @@ const ShopSettingsProvider = ({children}) => {
           setShopName(settings.shopName ? settings.shopName : 'New Shop');
           setLndhubUser(settings.lndhubUser ? settings.lndhubUser : 'blank');
           setLndhub(settings.lndhub ? settings.lndhub : 'blank');
+          setPrinter(settings.printer ? settings.printer : 'bitcoinize');
           console.log('loaded settings...', settings);
-        }
-        else {
+        } else {
           console.log('using default settings...');
 
           setShopName('New Shop');
           setLndhubUser('blank');
           setLndhub('blank');
+          setPrinter('bitcoinize');
         }
       } catch (error) {
         console.error('Failed to get shop name from storage:', error);
@@ -57,11 +62,15 @@ const ShopSettingsProvider = ({children}) => {
   useEffect(() => {
     async function saveShopSettings() {
       try {
-        await AsyncStorage.setItem('shopSettings', JSON.stringify({
-          shopName: shopName?.toString(),
-          lndhubUser: lndhubUser?.toString(),
-          lndhub: lndhub?.toString(),
-        }));
+        await AsyncStorage.setItem(
+          'shopSettings',
+          JSON.stringify({
+            shopName: shopName?.toString(),
+            lndhubUser: lndhubUser?.toString(),
+            lndhub: lndhub?.toString(),
+            printer: printer?.toString(),
+          }),
+        );
         await currency.setPrefferedCurrency(FiatUnit.USD);
         console.log('Saved shop settings');
       } catch (error) {
@@ -100,25 +109,30 @@ const ShopSettingsProvider = ({children}) => {
     } else if (lndhub && lndhubUser) {
       // setWalletConfigured(true);
 
-      console.log('init with lndhub, lndhubUser', lndhub, lndhubUser)
+      console.log('init with lndhub, lndhubUser', lndhub, lndhubUser);
       initWallet();
     }
-
   }, [lndhub, lndhubUser]);
 
   console.log('Context updated: ', shopName, lndhub, lndhubUser);
   return (
-    <ShopSettingsContext.Provider value={{
-      shopName, setShopName,
-      lndhubUser, setLndhubUser,
-      lndhub, setLndhub,
-      setPreferredFiatCurrency,
-      shopWallet, setShopWallet
-    }}>
+    <ShopSettingsContext.Provider
+      value={{
+        shopName,
+        setShopName,
+        lndhubUser,
+        setLndhubUser,
+        lndhub,
+        setLndhub,
+        setPreferredFiatCurrency,
+        shopWallet,
+        setShopWallet,
+        printer,
+        setPrinter,
+      }}>
       {children}
     </ShopSettingsContext.Provider>
   );
 };
 
-export { ShopSettingsContext, ShopSettingsProvider };
-
+export {ShopSettingsContext, ShopSettingsProvider};

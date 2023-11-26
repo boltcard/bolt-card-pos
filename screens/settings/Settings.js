@@ -97,55 +97,17 @@ const Settings = () => {
                 chevron
               />
               <SimpleListItem
+                title="Printer Settings"
+                onPress={() => navigate('Printer Settings')}
+                chevron
+              />
+              <SimpleListItem
                 title="Reset PIN"
                 onPress={() => setShowPinSetScreen(true)}
                 chevron
               />
-              <SimpleListItem
-                title="Test Print"
-                onPress={() => {
-                  Alert.alert('Test Print', 'Are you sure?', [
-                    {
-                      text: 'Cancel',
-                      onPress: () => console.log('Cancel Pressed'),
-                      style: 'cancel',
-                    },
-                    {
-                      text: 'OK',
-                      onPress: () => {
-                        NativeModules.PrintModule.testPrint(() => {
-                          //callback
-                          console.log('testPrint');
-                        });
-                      },
-                    },
-                  ]);
-                }}
-                chevron
-              />
-              <SimpleListItem
-                title="Feed Paper"
-                onPress={() => {
-                  Alert.alert('Feed Paper', 'Are you sure?', [
-                    {
-                      text: 'Cancel',
-                      onPress: () => console.log('Cancel Pressed'),
-                      style: 'cancel',
-                    },
-                    {
-                      text: 'OK',
-                      onPress: () => {
-                        NativeModules.PrintModule.paperOut(100, () => {
-                          //callback
-                          console.log('paperOut');
-                        });
-                      },
-                    },
-                  ]);
-                }}
-                chevron
-              />
             </View>
+
             <View style={{flex: 1}}>
               <View
                 style={{

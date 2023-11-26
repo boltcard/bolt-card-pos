@@ -15,12 +15,16 @@ import android.util.Log;
 import com.facebook.react.bridge.Callback;
 import android.os.RemoteException;
 import android.content.*;
+import com.ctk.sdk.PosApiHelper;
+
 import static net.nyx.printerclient.Result.msg;
 
 public class MainActivity extends ReactActivity {
 
     static final String TAG = "bolt-card-pos";
     private Handler handler = new Handler();
+    PosApiHelper posApiHelper = null;
+
   /**
    * Returns the name of the main component registered from JavaScript. This is used to schedule
    * rendering of the component.
@@ -50,6 +54,10 @@ public class MainActivity extends ReactActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     bindService();
+    posApiHelper = PosApiHelper.getInstance();
+    if(posApiHelper == null) {
+        Log.d(TAG,"posApiHelper instance not null");
+    }
 }
 
   private IPrinterService printerService;
@@ -101,6 +109,13 @@ public class MainActivity extends ReactActivity {
             // callBack.invoke("Error: "+e.getMessage());
         }
     }
+
+    public void printTextCiontek(String text, int size) {
+        int result = posApiHelper.PrintInit();
+        result = posApiHelper.PrintSetFont((byte) size, (byte) size, (byte) 0x00);
+        result = posApiHelper.PrintStr(text);
+        result = posApiHelper.PrintStart();
+    }
     
     public void printQRCode(String text, int width, int height) {
         try {
@@ -120,6 +135,18 @@ public class MainActivity extends ReactActivity {
             // callBack.invoke("Error: "+e.getMessage());
         }
     }
+
+    public void printQRCodeCiontek(String text, int width, int height) {
+        try {
+            int result = posApiHelper.PrintInit();
+            result = posApiHelper.PrintQrCode_Cut(text, width, height, "QR_CODE");
+            result = posApiHelper.PrintStart();
+        } catch (Exception e) {
+            e.printStackTrace();
+            // callBack.invoke("Error: "+e.getMessage());
+        }
+    }
+
 
     public void testPrint(Callback callBack) {
         Log.d(TAG, "Test Print!");
@@ -148,6 +175,57 @@ public class MainActivity extends ReactActivity {
         } catch (Exception e) {
             e.printStackTrace();
             // callBack.invoke("Error: "+e.getMessage());
+        }
+    }
+
+    public void paperOutCiontek() {
+        try {
+            int result = posApiHelper.PrintInit();
+            result = posApiHelper.PrintStr("\n");
+            result = posApiHelper.PrintStart();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // callBack.invoke("Error: "+e.getMessage());
+        }
+    }
+
+    public void testPrintCiontek() {
+        Log.d(TAG, "Ciontek Test Print!");
+        
+        String content = "hello";
+        
+        int result = posApiHelper.PrintInit();
+        Log.d(TAG, "Ciontek result: "+result);
+
+        result = posApiHelper.PrintCutQrCode_Str(content,"PK TXT adsad adasd sda",5, 300, 300, "QR_CODE");
+        Log.d(TAG, "Ciontek result: "+result);
+        
+        result = posApiHelper.PrintStr("CIONTEK PRINTER WORKING"+ "\n\n");
+        Log.d(TAG, "Ciontek result: "+result);
+        
+        result = posApiHelper.PrintStr("                                        \n");
+        Log.d(TAG, "Ciontek result: "+result);
+
+        result = posApiHelper.PrintStr("                                        \n");
+        Log.d(TAG, "Ciontek result: "+result);
+
+        result = posApiHelper.PrintStart();
+
+        Log.d(TAG, "Lib_PrnStart ret = " + result);
+
+        if (result != 0) {
+            if (result == -1) {
+                Log.d(TAG, "No Print Paper ");
+            } else if(result == -2) {
+                Log.d(TAG, "too hot ");
+            }else if(result == -3) {
+                Log.d(TAG, "low voltage ");
+            }else{
+                Log.d(TAG, "Print fail ");
+            }
+        } else {
+            Log.d(TAG, "Print Finish ");
         }
     }
 
