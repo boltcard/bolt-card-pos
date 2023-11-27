@@ -139,14 +139,13 @@ public class MainActivity extends ReactActivity {
     public void printQRCodeCiontek(String text, int width, int height) {
         try {
             int result = posApiHelper.PrintInit();
-            result = posApiHelper.PrintQrCode_Cut(text, width, height, "QR_CODE");
+            result = posApiHelper.PrintBarcode(text, width, height, "QR_CODE");
             result = posApiHelper.PrintStart();
         } catch (Exception e) {
             e.printStackTrace();
             // callBack.invoke("Error: "+e.getMessage());
         }
     }
-
 
     public void testPrint(Callback callBack) {
         Log.d(TAG, "Test Print!");

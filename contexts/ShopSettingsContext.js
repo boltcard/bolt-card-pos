@@ -78,7 +78,7 @@ const ShopSettingsProvider = ({children}) => {
       }
     }
     saveShopSettings();
-  }, [shopName, lndhub, lndhubUser]);
+  }, [shopName, lndhub, lndhubUser, printer]);
 
   useEffect(() => {
     async function initWallet() {

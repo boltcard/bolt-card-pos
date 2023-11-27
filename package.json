@@ -1,6 +1,6 @@
 {
   "name": "boltcardpos",
-  "version": "1.2.2",
+  "version": "1.4.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",

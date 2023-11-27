@@ -14,11 +14,14 @@ import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 import QRCode from 'react-native-qrcode-svg';
 import Toast from 'react-native-toast-message';
-
+import {printCiontek, printBitcoinize} from '../../helper/printing';
+import {ShopSettingsContext} from '../../contexts/ShopSettingsContext';
 import moment from 'moment';
 
 const InvoiceDetail = ({route}) => {
   const {navigate} = useNavigation();
+  const {shopName, lndhub, lndhubUser, printer} =
+    useContext(ShopSettingsContext);
 
   const isDarkMode = useColorScheme() === 'dark';
   const backgroundStyle = {
@@ -77,51 +80,25 @@ const InvoiceDetail = ({route}) => {
   };
 
   const print = async () => {
-    Alert.alert('Print Receipt', 'Are you sure?', [
-      {
-        text: 'Cancel',
-        onPress: () => console.log('Cancel Pressed'),
-        style: 'cancel',
-      },
-      {
-        text: 'OK',
-        onPress: async () => {
-          await NativeModules.PrintModule.printText(invoice.description, 32);
-          await NativeModules.PrintModule.paperOut(24);
-
-          await NativeModules.PrintModule.printText(
-            'Payment made in Bitcoin',
-            24,
-          );
-          await NativeModules.PrintModule.paperOut(24);
-
-          await NativeModules.PrintModule.printText(
-            formatDate(invoice.timestamp),
-            24,
-          );
-          await NativeModules.PrintModule.paperOut(24);
-
-          await NativeModules.PrintModule.printText(
-            invoice.amt + ' sats ' + (invoice.ispaid ? '(PAID)' : '(PENDING)'),
-            32,
-          );
-          await NativeModules.PrintModule.paperOut(24);
-
-          await NativeModules.PrintModule.printText(invoice.payment_hash, 24);
-          await NativeModules.PrintModule.paperOut(24);
-          await NativeModules.PrintModule.printQRCode(
-            JSON.stringify({payment_hash: invoice.payment_hash}),
-            400,
-            400,
-            result => {
-              console.log(result);
-            },
-          );
-
-          await NativeModules.PrintModule.paperOut(100);
-        },
-      },
-    ]);
+    if (printer == 'ciontek') {
+      console.log('printCiontek');
+      printCiontek(
+        invoice.description,
+        invoice.timestamp,
+        invoice.ispaid,
+        invoice.payment_hash,
+        invoice.amt,
+      );
+    } else {
+      console.log('printBitcoinize');
+      printBitcoinize(
+        invoice.description,
+        invoice.timestamp,
+        invoice.ispaid,
+        invoice.payment_hash,
+        invoice.amt,
+      );
+    }
   };
 
   return (

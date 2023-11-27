@@ -43,13 +43,31 @@ public class PrintModule extends ReactContextBaseJavaModule {
         MainActivity activity = (MainActivity) getCurrentActivity();
         if(activity != null) activity.paperOut(pixels);
     }
-    
+
     @ReactMethod
     public void testPrint( 
         Callback callBack
     ) {
         MainActivity activity = (MainActivity) getCurrentActivity();
         if(activity != null) activity.testPrint(callBack);
+    }
+
+    @ReactMethod
+    public void printTextCiontek(String text, int size) {
+        MainActivity activity = (MainActivity) getCurrentActivity();
+        if(activity != null) activity.printTextCiontek(text, size);
+    }
+
+    @ReactMethod
+    public void printQRCodeCiontek(String text, int width, int height) {
+        MainActivity activity = (MainActivity) getCurrentActivity();
+        if(activity != null) activity.printQRCodeCiontek(text, width, height);
+    }
+
+    @ReactMethod
+    public void paperOutCiontek() {
+        MainActivity activity = (MainActivity) getCurrentActivity();
+        if(activity != null) activity.paperOutCiontek();
     }
 
     @ReactMethod

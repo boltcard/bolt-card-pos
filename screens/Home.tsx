@@ -40,6 +40,7 @@ import LottieView from 'lottie-react-native';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 import moment from 'moment';
+import {printCiontek, printBitcoinize} from '../helper/printing';
 
 const currency = require('../helper/currency');
 
@@ -87,7 +88,8 @@ function Home({navigation}): React.FC<Props> {
   const [lndWallet, setLndWallet] = useState<LightningCustodianWallet>();
 
   //shop settings
-  const {shopName, lndhub, lndhubUser} = useContext(ShopSettingsContext);
+  const {shopName, lndhub, lndhubUser, printer} =
+    useContext(ShopSettingsContext);
 
   //PIN
   const [showPinModal, setShowPinModal] = useState(false);
@@ -675,38 +677,24 @@ function Home({navigation}): React.FC<Props> {
   };
 
   const onPrint = async invoice => {
-    try {
-      await NativeModules.PrintModule.printText(invoice.description, 32);
-      await NativeModules.PrintModule.paperOut(24);
-
-      await NativeModules.PrintModule.printText('Payment made in Bitcoin', 24);
-      await NativeModules.PrintModule.paperOut(24);
-
-      await NativeModules.PrintModule.printText(
-        moment(invoice.timestamp * 1000).format('DD/MM/YY HH:mm:ss'),
-        24,
+    if (printer == 'ciontek') {
+      console.log('printCiontek');
+      printCiontek(
+        invoice.description,
+        invoice.timestamp,
+        invoice.ispaid,
+        invoice.payment_hash,
+        invoice.amt,
       );
-      await NativeModules.PrintModule.paperOut(24);
-
-      await NativeModules.PrintModule.printText(
-        invoice.amt + ' sats ' + (invoice.ispaid ? '(PAID)' : '(PENDING)'),
-        32,
+    } else {
+      console.log('printBitcoinize');
+      printBitcoinize(
+        invoice.description,
+        invoice.timestamp,
+        invoice.ispaid,
+        invoice.payment_hash,
+        invoice.amt,
       );
-      await NativeModules.PrintModule.paperOut(24);
-
-      await NativeModules.PrintModule.printText(invoice.payment_hash, 24);
-      await NativeModules.PrintModule.paperOut(24);
-      await NativeModules.PrintModule.printQRCode(
-        JSON.stringify({payment_hash: invoice.payment_hash}),
-        400,
-        400,
-      );
-
-      await NativeModules.PrintModule.paperOut(100);
-    } catch (e) {
-      Alert.alert('Error', 'There was an error when printing ' + e.message, [
-        {text: 'OK', onPress: () => console.log('OK Pressed')},
-      ]);
     }
   };
 
