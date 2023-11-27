@@ -2,14 +2,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // import DefaultPreference from 'react-native-default-preference';
 // import * as RNLocalize from 'react-native-localize';
 import BigNumber from 'bignumber.js';
-import { FiatUnit, getFiatRate } from '../models/fiatUnit';
+import {FiatUnit, getFiatRate} from '../models/fiatUnit';
 // import WidgetCommunication from './WidgetCommunication';
 
 const PREFERRED_CURRENCY_STORAGE_KEY = 'preferredCurrency';
 const EXCHANGE_RATES_STORAGE_KEY = 'currency';
 
 let preferredFiatCurrency = FiatUnit.USD;
-let exchangeRates = { LAST_UPDATED_ERROR: false };
+let exchangeRates = {LAST_UPDATED_ERROR: false};
 let lastTimeUpdateExchangeRateWasCalled = 0;
 let skipUpdateExchangeRate = false;
 
@@ -23,7 +23,10 @@ const LAST_UPDATED = 'LAST_UPDATED';
  * @returns {Promise<void>}
  */
 async function setPrefferedCurrency(item) {
-  await AsyncStorage.setItem(PREFERRED_CURRENCY_STORAGE_KEY, JSON.stringify(item));
+  await AsyncStorage.setItem(
+    PREFERRED_CURRENCY_STORAGE_KEY,
+    JSON.stringify(item),
+  );
   // await DefaultPreference.setName('group.io.bluewallet.bluewallet');
   // await DefaultPreference.set('preferredCurrency', item.endPointKey);
   // await DefaultPreference.set('preferredCurrencyLocale', item.locale.replace('-', '_'));
@@ -31,7 +34,9 @@ async function setPrefferedCurrency(item) {
 }
 
 async function getPreferredCurrency() {
-  const preferredCurrency = await JSON.parse(await AsyncStorage.getItem(PREFERRED_CURRENCY_STORAGE_KEY));
+  const preferredCurrency = await JSON.parse(
+    await AsyncStorage.getItem(PREFERRED_CURRENCY_STORAGE_KEY),
+  );
   // await DefaultPreference.setName('group.io.bluewallet.bluewallet');
   // await DefaultPreference.set('preferredCurrency', preferredCurrency.endPointKey);
   // await DefaultPreference.set('preferredCurrencyLocale', preferredCurrency.locale.replace('-', '_'));
@@ -40,21 +45,26 @@ async function getPreferredCurrency() {
 
 async function _restoreSavedExchangeRatesFromStorage() {
   try {
-    exchangeRates = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
-    if (!exchangeRates) exchangeRates = { LAST_UPDATED_ERROR: false };
+    exchangeRates = JSON.parse(
+      await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY),
+    );
+    if (!exchangeRates) exchangeRates = {LAST_UPDATED_ERROR: false};
   } catch (_) {
-    exchangeRates = { LAST_UPDATED_ERROR: false };
+    exchangeRates = {LAST_UPDATED_ERROR: false};
   }
 }
 
 async function _restoreSavedPreferredFiatCurrencyFromStorage() {
   try {
-    preferredFiatCurrency = JSON.parse(await AsyncStorage.getItem(PREFERRED_CURRENCY_STORAGE_KEY));
+    preferredFiatCurrency = JSON.parse(
+      await AsyncStorage.getItem(PREFERRED_CURRENCY_STORAGE_KEY),
+    );
     if (preferredFiatCurrency === null) {
       throw Error('No Preferred Fiat selected');
     }
 
-    preferredFiatCurrency = FiatUnit[preferredFiatCurrency.endPointKey] || preferredFiatCurrency;
+    preferredFiatCurrency =
+      FiatUnit[preferredFiatCurrency.endPointKey] || preferredFiatCurrency;
     // ^^^ in case configuration in json file changed (and is different from what we stored) we reload it
   } catch (_) {
     preferredFiatCurrency = FiatUnit.USD;
@@ -75,13 +85,16 @@ async function updateExchangeRate() {
     return;
   }
   lastTimeUpdateExchangeRateWasCalled = +new Date();
-  
-  if (+new Date() - exchangeRates[LAST_UPDATED] <= 30 * 60 * 1000) {
+
+  if (+new Date() - exchangeRates[LAST_UPDATED] <= 10 * 60 * 1000) {
     // not updating too often
     return;
   }
   await _restoreSavedPreferredFiatCurrencyFromStorage();
-  console.log('updating exchange rate...', 'BTC_' + preferredFiatCurrency.endPointKey);
+  console.log(
+    'updating exchange rate...',
+    'BTC_' + preferredFiatCurrency.endPointKey,
+  );
 
   let rate;
   try {
@@ -89,22 +102,35 @@ async function updateExchangeRate() {
     exchangeRates[LAST_UPDATED] = +new Date();
     exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] = rate;
     exchangeRates.LAST_UPDATED_ERROR = false;
-    await AsyncStorage.setItem(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(exchangeRates));
+    await AsyncStorage.setItem(
+      EXCHANGE_RATES_STORAGE_KEY,
+      JSON.stringify(exchangeRates),
+    );
   } catch (Err) {
     console.log('Error encountered when attempting to update exchange rate...');
     console.warn(Err.message);
-    const rate = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
+    const rate = JSON.parse(
+      await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY),
+    );
     rate.LAST_UPDATED_ERROR = true;
     exchangeRates.LAST_UPDATED_ERROR = true;
-    await AsyncStorage.setItem(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(rate));
+    await AsyncStorage.setItem(
+      EXCHANGE_RATES_STORAGE_KEY,
+      JSON.stringify(rate),
+    );
     throw Err;
   }
 }
 
 async function isRateOutdated() {
   try {
-    const rate = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
-    return rate.LAST_UPDATED_ERROR || +new Date() - rate.LAST_UPDATED >= 31 * 60 * 1000;
+    const rate = JSON.parse(
+      await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY),
+    );
+    return (
+      rate.LAST_UPDATED_ERROR ||
+      +new Date() - rate.LAST_UPDATED >= 31 * 60 * 1000
+    );
   } catch {
     return true;
   }
@@ -138,7 +164,9 @@ function satoshiToLocalCurrency(satoshi, format = true) {
     return '...';
   }
 
-  let b = new BigNumber(satoshi).dividedBy(100000000).multipliedBy(exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]);
+  let b = new BigNumber(satoshi)
+    .dividedBy(100000000)
+    .multipliedBy(exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]);
 
   if (b.isGreaterThanOrEqualTo(0.005) || b.isLessThanOrEqualTo(-0.005)) {
     b = b.toFixed(2);
@@ -178,7 +206,9 @@ function BTCToLocalCurrency(bitcoin) {
 }
 
 async function mostRecentFetchedRate() {
-  const currencyInformation = JSON.parse(await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY));
+  const currencyInformation = JSON.parse(
+    await AsyncStorage.getItem(EXCHANGE_RATES_STORAGE_KEY),
+  );
 
   const formatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
     style: 'currency',
@@ -186,7 +216,9 @@ async function mostRecentFetchedRate() {
   });
   return {
     LastUpdated: currencyInformation[LAST_UPDATED],
-    Rate: formatter.format(currencyInformation[`BTC_${preferredFiatCurrency.endPointKey}`]),
+    Rate: formatter.format(
+      currencyInformation[`BTC_${preferredFiatCurrency.endPointKey}`],
+    ),
   };
 }
 
@@ -202,7 +234,9 @@ function btcToSatoshi(btc) {
 
 function fiatToBTC(fiatFloat) {
   let b = new BigNumber(fiatFloat);
-  b = b.dividedBy(exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]).toFixed(8);
+  b = b
+    .dividedBy(exchangeRates['BTC_' + preferredFiatCurrency.endPointKey])
+    .toFixed(8);
   return b;
 }
 
