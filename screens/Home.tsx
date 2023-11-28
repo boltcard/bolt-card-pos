@@ -41,6 +41,8 @@ import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 import moment from 'moment';
 import {printCiontek, printBitcoinize, onPDF} from '../helper/printing';
+import {handleStaticLNURL} from '../helper/staticLNURL';
+import {CardModal} from '../components/CardModal';
 let {bech32} = require('bech32');
 
 const currency = require('../helper/currency');
@@ -84,6 +86,8 @@ function Home({navigation}): React.FC<Props> {
     useState<boolean>(false);
   const [boltServiceCallback, setBoltServiceCallback] =
     useState<boolean>(false);
+
+  const [staticLNURL, setStaticLNURL] = useState<string>();
 
   //connection
   const [lndWallet, setLndWallet] = useState<LightningCustodianWallet>();
@@ -258,6 +262,7 @@ function Home({navigation}): React.FC<Props> {
         console.log('result', result);
         setLndInvoice(result);
         setIsFetchingInvoices(true);
+        if (Platform.OS !== 'ios') readNdef(result);
       } catch (error) {
         console.log(error.message);
         Toast.show({
@@ -267,87 +272,93 @@ function Home({navigation}): React.FC<Props> {
         });
         setInvoiceLoading(false);
       }
-      if (Platform.OS !== 'ios') readNdef();
       setInvoiceLoading(false);
     }
   };
 
-  async function readNdef() {
-    console.log('***** Await NFC Tag');
+  const readNdef = async lndInvoice => {
+    console.log('Awaiting NFC Tag');
+    let nfcData = null;
+
     try {
       // register for the NFC tag with NDEF in it
       const result = await NfcManager.requestTechnology(NfcTech.Ndef);
       console.log('NfcManager.requestTechnology(NfcTech.Ndef)', result);
-      // the resolved tag object will contain `ndefMessage` property
       const tag = await NfcManager.getTag();
-      const nfcData = tag.ndefMessage[0].payload;
-      // console.log('Tag found', tag);
-      // console.log('NDEF', nfcData);
+      console.log('tag', tag);
 
-      if (!nfcData || nfcData == '') {
-        console.log('NDEF empty');
+      // the resolved tag object will contain `ndefMessage` property
+      if (!tag) {
         Toast.show({
           type: 'error',
           text1: 'Bolt Card Response Empty',
           text2: 'The bolt card response was empty. Is the card configured?',
         });
-        await NfcManager.cancelTechnologyRequest();
-        setTimeout(() => {
-          readNdef();
-        }, 1000);
+        restartReadNDef(lndInvoice);
+        return;
       }
-
-      const bytesToNdef = String.fromCharCode(...nfcData);
-
-      const boltURL = bytesToNdef.substring(1, bytesToNdef.length);
-      console.log('boltURL', boltURL);
-
-      //deal with LNURL over NFC
-      if (boltURL.startsWith('lightning:')) {
-        const lnurlbetch = boltURL.substring(10);
-        const decoded = bech32.decode(lnurlbetch, 2000);
-        let requestByteArray = bech32.fromWords(decoded.words);
-        const lnurl = Buffer.from(requestByteArray).toString();
-        console.log('*** LNURL', lnurl);
-
-        fetch(lnurl)
-          .then(response => {
-            console.log(response);
-            // setBoltServiceResponse(true);
-            return response.json();
-          })
-          .then(async data => {
-            console.log('lnurl request', data);
-            if (data.callback && data.k1) {
-              const callback = new URL(data.callback);
-              callback.searchParams.set('k1', data.k1);
-              callback.searchParams.set('pr', lndInvoice);
-              console.log('callback.toString()', callback.toString());
-              await fetch(callback.toString())
-                .then(cbResponse => cbResponse.json())
-                .then(cbData => {
-                  console.log('bolt callback', cbData);
-                  if (cbData.status == 'ERROR') {
-                    console.error(cbData.reason);
-                    Toast.show({
-                      type: 'error',
-                      text1: 'LNURL Error',
-                      text2: cbData.reason,
-                    });
-                    setTimeout(() => {
-                      readNdef();
-                    }, 1000);
-                    setBoltLoading(false);
-                  } else {
-                    setBoltServiceCallback(true);
-                  }
-                });
-            } else {
-              console.error('no callback or k1 specified!');
-            }
-          });
+      if (tag.ndefMessage) {
+        nfcData = tag.ndefMessage[0].payload;
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'NFC error',
+          text2: 'Card ndef message is empty. Is the card configured?',
+        });
+        restartReadNDef(lndInvoice);
+        return;
       }
+    } catch (error) {
+      console.error('NfcManager.requestTechnology Error:', error.message);
+      console.error('typeof error', typeof error);
 
+      if (
+        error.message != 'You can only issue one request at a time' &&
+        error.message != 'Error' &&
+        error.message != undefined &&
+        error.message != null
+      ) {
+        await stopReadNdef();
+
+        Alert.alert('NFC Read Error', error.message, [
+          {text: 'OK', onPress: () => readNdef(lndInvoice)},
+        ]);
+      }
+      return;
+    } finally {
+    }
+    // console.log('Tag found', tag);
+    // console.log('NDEF', nfcData);
+
+    if (!nfcData || nfcData == '') {
+      Toast.show({
+        type: 'error',
+        text1: 'Bolt Card Response Empty',
+        text2: 'The bolt card response was empty. Is the card configured?',
+      });
+      restartReadNDef(lndInvoice);
+      return;
+    }
+
+    const bytesToNdef = String.fromCharCode(...nfcData);
+
+    const boltURL = bytesToNdef.substring(1, bytesToNdef.length);
+    console.log('boltURL', boltURL);
+
+    //deal with LNURL over NFC
+    if (boltURL.startsWith('lightning:')) {
+      setBoltLoading(true);
+
+      const handle = await handleStaticLNURL(
+        boltURL,
+        lndInvoice,
+        setBoltServiceCallback,
+        setBoltLoading,
+      );
+      if (handle == 'failed') {
+        restartReadNDef(lndInvoice);
+      }
+    } else {
       if (isValidUrl(boltURL)) {
         console.log('Bolt URL found: ' + boltURL);
         setNdef(boltURL);
@@ -359,20 +370,10 @@ function Home({navigation}): React.FC<Props> {
           text2: 'This card did not provide a Bolt service URL',
         });
         await NfcManager.cancelTechnologyRequest();
-        setTimeout(() => {
-          readNdef();
-        }, 1000);
+        restartReadNDef(lndInvoice);
       }
-      console.log(bytesToNdef.substring(1, bytesToNdef.length));
-    } catch (error) {
-      console.log('*** readNdef() NFC Error:', error);
-      //   Alert.alert('NFC Read Error', error.message);
-    } finally {
-      // stop the nfc scanning
-      await stopReadNdef();
-      //   readNdef();
     }
-  }
+  };
 
   const isValidUrl = urlString => {
     console.log('***** isValidUrl');
@@ -383,6 +384,12 @@ function Home({navigation}): React.FC<Props> {
     }
   };
 
+  function restartReadNDef(lndInvoice) {
+    setTimeout(async () => {
+      await stopReadNdef();
+      readNdef(lndInvoice);
+    }, 1000);
+  }
   async function stopReadNdef() {
     console.log('***** stopReadNdef');
     try {
@@ -471,7 +478,7 @@ function Home({navigation}): React.FC<Props> {
               }
             }
           } catch (error) {
-            console.error(error);
+            console.error('useEffect [isFetchingInvoices]', error);
           }
         }
       }, 2000);
@@ -494,14 +501,14 @@ function Home({navigation}): React.FC<Props> {
       .then(cbData => {
         console.log('bolt callback', cbData);
         if (cbData.status == 'ERROR') {
-          console.error(cbData.reason);
+          console.error('callback error', cbData.reason);
           Toast.show({
             type: 'error',
             text1: 'Bolt Card Error',
             text2: cbData.reason,
           });
           setTimeout(() => {
-            readNdef();
+            readNdef(lndInvoice);
           }, 1000);
           setBoltLoading(false);
         } else {
@@ -509,14 +516,14 @@ function Home({navigation}): React.FC<Props> {
         }
       })
       .catch(err => {
-        console.error(err);
+        console.error('callback fetch error', err);
         Toast.show({
           type: 'error',
           text1: 'Bolt Card Error',
           text2: err.message,
         });
         setTimeout(() => {
-          readNdef();
+          readNdef(lndInvoice);
         }, 1000);
         setBoltLoading(false);
       })
@@ -560,29 +567,25 @@ function Home({navigation}): React.FC<Props> {
             }
             fetchCallback(callback);
           } else if (data.status == 'ERROR') {
-            console.error(data.reason);
+            console.error('bolt url processing', data.reason);
             Toast.show({
               type: 'error',
               text1: 'Bolt Card Error',
               text2: data.reason,
             });
-            setTimeout(() => {
-              readNdef();
-            }, 1000);
+            restartReadNDef(lndInvoice);
             setBoltLoading(false);
             setNdef(undefined);
           }
         })
         .catch(err => {
-          console.error(err);
+          console.error('bolt url network', err);
           Toast.show({
             type: 'error',
             text1: 'Bolt Card Error',
             text2: err.message,
           });
-          setTimeout(() => {
-            readNdef();
-          }, 1000);
+          restartReadNDef(lndInvoice);
           setBoltLoading(false);
         })
         .finally(() => {
@@ -599,7 +602,7 @@ function Home({navigation}): React.FC<Props> {
     NfcManager.cancelTechnologyRequest().then(() => {
       if (Platform.OS == 'android') {
         setTimeout(() => {
-          readNdef();
+          readNdef(lndInvoice);
         }, 1000);
       }
     });
@@ -751,108 +754,111 @@ function Home({navigation}): React.FC<Props> {
         )}
         {walletConfigured && (
           <>
-            <View
-              style={{
-                flexDirection: 'column',
-                margin: 0,
-                padding: 0,
-                flex: 1,
-              }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  margin: 0,
-                  padding: 0,
-                }}>
-                <Text
-                  style={{
-                    ...textStyle,
-                    fontSize: 35,
-                    marginTop: 10,
-                    marginLeft: 5,
-                  }}>
-                  {selectedUnit != 'sats' &&
-                    selectedUnit != 'btc' &&
-                    fiatCurrency?.symbol}
-                </Text>
-                <View
-                  style={{
-                    borderRadius: 8,
-                    flex: 3,
-                    marginTop: 10,
-                    marginLeft: 5,
-                    overflow: 'hidden',
-                  }}>
-                  <Text
-                    style={{
-                      borderRadius: 8,
-                      borderWidth: 1,
-                      color: '#000',
-                      fontSize: 35,
-                      paddingHorizontal: 10,
-                      paddingVertical: 0,
-                      paddingLeft: 10,
-                      textAlign: 'right',
-                      backgroundColor: 'white',
-                    }}>
-                    {inputAmount}
-                  </Text>
-                </View>
-                <DropDownPicker
-                  style={{height: '60%'}}
-                  open={open}
-                  value={selectedUnit}
-                  items={currencyItems}
-                  setOpen={setOpen}
-                  setValue={setSelectedUnit}
-                  // setItems={setItems}
-                  theme={isDarkMode ? 'DARK' : 'LIGHT'}
-                  multiple={false}
-                  containerStyle={{
-                    margin: 10,
-                    width: 100,
-                  }}
-                />
-              </View>
+            {!lndInvoice && (
               <View
                 style={{
                   flexDirection: 'column',
-                  marginHorizontal: 10,
-                  marginTop: 0,
-                  alignItems: 'center',
+                  margin: 0,
+                  padding: 0,
+                  flex: 1,
                 }}>
-                <TouchableOpacity
-                  onPress={() => {
-                    updateExchangeRate();
-                    console.log(lastRate);
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    margin: 0,
+                    padding: 0,
                   }}>
-                  {lastRate && (
-                    <>
-                      <Text
-                        style={{
-                          ...textStyle,
-                          fontSize: 15,
-                          textAlign: 'center',
-                        }}>
-                        {'Rate ' + lastRate.Rate}
-                      </Text>
-                      <Text
-                        style={{
-                          ...textStyle,
-                          fontSize: 15,
-                          textAlign: 'center',
-                        }}>
-                        {' Last update ' +
-                          Math.round(
-                            (new Date() - lastRate.LastUpdated) / 1000 / 60,
-                          ) +
-                          ' min ago'}
-                      </Text>
-                    </>
-                  )}
-                </TouchableOpacity>
+                  <Text
+                    style={{
+                      ...textStyle,
+                      fontSize: 35,
+                      marginTop: 10,
+                      marginLeft: 5,
+                    }}>
+                    {selectedUnit != 'sats' &&
+                      selectedUnit != 'btc' &&
+                      fiatCurrency?.symbol}
+                  </Text>
+                  <View
+                    style={{
+                      borderRadius: 8,
+                      flex: 3,
+                      marginTop: 10,
+                      marginLeft: 5,
+                      overflow: 'hidden',
+                    }}>
+                    <Text
+                      style={{
+                        borderRadius: 8,
+                        borderWidth: 1,
+                        color: '#000',
+                        fontSize: 35,
+                        paddingHorizontal: 10,
+                        paddingVertical: 0,
+                        paddingLeft: 10,
+                        textAlign: 'right',
+                        backgroundColor: 'white',
+                      }}>
+                      {inputAmount}
+                    </Text>
+                  </View>
+                  <DropDownPicker
+                    style={{height: '60%'}}
+                    open={open}
+                    value={selectedUnit}
+                    items={currencyItems}
+                    setOpen={setOpen}
+                    setValue={setSelectedUnit}
+                    // setItems={setItems}
+                    theme={isDarkMode ? 'DARK' : 'LIGHT'}
+                    multiple={false}
+                    containerStyle={{
+                      margin: 10,
+                      width: 100,
+                    }}
+                  />
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    marginHorizontal: 10,
+                    marginTop: 0,
+                    alignItems: 'center',
+                  }}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      updateExchangeRate();
+                      console.log(lastRate);
+                    }}>
+                    {lastRate && (
+                      <>
+                        <Text
+                          style={{
+                            ...textStyle,
+                            fontSize: 15,
+                            textAlign: 'center',
+                          }}>
+                          {'Rate ' + lastRate.Rate}
+                        </Text>
+                        <Text
+                          style={{
+                            ...textStyle,
+                            fontSize: 15,
+                            textAlign: 'center',
+                          }}>
+                          {' Last update ' +
+                            Math.round(
+                              (new Date() - lastRate.LastUpdated) / 1000 / 60,
+                            ) +
+                            ' min ago'}
+                        </Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
+            )}
+
             {!lndInvoice && (
               <View style={{flex: 4, zIndex: -1}}>
                 <View style={{flex: 1, padding: 10}}>
@@ -949,25 +955,42 @@ function Home({navigation}): React.FC<Props> {
                 <View
                   style={{
                     flexDirection: 'column',
-                    alignItems: 'center',
                     flex: 4,
                   }}>
                   <View
                     style={{
                       flexDirection: 'row',
+                      justifyContent: 'space-between',
                       alignItems: 'center',
-                      marginVertical: 5,
+                      margin: 20,
                     }}>
-                    <Text
+                    <View
                       style={{
-                        ...textStyle,
-                        fontSize: 25,
-                        margin: 0,
-                        lineHeight: 30,
-                        marginRight: 10,
+                        flexDirection: 'column',
                       }}>
-                      Pay {satsAmount ? satsAmount.toLocaleString() : 0} sats.
-                    </Text>
+                      <Text
+                        style={{
+                          ...textStyle,
+                          fontSize: 20,
+                          margin: 0,
+                          lineHeight: 30,
+                          marginRight: 10,
+                        }}>
+                        Pay {satsAmount ? satsAmount.toLocaleString() : 0} sats
+                      </Text>
+                      {fiatAmount && (
+                        <Text
+                          style={{
+                            ...textStyle,
+                            fontSize: 25,
+                            margin: 0,
+                            lineHeight: 30,
+                            marginRight: 10,
+                          }}>
+                          ({fiatAmount.toLocaleString()})
+                        </Text>
+                      )}
+                    </View>
                     {!boltLoading && (
                       <View style={{padding: 0}}>
                         <View
@@ -1020,7 +1043,7 @@ function Home({navigation}): React.FC<Props> {
                         borderRadius: 10,
                         marginTop: 5,
                       }}>
-                      <Pressable onPress={readNdef}>
+                      <Pressable onPress={() => readNdef(lndInvoice)}>
                         <Text style={{fontSize: 20, color: '#000'}}>
                           <Icon name="wifi" color="#000" size={20} />
                           Enable Bolt Card NFC
@@ -1110,52 +1133,14 @@ function Home({navigation}): React.FC<Props> {
                 </View>
               ))}
 
-            <Modal
-              animationType="fade"
-              visible={lndInvoice && !invoiceIsPaid && boltLoading}
-              onRequestClose={retryBoltcardPayment}
-              transparent={true}>
-              <View style={styles.centeredView}>
-                <View style={styles.modalView}>
-                  <Text style={{color: '#000', fontSize: 18}}>
-                    Bolt Card Detected.{' '}
-                    <Icon name="checkmark" color="darkgreen" size={20} />
-                  </Text>
-                  {boltServiceResponse && (
-                    <Text style={{color: '#000', fontSize: 18}}>
-                      Bolt Service connected{' '}
-                      <Icon name="checkmark" color="darkgreen" size={20} />
-                    </Text>
-                  )}
-                  {boltServiceCallback && (
-                    <>
-                      <Text style={{color: '#000', fontSize: 18}}>
-                        Bolt Service Callback{' '}
-                        <Icon name="checkmark" color="darkgreen" size={20} />
-                      </Text>
-                      <Text style={{color: '#000', fontSize: 18}}>
-                        Payment initiated...
-                      </Text>
-                    </>
-                  )}
-
-                  <ActivityIndicator size="large" color="#ff9900" />
-                  <View style={{padding: 20}}>
-                    <Button
-                      title="Retry Payment"
-                      onPress={retryBoltcardPayment}
-                      buttonStyle={{
-                        backgroundColor: '#ff9900',
-                      }}
-                      titleStyle={{
-                        fontSize: 20,
-                        fontWeight: 600,
-                        color: '#000',
-                      }}></Button>
-                  </View>
-                </View>
-              </View>
-            </Modal>
+            <CardModal
+              lndInvoice={lndInvoice}
+              invoiceIsPaid={invoiceIsPaid}
+              boltLoading={boltLoading}
+              retryBoltcardPayment={retryBoltcardPayment}
+              boltServiceCallback={boltServiceCallback}
+              boltServiceResponse={boltServiceResponse}
+            />
           </>
         )}
       </View>
@@ -1179,27 +1164,6 @@ const styles = StyleSheet.create({
   },
   highlight: {
     fontWeight: '700',
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 22,
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
   },
 });
 
