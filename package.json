@@ -1,6 +1,6 @@
 {
   "name": "boltcardpos",
-  "version": "1.4.0",
+  "version": "1.4.2",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -15,6 +15,7 @@
     "@react-native-clipboard/clipboard": "^1.11.2",
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
+    "bech32": "^2.0.0",
     "bignumber.js": "^9.1.1",
     "bitcoinjs-lib": "^6.1.0",
     "bolt11": "^1.4.0",

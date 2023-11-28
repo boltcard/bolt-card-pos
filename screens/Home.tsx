@@ -40,7 +40,8 @@ import {updateExchangeRate} from '../helper/currency';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 import moment from 'moment';
-import {printCiontek, printBitcoinize} from '../helper/printing';
+import {printCiontek, printBitcoinize, onPDF} from '../helper/printing';
+let {bech32} = require('bech32');
 
 const currency = require('../helper/currency');
 
@@ -297,7 +298,56 @@ function Home({navigation}): React.FC<Props> {
       }
 
       const bytesToNdef = String.fromCharCode(...nfcData);
+
       const boltURL = bytesToNdef.substring(1, bytesToNdef.length);
+      console.log('boltURL', boltURL);
+
+      //deal with LNURL over NFC
+      if (boltURL.startsWith('lightning:')) {
+        const lnurlbetch = boltURL.substring(10);
+        const decoded = bech32.decode(lnurlbetch, 2000);
+        let requestByteArray = bech32.fromWords(decoded.words);
+        const lnurl = Buffer.from(requestByteArray).toString();
+        console.log('*** LNURL', lnurl);
+
+        fetch(lnurl)
+          .then(response => {
+            console.log(response);
+            // setBoltServiceResponse(true);
+            return response.json();
+          })
+          .then(async data => {
+            console.log('lnurl request', data);
+            if (data.callback && data.k1) {
+              const callback = new URL(data.callback);
+              callback.searchParams.set('k1', data.k1);
+              callback.searchParams.set('pr', lndInvoice);
+              console.log('callback.toString()', callback.toString());
+              await fetch(callback.toString())
+                .then(cbResponse => cbResponse.json())
+                .then(cbData => {
+                  console.log('bolt callback', cbData);
+                  if (cbData.status == 'ERROR') {
+                    console.error(cbData.reason);
+                    Toast.show({
+                      type: 'error',
+                      text1: 'LNURL Error',
+                      text2: cbData.reason,
+                    });
+                    setTimeout(() => {
+                      readNdef();
+                    }, 1000);
+                    setBoltLoading(false);
+                  } else {
+                    setBoltServiceCallback(true);
+                  }
+                });
+            } else {
+              console.error('no callback or k1 specified!');
+            }
+          });
+      }
+
       if (isValidUrl(boltURL)) {
         console.log('Bolt URL found: ' + boltURL);
         setNdef(boltURL);
@@ -316,9 +366,11 @@ function Home({navigation}): React.FC<Props> {
       console.log(bytesToNdef.substring(1, bytesToNdef.length));
     } catch (error) {
       console.log('*** readNdef() NFC Error:', error);
+      //   Alert.alert('NFC Read Error', error.message);
     } finally {
       // stop the nfc scanning
-      stopReadNdef();
+      await stopReadNdef();
+      //   readNdef();
     }
   }
 
@@ -644,44 +696,6 @@ function Home({navigation}): React.FC<Props> {
     setCallbackUrl(null);
     setShowPinModal(false);
     retryBoltcardPayment();
-  };
-
-  const onPDF = async invoice => {
-    console.log('***** onPDF');
-    let options = {
-      html: `
-        <h1 style="font-size: 100px">${invoice.description}</h1>
-        <p style="font-size: 50px">Payment made in Bitcoin</p>
-        <p style="font-size: 50px">${moment(invoice.timestamp * 1000).format(
-          'DD/MM/YY HH:mm:ss',
-        )}</p>
-        <p style="font-size: 60px;">${
-          invoice.amt
-        } sats <span style="font-weight: 600;">${
-        invoice.ispaid ? '(PAID)' : '(PENDING)'
-      }</span></p>
-        <p style="font-size: 60px; overflow-wrap: break-word; word-break: break-all;">Payment Hash: ${
-          invoice.payment_hash
-        }</p>
-        <img src="data:image/jpeg;base64,${qrData}" width="100%" height="auto"/>
-      `,
-      fileName: 'receipt_' + invoice.payment_hash,
-      directory: 'Documents',
-      height: 1500,
-      width: 595,
-    };
-
-    try {
-      let file = await RNHTMLtoPDF.convert(options);
-      if (file?.filePath) FileViewer.open(file?.filePath);
-    } catch (err) {
-      Toast.show({
-        type: 'error',
-        text1: 'Error opening pdf',
-        text2: err,
-      });
-      console.log(err);
-    }
   };
 
   const onPrint = async invoice => {

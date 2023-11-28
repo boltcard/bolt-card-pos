@@ -14,7 +14,7 @@ import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 import QRCode from 'react-native-qrcode-svg';
 import Toast from 'react-native-toast-message';
-import {printCiontek, printBitcoinize} from '../../helper/printing';
+import {printCiontek, printBitcoinize, onPDF} from '../../helper/printing';
 import {ShopSettingsContext} from '../../contexts/ShopSettingsContext';
 import moment from 'moment';
 
@@ -42,41 +42,6 @@ const InvoiceDetail = ({route}) => {
 
   const formatDate = timestamp => {
     return moment(timestamp * 1000).format('DD/MM/YY HH:mm:ss');
-  };
-
-  const pdf = async () => {
-    let options = {
-      html: `
-        <h1 style="font-size: 100px">${invoice.description}</h1>
-        <p style="font-size: 50px">Payment made in Bitcoin</p>
-        <p style="font-size: 50px">${formatDate(invoice.timestamp)}</p>
-        <p style="font-size: 60px;">${
-          invoice.amt
-        } sats <span style="font-weight: 600;">${
-        invoice.ispaid ? '(PAID)' : '(PENDING)'
-      }</span></p>
-        <p style="font-size: 60px; overflow-wrap: break-word; word-break: break-all;">Payment Hash: ${
-          invoice.payment_hash
-        }</p>
-        <img src="data:image/jpeg;base64,${qrData}" width="100%" height="auto"/>
-      `,
-      fileName: 'receipt_' + invoice.payment_hash,
-      directory: 'Documents',
-      height: 1500,
-      width: 595,
-    };
-
-    try {
-      let file = await RNHTMLtoPDF.convert(options);
-      if (file?.filePath) FileViewer.open(file?.filePath);
-    } catch (err) {
-      Toast.show({
-        type: 'error',
-        text1: 'Error opening pdf',
-        text2: err,
-      });
-      console.log(err);
-    }
   };
 
   const print = async () => {
@@ -125,7 +90,7 @@ const InvoiceDetail = ({route}) => {
                   color: isDarkMode ? '#fff' : '#000',
                 }}
                 type="clear"
-                onPress={pdf}
+                onPress={() => onPDF(invoice)}
               />
               <Button
                 icon={{
