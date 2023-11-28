@@ -30,7 +30,6 @@ export const handleStaticLNURL = (
           .then(cbResponse => cbResponse.json())
           .then(cbData => {
             if (cbData.status == 'ERROR') {
-              console.error('handleStaticLNURL ERROR', cbData.reason);
               Toast.show({
                 type: 'error',
                 text1: 'LNURL Error',

@@ -310,11 +310,11 @@ function Home({navigation}): React.FC<Props> {
       }
     } catch (error) {
       console.error('NfcManager.requestTechnology Error:', error.message);
-      console.error('typeof error', typeof error);
 
       if (
         error.message != 'You can only issue one request at a time' &&
         error.message != 'Error' &&
+        error.message != '' &&
         error.message != undefined &&
         error.message != null
       ) {
