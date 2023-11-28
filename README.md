@@ -2,9 +2,9 @@
 
 A simple Point of Sale (PoS) App with [Bolt Card](https://boltcard.org) support. Built in React Native for iOS and Android.
 
-Connects to an [LNBits](https://lnbits.com/) backend with the LNDHub extension installed.
-
-Polls for successful invoice payments.
+Connects to;
+* An [LNBits](https://lnbits.com/) backend with the LNDHub extension installed.
+* A [BTCPayServer](https://btcpayserver.org/) backend with the [LNBank](https://docs.btcpayserver.org/LNbank/) extension
 
 [![Playstore](https://bluewallet.io/uploads/play-store-badge-blue.svg)](https://play.google.com/store/apps/details?id=org.boltcard.boltcardpos)
 
