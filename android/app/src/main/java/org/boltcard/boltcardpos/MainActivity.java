@@ -16,6 +16,14 @@ import com.facebook.react.bridge.Callback;
 import android.os.RemoteException;
 import android.content.*;
 import com.ctk.sdk.PosApiHelper;
+import com.ahmedelsayed.sunmiprinterutill.PrintMe;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
 
 import static net.nyx.printerclient.Result.msg;
 
@@ -24,6 +32,7 @@ public class MainActivity extends ReactActivity {
     static final String TAG = "bolt-card-pos";
     private Handler handler = new Handler();
     PosApiHelper posApiHelper = null;
+    PrintMe sunmiPrintMe =  null;
 
   /**
    * Returns the name of the main component registered from JavaScript. This is used to schedule
@@ -55,6 +64,7 @@ public class MainActivity extends ReactActivity {
     super.onCreate(savedInstanceState);
     bindService();
     posApiHelper = PosApiHelper.getInstance();
+    sunmiPrintMe =  new PrintMe(this);
     if(posApiHelper == null) {
         Log.d(TAG,"posApiHelper instance not null");
     }
@@ -226,6 +236,54 @@ public class MainActivity extends ReactActivity {
         } else {
             Log.d(TAG, "Print Finish ");
         }
+    }
+
+    public void printTextSunmi(String text, int size) {
+        sunmiPrintMe.sendTextToPrinter(text,size,true,false,1);
+    }
+
+    public void paperOutSunmi() {
+        sunmiPrintMe.sendTextToPrinter("\n",5,true,false,1);
+
+    }
+
+    public static Bitmap encodeAsBitmap(String source, int width, int height) {
+        BitMatrix result;
+
+        try {
+            result = new MultiFormatWriter().encode(source, BarcodeFormat.QR_CODE, width, height, null);
+        } catch (IllegalArgumentException | WriterException e) {
+            // Unsupported format
+            return null;
+        }
+
+        final int w = result.getWidth();
+        final int h = result.getHeight();
+        final int[] pixels = new int[w * h];
+
+        for (int y = 0; y < h; y++) {
+            final int offset = y * w;
+            for (int x = 0; x < w; x++) {
+                pixels[offset + x] = result.get(x, y) ? Color.BLACK : Color.WHITE;
+            }
+        }
+
+        final Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        bitmap.setPixels(pixels, 0, width, 0, 0, w, h);
+
+        return bitmap;
+    }
+
+    public void printQRCodeSunmi(String text, int width, int height) {
+        sunmiPrintMe.sendImageToPrinter(
+            encodeAsBitmap(text,width,height)
+        );
+    }
+
+    public void testPrintSunmi() {
+        Log.d(TAG, "Sunmi Test Print!");
+        // Print a text 
+        sunmiPrintMe.sendTextToPrinter("Testing .. PrintMe",18,true,false,5);
     }
 
 

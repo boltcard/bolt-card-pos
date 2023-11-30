@@ -37,6 +37,7 @@ const PrintSettings = () => {
   const printers = [
     {label: 'Bitcoinize', value: 'bitcoinize'},
     {label: 'Ciontek', value: 'ciontek'},
+    {label: 'Sumni', value: 'sunmi'},
   ];
 
   return (
@@ -87,7 +88,26 @@ const PrintSettings = () => {
           }}
           chevron
         />
-        <View style={{marginBottom: 100}}>
+        <SimpleListItem
+          title="Sunmi Test Print"
+          onPress={() => {
+            Alert.alert('Sunmi Test', 'Are you sure?', [
+              {
+                text: 'Cancel',
+                onPress: () => console.log('Cancel Pressed'),
+                style: 'cancel',
+              },
+              {
+                text: 'OK',
+                onPress: () => {
+                  NativeModules.PrintModule.testPrintSunmi();
+                },
+              },
+            ]);
+          }}
+          chevron
+        />
+        <View style={{zIndex: 3, marginTop: 10}}>
           <DropDownPicker
             style={{
               alignItems: 'center',

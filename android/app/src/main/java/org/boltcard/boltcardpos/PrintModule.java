@@ -76,4 +76,28 @@ public class PrintModule extends ReactContextBaseJavaModule {
         if(activity != null) activity.testPrintCiontek();
     }
 
+    @ReactMethod
+    public void printQRCodeSunmi(String text, int width, int height) {
+        MainActivity activity = (MainActivity) getCurrentActivity();
+        if(activity != null) activity.printQRCodeSunmi(text, width, height);
+    }
+
+    @ReactMethod
+    public void paperOutSunmi() {
+        MainActivity activity = (MainActivity) getCurrentActivity();
+        if(activity != null) activity.paperOutSunmi();
+    }
+
+    @ReactMethod
+    public void printTextSunmi(String text, int size) {
+        MainActivity activity = (MainActivity) getCurrentActivity();
+        if(activity != null) activity.printTextSunmi(text, size);
+    }
+
+    @ReactMethod
+    public void testPrintSunmi() {
+        MainActivity activity = (MainActivity) getCurrentActivity();
+        if(activity != null) activity.testPrintSunmi();
+    }
+
 }
