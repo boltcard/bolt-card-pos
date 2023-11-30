@@ -71,7 +71,12 @@ const ShopSettingsProvider = ({children}) => {
             printer: printer?.toString(),
           }),
         );
-        await currency.setPrefferedCurrency(FiatUnit.USD);
+        currency.getPreferredCurrency().then(async preferred => {
+          if(!preferred) {
+            await currency.setPrefferedCurrency(FiatUnit.USD);
+          }
+          _setPreferredFiatCurrency(preferred);
+        });
         console.log('Saved shop settings');
       } catch (error) {
         console.error('Failed to save shop name to storage:', error);
