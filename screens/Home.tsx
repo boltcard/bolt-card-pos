@@ -40,7 +40,7 @@ import {updateExchangeRate} from '../helper/currency';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 import moment from 'moment';
-import {printCiontek, printBitcoinize, onPDF} from '../helper/printing';
+import {printCiontek, printBitcoinize, printSunmi, onPDF} from '../helper/printing';
 import {handleStaticLNURL} from '../helper/staticLNURL';
 import {CardModal} from '../components/CardModal';
 let {bech32} = require('bech32');
@@ -715,9 +715,18 @@ function Home({navigation}): React.FC<Props> {
         invoice.payment_hash,
         invoice.amt,
       );
-    } else {
+    } else if(printer == 'bitcoinize') {
       console.log('printBitcoinize');
       printBitcoinize(
+        invoice.description,
+        invoice.timestamp,
+        invoice.ispaid,
+        invoice.payment_hash,
+        invoice.amt,
+      );
+    } else if(printer == 'sunmi') {
+      console.log('printSunmi');
+      printSunmi(
         invoice.description,
         invoice.timestamp,
         invoice.ispaid,
