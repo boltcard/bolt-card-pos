@@ -321,11 +321,14 @@ function Home({navigation}): React.FC<Props> {
         await stopReadNdef();
 
         Alert.alert('NFC Read Error', error.message, [
-          {text: 'OK', onPress: () => readNdef(lndInvoice)},
+          {text: 'OK', onPress: () => {
+            if (Platform.OS == 'android') restartReadNDef(lndInvoice);
+          }},
         ]);
       }
       return;
     } finally {
+        await stopReadNdef();
     }
     // console.log('Tag found', tag);
     // console.log('NDEF', nfcData);
@@ -336,7 +339,7 @@ function Home({navigation}): React.FC<Props> {
         text1: 'Bolt Card Response Empty',
         text2: 'The bolt card response was empty. Is the card configured?',
       });
-      restartReadNDef(lndInvoice);
+      if (Platform.OS == 'android') restartReadNDef(lndInvoice);
       return;
     }
 
@@ -1009,7 +1012,7 @@ function Home({navigation}): React.FC<Props> {
                       </View>
                     )}
                   </View>
-                  <View style={{padding: 20, backgroundColor: '#fff'}}>
+                  <View style={{padding: 20, backgroundColor: '#fff', alignItems: 'center'}}>
                     <QRCode
                       size={330}
                       value={lndInvoice}
@@ -1036,20 +1039,24 @@ function Home({navigation}): React.FC<Props> {
                     </View>
                   </View>*/}
                   {Platform.OS === 'ios' && (
-                    <View
-                      style={{
-                        padding: 10,
-                        backgroundColor: '#f90',
-                        borderRadius: 10,
-                        marginTop: 5,
-                      }}>
-                      <Pressable onPress={() => readNdef(lndInvoice)}>
-                        <Text style={{fontSize: 20, color: '#000'}}>
-                          <Icon name="wifi" color="#000" size={20} />
-                          Enable Bolt Card NFC
-                        </Text>
-                      </Pressable>
+                    <View style={{alignItems: 'center', marginTop: 10}}>
+                        <View
+                            style={{
+                                padding: 10,
+                                backgroundColor: '#f90',
+                                borderRadius: 10,
+                                marginTop: 5,
+
+                            }}>
+                            <Pressable onPress={() => readNdef(lndInvoice)}>
+                                <Text style={{fontSize: 20, color: '#000'}}>
+                                <Icon name="wifi" color="#000" size={20} />
+                                Enable Bolt Card NFC
+                                </Text>
+                            </Pressable>
+                            </View>
                     </View>
+                    
                   )}
                 </View>
               ) : (
