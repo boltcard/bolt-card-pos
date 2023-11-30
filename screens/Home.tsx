@@ -770,6 +770,7 @@ function Home({navigation}): React.FC<Props> {
                     flexDirection: 'row',
                     margin: 0,
                     padding: 0,
+                    zIndex: 1
                   }}>
                   <Text
                     style={{
@@ -823,10 +824,8 @@ function Home({navigation}): React.FC<Props> {
                 </View>
                 <View
                   style={{
-                    flexDirection: 'column',
                     marginHorizontal: 10,
-                    marginTop: 0,
-                    alignItems: 'center',
+                    marginTop: 0
                   }}>
                   <TouchableOpacity
                     onPress={() => {
