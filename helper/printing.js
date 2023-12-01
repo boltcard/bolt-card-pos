@@ -99,36 +99,36 @@ export const printSunmi = async (
 ) => {
   try {
     await NativeModules.PrintModule.printTextSunmi(description, 32);
-    await NativeModules.PrintModule.paperOutSunmi();
+    // await NativeModules.PrintModule.paperOutSunmi();
 
     await NativeModules.PrintModule.printTextSunmi(
       'Payment made in Bitcoin',
       24,
     );
-    await NativeModules.PrintModule.paperOutSunmi();
+    // await NativeModules.PrintModule.paperOutSunmi();
 
     await NativeModules.PrintModule.printTextSunmi(
       moment(timestamp * 1000).format('DD/MM/YY HH:mm:ss'),
       24,
     );
-    await NativeModules.PrintModule.paperOutSunmi();
+    // await NativeModules.PrintModule.paperOutSunmi();
 
     await NativeModules.PrintModule.printTextSunmi(
       amt + ' sats ' + (ispaid ? '(PAID)' : '(PENDING)'),
       32,
     );
-    await NativeModules.PrintModule.paperOutSunmi();
+    // await NativeModules.PrintModule.paperOutSunmi();
 
     await NativeModules.PrintModule.printTextSunmi(payment_hash, 24);
-    await NativeModules.PrintModule.paperOutSunmi();
+    // await NativeModules.PrintModule.paperOutSunmi();
     await NativeModules.PrintModule.printQRCodeSunmi(
       JSON.stringify({payment_hash: payment_hash}),
       360,
       360,
     );
 
-    await NativeModules.PrintModule.paperOutSunmi();
-    await NativeModules.PrintModule.paperOutSunmi();
+    // await NativeModules.PrintModule.paperOutSunmi();
+    // await NativeModules.PrintModule.paperOutSunmi();
     await NativeModules.PrintModule.paperOutSunmi();
   } catch (e) {
     Alert.alert('Error', 'There was an error when printing ' + e.message, [
