@@ -226,45 +226,49 @@ const ConnectToHub = props => {
                 onPress={() => onScanSuccess({data: hub})}
               />
             </View>
-            <Button
-              title="Clear Hub Connection"
-              onPress={async () => {
-                try {
-                  setLndhubUser(null);
-                  setLndhub(null);
-                  setShopWallet(null);
-                  await AsyncStorage.setItem('manager-pin', '');
-                } catch (err) {
-                  Toast.show({
-                    type: 'error',
-                    text1: 'PIN reset error',
-                    text2: err.message,
-                  });
-                }
-              }}
-            />
+            {lndhub && lndhub != 'blank' && (
+              <View style={{marginTop: 10}}>
+                <Button
+                  title="Clear Hub Connection"
+                  onPress={async () => {
+                    try {
+                      setLndhubUser(null);
+                      setLndhub(null);
+                      setShopWallet(null);
+                      await AsyncStorage.setItem('manager-pin', '');
+                    } catch (err) {
+                      Toast.show({
+                        type: 'error',
+                        text1: 'PIN reset error',
+                        text2: err.message,
+                      });
+                    }
+                  }}
+                />
+              </View>
+            )}
           </View>
         </ScrollView>
       )}
-      // <PinSetScreen
-      //   showBaseModal={showPinSetScreen}
-      //   onClose={() => setShowPinSetScreen(false)}
-      //   title="Set Admin Access PIN"
-      //   successMessage="LND Hub Save Success."
-      //   successCallback={() => {
-      //     setLndhubUser(hubData[0]);
-      //     setLndhub(hubData[1]);
-      //     Toast.show({
-      //       type: 'success',
-      //       text1: 'LND Connect',
-      //       text2: 'LND Hub Save Success.',
-      //     });
-      //     setHubData([]);
-      //   }}
-      //   failCallback={() => {
-      //     setHubData([]);
-      //   }}
-      // />
+      {/*<PinSetScreen
+        showBaseModal={showPinSetScreen}
+        onClose={() => setShowPinSetScreen(false)}
+        title="Set Admin Access PIN"
+        successMessage="LND Hub Save Success."
+        successCallback={() => {
+          setLndhubUser(hubData[0]);
+          setLndhub(hubData[1]);
+          Toast.show({
+            type: 'success',
+            text1: 'LND Connect',
+            text2: 'LND Hub Save Success.',
+          });
+          setHubData([]);
+        }}
+        failCallback={() => {
+          setHubData([]);
+        }}
+      />*/}
     </>
   );
 };
