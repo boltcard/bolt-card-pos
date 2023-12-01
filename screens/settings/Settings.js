@@ -13,6 +13,7 @@ import {
   Alert,
   NativeModules,
 } from 'react-native';
+import {ListItem, Switch} from 'react-native-elements';
 import {SimpleListItem} from '../../SimpleComponents';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {
@@ -44,12 +45,14 @@ const Settings = () => {
   const [showPinSetScreen, setShowPinSetScreen] = useState(false);
   const [showPinScreen, setShowPinScreen] = useState(false);
   const [pinCode, setPinCode] = useState('');
+  const [pinEnabled, setPinEnabled] = useState(false);
 
   const checkPin = async () => {
     try {
       setInitLoading(true);
       const managerPin = await AsyncStorage.getItem('manager-pin');
       if (managerPin) {
+        setPinEnabled(true);
         setShowPinScreen(true);
       } else {
         setInitLoading(false);
@@ -101,11 +104,33 @@ const Settings = () => {
                 onPress={() => navigate('Printer Settings')}
                 chevron
               />
-              <SimpleListItem
-                title="Reset PIN"
-                onPress={() => setShowPinSetScreen(true)}
-                chevron
-              />
+              <ListItem
+                containerStyle={{backgroundColor: 'transparent'}}
+                bottomDivider={true}>
+                <ListItem.Content>
+                  <ListItem.Title>Enable Manager Access PIN</ListItem.Title>
+                </ListItem.Content>
+                <Switch
+                  value={pinEnabled}
+                  onValueChange={async value => {
+                    if (value) {
+                      //enable PIN
+                      setShowPinSetScreen(true);
+                    } else {
+                      //disable PIN
+                      await AsyncStorage.setItem('manager-pin', '');
+                      setPinEnabled(value);
+                    }
+                  }}
+                />
+              </ListItem>
+              {pinEnabled && (
+                <SimpleListItem
+                  title="Reset PIN"
+                  onPress={() => setShowPinSetScreen(true)}
+                  chevron
+                />
+              )}
             </View>
 
             <View style={{flex: 1}}>
@@ -151,6 +176,7 @@ const Settings = () => {
         <PinSetScreen
           showBaseModal={showPinSetScreen}
           onClose={() => setShowPinSetScreen(false)}
+          successCallback={() => setPinEnabled(true)}
         />
         <PinCodeModal
           showModal={showPinScreen}

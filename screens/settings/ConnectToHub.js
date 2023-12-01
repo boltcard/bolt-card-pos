@@ -32,7 +32,7 @@ const ConnectToHub = props => {
   };
   const [scanMode, setScanMode] = useState(false);
 
-  const [showPinSetScreen, setShowPinSetScreen] = useState(false);
+  // const [showPinSetScreen, setShowPinSetScreen] = useState(false);
 
   const textStyle = {
     color: isDarkMode ? '#fff' : '#000',
@@ -49,9 +49,14 @@ const ConnectToHub = props => {
       console.log('Toast.show');
     } else {
       setScanMode(false);
-      setShowPinSetScreen(true);
-
-      setHubData(e.data.split('@'));
+      const data = e.data.split('@');
+      setLndhubUser(data[0]);
+      setLndhub(data[1]);
+      Toast.show({
+        type: 'success',
+        text1: 'LND Connect',
+        text2: 'LND Hub Save Success.',
+      });
     }
   };
 
@@ -184,23 +189,6 @@ const ConnectToHub = props => {
                 {lndhub && lndhub != 'blank' && lndhub}
               </Text>
             </View>
-            <Button
-              title="Clear Hub Connection"
-              onPress={async () => {
-                try {
-                  setLndhubUser(null);
-                  setLndhub(null);
-                  setShopWallet(null);
-                  await AsyncStorage.setItem('manager-pin', '');
-                } catch (err) {
-                  Toast.show({
-                    type: 'error',
-                    text1: 'PIN reset error',
-                    text2: err.message,
-                  });
-                }
-              }}
-            />
             <View
               style={{
                 flexDirection: 'row',
@@ -238,28 +226,45 @@ const ConnectToHub = props => {
                 onPress={() => onScanSuccess({data: hub})}
               />
             </View>
+            <Button
+              title="Clear Hub Connection"
+              onPress={async () => {
+                try {
+                  setLndhubUser(null);
+                  setLndhub(null);
+                  setShopWallet(null);
+                  await AsyncStorage.setItem('manager-pin', '');
+                } catch (err) {
+                  Toast.show({
+                    type: 'error',
+                    text1: 'PIN reset error',
+                    text2: err.message,
+                  });
+                }
+              }}
+            />
           </View>
         </ScrollView>
       )}
-      <PinSetScreen
-        showBaseModal={showPinSetScreen}
-        onClose={() => setShowPinSetScreen(false)}
-        title="Set Admin Access PIN"
-        successMessage="LND Hub Save Success."
-        successCallback={() => {
-          setLndhubUser(hubData[0]);
-          setLndhub(hubData[1]);
-          Toast.show({
-            type: 'success',
-            text1: 'LND Connect',
-            text2: 'LND Hub Save Success.',
-          });
-          setHubData([]);
-        }}
-        failCallback={() => {
-          setHubData([]);
-        }}
-      />
+      // <PinSetScreen
+      //   showBaseModal={showPinSetScreen}
+      //   onClose={() => setShowPinSetScreen(false)}
+      //   title="Set Admin Access PIN"
+      //   successMessage="LND Hub Save Success."
+      //   successCallback={() => {
+      //     setLndhubUser(hubData[0]);
+      //     setLndhub(hubData[1]);
+      //     Toast.show({
+      //       type: 'success',
+      //       text1: 'LND Connect',
+      //       text2: 'LND Hub Save Success.',
+      //     });
+      //     setHubData([]);
+      //   }}
+      //   failCallback={() => {
+      //     setHubData([]);
+      //   }}
+      // />
     </>
   );
 };
