@@ -93,7 +93,7 @@ function Home({navigation}): React.FC<Props> {
   const [lndWallet, setLndWallet] = useState<LightningCustodianWallet>();
 
   //shop settings
-  const {shopName, lndhub, lndhubUser, printer} =
+  const {shopName, lndhub, lndhubUser, printer, defaultUnit, setDefaultUnit} =
     useContext(ShopSettingsContext);
 
   //PIN
@@ -673,6 +673,10 @@ function Home({navigation}): React.FC<Props> {
   }, [inputAmount, selectedUnit, totalAmount]);
 
   useEffect(() => {
+    setSelectedUnit(defaultUnit);
+  }, [ defaultUnit ]);
+
+  useEffect(() => {
     console.log('***** useEffect [pinCode]');
     if (pinCode && pinCode.length == 4) {
       setTimeout(() => {
@@ -821,7 +825,10 @@ function Home({navigation}): React.FC<Props> {
                     value={selectedUnit}
                     items={currencyItems}
                     setOpen={setOpen}
-                    setValue={setSelectedUnit}
+                    setValue={(value) => {
+                      setSelectedUnit(value);
+                      if(value) setDefaultUnit(value);
+                    }}
                     // setItems={setItems}
                     theme={isDarkMode ? 'DARK' : 'LIGHT'}
                     multiple={false}

@@ -17,6 +17,7 @@ const ShopSettingsProvider = ({children}) => {
   const [preferredFiatCurrency, _setPreferredFiatCurrency] = useState(
     FiatUnit.USD,
   );
+  const [defaultUnit, setDefaultUnit] = useState('sats');
 
   const getPreferredCurrency = async () => {
     const item = await currency.getPreferredCurrency();
@@ -42,6 +43,7 @@ const ShopSettingsProvider = ({children}) => {
           setLndhubUser(settings.lndhubUser ? settings.lndhubUser : 'blank');
           setLndhub(settings.lndhub ? settings.lndhub : 'blank');
           setPrinter(settings.printer ? settings.printer : 'bitcoinize');
+          setDefaultUnit(settings.defaultUnit ? settings.defaultUnit : 'sats');
           console.log('loaded settings...', settings);
         } else {
           console.log('using default settings...');
@@ -50,6 +52,7 @@ const ShopSettingsProvider = ({children}) => {
           setLndhubUser('blank');
           setLndhub('blank');
           setPrinter('bitcoinize');
+          setDefaultUnit('sats');
         }
       } catch (error) {
         console.error('Failed to get shop name from storage:', error);
@@ -69,6 +72,7 @@ const ShopSettingsProvider = ({children}) => {
             lndhubUser: lndhubUser?.toString(),
             lndhub: lndhub?.toString(),
             printer: printer?.toString(),
+            defaultUnit: defaultUnit?.toString(),
           }),
         );
         currency.getPreferredCurrency().then(async preferred => {
@@ -83,7 +87,7 @@ const ShopSettingsProvider = ({children}) => {
       }
     }
     saveShopSettings();
-  }, [shopName, lndhub, lndhubUser, printer]);
+  }, [shopName, lndhub, lndhubUser, printer, defaultUnit]);
 
   useEffect(() => {
     async function initWallet() {
@@ -134,6 +138,8 @@ const ShopSettingsProvider = ({children}) => {
         setShopWallet,
         printer,
         setPrinter,
+        defaultUnit,
+        setDefaultUnit
       }}>
       {children}
     </ShopSettingsContext.Provider>
