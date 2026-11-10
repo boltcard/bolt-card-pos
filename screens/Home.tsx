@@ -544,7 +544,8 @@ function Home({navigation}): React.FC<Props> {
     console.log('***** useEffect [ndef]');
     if (ndef) {
       setBoltLoading(true);
-      const url = ndef.replace('lnurlw://', 'https://');
+      // URI schemes are case-insensitive (RFC 3986), some cards carry LNURLW://
+      const url = ndef.replace(/^lnurlw:\/\//i, 'https://');
       fetch(url)
         .then(response => {
           setBoltServiceResponse(true);
