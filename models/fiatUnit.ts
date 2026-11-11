@@ -1,7 +1,7 @@
 import untypedFiatUnit from './fiatUnits.json';
 
 export const FiatUnitSource = {
-  CoinDesk: 'CoinDesk',
+  Coinbase: 'Coinbase',
   Yadio: 'Yadio',
   YadioConvert: 'YadioConvert',
   Exir: 'Exir',
@@ -10,19 +10,22 @@ export const FiatUnitSource = {
 } as const;
 
 const RateExtractors = {
-  CoinDesk: async (ticker: string): Promise<number> => {
+  Coinbase: async (ticker: string): Promise<number> => {
     let json;
     try {
-      const res = await fetch(`https://api.coindesk.com/v1/bpi/currentprice/${ticker}.json`);
+      // One response carries BTC priced in every currency Coinbase knows about.
+      // The per-pair /v2/prices/BTC-XXX/spot endpoint is not used because it can
+      // return a stale price for pairs that no longer trade (seen with JPY).
+      const res = await fetch('https://api.coinbase.com/v2/exchange-rates?currency=BTC');
       json = await res.json();
     } catch (e: any) {
-      throw new Error(`Could not update rate for ${ticker}: ${e.message}`);
+      throw new Error(`Could not update rate from Coinbase for ${ticker}: ${e.message}`);
     }
-    let rate = json?.bpi?.[ticker]?.rate_float; // eslint-disable-line
-    if (!rate) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
+    let rate = json?.data?.rates?.[ticker];
+    if (!rate) throw new Error(`Could not update rate from Coinbase for ${ticker}: data is wrong`);
 
     rate = Number(rate);
-    if (!(rate >= 0)) throw new Error(`Could not update rate for ${ticker}: data is wrong`);
+    if (!(rate >= 0)) throw new Error(`Could not update rate from Coinbase for ${ticker}: data is wrong`);
     return rate;
   },
 
@@ -117,11 +120,14 @@ type FiatUnit = {
     endPointKey: string;
     symbol: string;
     locale: string;
-    source: 'CoinDesk' | 'Yadio' | 'Exir' | 'wazirx' | 'Bitstamp';
+    source: keyof typeof RateExtractors;
   };
 };
 export const FiatUnit = untypedFiatUnit as FiatUnit;
 
 export async function getFiatRate(ticker: string): Promise<number> {
-  return await RateExtractors[FiatUnit[ticker].source](ticker);
+  const unit = FiatUnit[ticker];
+  // a currency saved on the device may have since been removed from fiatUnits.json
+  if (!unit) throw new Error(`Could not update rate for ${ticker}: currency is not supported`);
+  return await RateExtractors[unit.source](ticker);
 }
