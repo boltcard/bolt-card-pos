@@ -1,5 +1,12 @@
 import {NativeModules, Alert} from 'react-native';
 import moment from 'moment';
+import {getReceiptLogo} from './receiptLogo';
+
+/**
+ * The print functions below take an optional last argument:
+ *   logo       - the shop's logo as base64, printed instead of the payment QR code
+ *   imageOnTop - print the image (logo or QR code) above the text instead of below
+ */
 
 export const printBitcoinize = async (
   description,
@@ -7,8 +14,26 @@ export const printBitcoinize = async (
   ispaid,
   payment_hash,
   amt,
+  {logo, imageOnTop} = {},
 ) => {
+  const printImage = async () => {
+    if (logo) {
+      await NativeModules.PrintModule.printImage(logo);
+    } else {
+      await NativeModules.PrintModule.printQRCode(
+        JSON.stringify({payment_hash: payment_hash}),
+        400,
+        400,
+      );
+    }
+  };
+
   try {
+    if (imageOnTop) {
+      await printImage();
+      await NativeModules.PrintModule.paperOut(24);
+    }
+
     await NativeModules.PrintModule.printText(description, 32);
     await NativeModules.PrintModule.paperOut(24);
 
@@ -29,11 +54,9 @@ export const printBitcoinize = async (
 
     await NativeModules.PrintModule.printText(payment_hash, 24);
     await NativeModules.PrintModule.paperOut(24);
-    await NativeModules.PrintModule.printQRCode(
-      JSON.stringify({payment_hash: payment_hash}),
-      400,
-      400,
-    );
+    if (!imageOnTop) {
+      await printImage();
+    }
 
     await NativeModules.PrintModule.paperOut(100);
   } catch (e) {
@@ -49,8 +72,26 @@ export const printCiontek = async (
   ispaid,
   payment_hash,
   amt,
+  {logo, imageOnTop} = {},
 ) => {
+  const printImage = async () => {
+    if (logo) {
+      await NativeModules.PrintModule.printImageCiontek(logo);
+    } else {
+      await NativeModules.PrintModule.printQRCodeCiontek(
+        JSON.stringify({payment_hash: payment_hash}),
+        360,
+        360,
+      );
+    }
+  };
+
   try {
+    if (imageOnTop) {
+      await printImage();
+      await NativeModules.PrintModule.paperOutCiontek();
+    }
+
     await NativeModules.PrintModule.printTextCiontek(description, 32);
     await NativeModules.PrintModule.paperOutCiontek();
 
@@ -74,11 +115,9 @@ export const printCiontek = async (
 
     await NativeModules.PrintModule.printTextCiontek(payment_hash, 24);
     await NativeModules.PrintModule.paperOutCiontek();
-    await NativeModules.PrintModule.printQRCodeCiontek(
-      JSON.stringify({payment_hash: payment_hash}),
-      360,
-      360,
-    );
+    if (!imageOnTop) {
+      await printImage();
+    }
 
     await NativeModules.PrintModule.paperOutCiontek();
     await NativeModules.PrintModule.paperOutCiontek();
@@ -96,8 +135,25 @@ export const printSunmi = async (
   ispaid,
   payment_hash,
   amt,
+  {logo, imageOnTop} = {},
 ) => {
+  const printImage = async () => {
+    if (logo) {
+      await NativeModules.PrintModule.printImageSunmi(logo);
+    } else {
+      await NativeModules.PrintModule.printQRCodeSunmi(
+        JSON.stringify({payment_hash: payment_hash}),
+        360,
+        360,
+      );
+    }
+  };
+
   try {
+    if (imageOnTop) {
+      await printImage();
+    }
+
     await NativeModules.PrintModule.printTextSunmi(description, 32);
     // await NativeModules.PrintModule.paperOutSunmi();
 
@@ -121,11 +177,9 @@ export const printSunmi = async (
 
     await NativeModules.PrintModule.printTextSunmi(payment_hash, 24);
     // await NativeModules.PrintModule.paperOutSunmi();
-    await NativeModules.PrintModule.printQRCodeSunmi(
-      JSON.stringify({payment_hash: payment_hash}),
-      360,
-      360,
-    );
+    if (!imageOnTop) {
+      await printImage();
+    }
 
     // await NativeModules.PrintModule.paperOutSunmi();
     // await NativeModules.PrintModule.paperOutSunmi();
@@ -137,6 +191,39 @@ export const printSunmi = async (
   }
 };
 
+/**
+ * Prints a receipt for the invoice on the printer chosen in the print
+ * settings, with either the payment QR code or the shop's own logo.
+ *
+ * @param invoice
+ * @param settings the printer and receipt image settings from ShopSettingsContext
+ */
+export const printReceipt = async (
+  invoice,
+  {printer, receiptImage, receiptImagePosition, receiptLogoUrl},
+) => {
+  const print = {
+    ciontek: printCiontek,
+    bitcoinize: printBitcoinize,
+    sunmi: printSunmi,
+  }[printer];
+  if (!print) {
+    return;
+  }
+
+  // when the logo has not been downloaded the receipt keeps its QR code
+  const logo =
+    receiptImage === 'logo' ? await getReceiptLogo(receiptLogoUrl) : null;
+
+  await print(
+    invoice.description,
+    invoice.timestamp,
+    invoice.ispaid,
+    invoice.payment_hash,
+    invoice.amt,
+    {logo, imageOnTop: receiptImagePosition === 'top'},
+  );
+};
 
 export const onPDF = async invoice => {
   console.log('***** onPDF');

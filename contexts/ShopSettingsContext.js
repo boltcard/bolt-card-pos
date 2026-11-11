@@ -5,6 +5,7 @@ import {FiatUnit} from '../models/fiatUnit';
 import {LightningCustodianWallet} from '../wallets/lightning-custodian-wallet.js';
 
 import currency from '../helper/currency';
+import {downloadReceiptLogo} from '../helper/receiptLogo';
 
 const ShopSettingsContext = createContext();
 
@@ -18,6 +19,11 @@ const ShopSettingsProvider = ({children}) => {
     FiatUnit.USD,
   );
   const [defaultUnit, setDefaultUnit] = useState('sats');
+  // image printed on receipts: 'qr' (the payment QR code) or 'logo' (the shop's own image)
+  const [receiptImage, setReceiptImage] = useState('qr');
+  // where the image goes relative to the receipt text: 'bottom' or 'top'
+  const [receiptImagePosition, setReceiptImagePosition] = useState('bottom');
+  const [receiptLogoUrl, setReceiptLogoUrl] = useState('');
 
   const getPreferredCurrency = async () => {
     const item = await currency.getPreferredCurrency();
@@ -44,6 +50,22 @@ const ShopSettingsProvider = ({children}) => {
           setLndhub(settings.lndhub ? settings.lndhub : 'blank');
           setPrinter(settings.printer ? settings.printer : 'bitcoinize');
           setDefaultUnit(settings.defaultUnit ? settings.defaultUnit : 'sats');
+          setReceiptImage(settings.receiptImage ? settings.receiptImage : 'qr');
+          setReceiptImagePosition(
+            settings.receiptImagePosition
+              ? settings.receiptImagePosition
+              : 'bottom',
+          );
+          setReceiptLogoUrl(
+            settings.receiptLogoUrl ? settings.receiptLogoUrl : '',
+          );
+          if (settings.receiptImage === 'logo' && settings.receiptLogoUrl) {
+            // pick up a logo that has been changed on the server.
+            // if this fails the copy already saved on the device is kept.
+            downloadReceiptLogo(settings.receiptLogoUrl).catch(error =>
+              console.log('Receipt logo not refreshed:', error.message),
+            );
+          }
           console.log('loaded settings...', settings);
         } else {
           console.log('using default settings...');
@@ -73,6 +95,9 @@ const ShopSettingsProvider = ({children}) => {
             lndhub: lndhub?.toString(),
             printer: printer?.toString(),
             defaultUnit: defaultUnit?.toString(),
+            receiptImage: receiptImage?.toString(),
+            receiptImagePosition: receiptImagePosition?.toString(),
+            receiptLogoUrl: receiptLogoUrl?.toString(),
           }),
         );
         currency.getPreferredCurrency().then(async preferred => {
@@ -87,7 +112,16 @@ const ShopSettingsProvider = ({children}) => {
       }
     }
     saveShopSettings();
-  }, [shopName, lndhub, lndhubUser, printer, defaultUnit]);
+  }, [
+    shopName,
+    lndhub,
+    lndhubUser,
+    printer,
+    defaultUnit,
+    receiptImage,
+    receiptImagePosition,
+    receiptLogoUrl,
+  ]);
 
   useEffect(() => {
     async function initWallet() {
@@ -139,7 +173,13 @@ const ShopSettingsProvider = ({children}) => {
         printer,
         setPrinter,
         defaultUnit,
-        setDefaultUnit
+        setDefaultUnit,
+        receiptImage,
+        setReceiptImage,
+        receiptImagePosition,
+        setReceiptImagePosition,
+        receiptLogoUrl,
+        setReceiptLogoUrl,
       }}>
       {children}
     </ShopSettingsContext.Provider>

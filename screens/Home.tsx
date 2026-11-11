@@ -40,7 +40,7 @@ import {updateExchangeRate} from '../helper/currency';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 import moment from 'moment';
-import {printCiontek, printBitcoinize, printSunmi, onPDF} from '../helper/printing';
+import {printReceipt, onPDF} from '../helper/printing';
 import {handleStaticLNURL} from '../helper/staticLNURL';
 import {CardModal} from '../components/CardModal';
 let {bech32} = require('bech32');
@@ -93,8 +93,17 @@ function Home({navigation}): React.FC<Props> {
   const [lndWallet, setLndWallet] = useState<LightningCustodianWallet>();
 
   //shop settings
-  const {shopName, lndhub, lndhubUser, printer, defaultUnit, setDefaultUnit} =
-    useContext(ShopSettingsContext);
+  const {
+    shopName,
+    lndhub,
+    lndhubUser,
+    printer,
+    defaultUnit,
+    setDefaultUnit,
+    receiptImage,
+    receiptImagePosition,
+    receiptLogoUrl,
+  } = useContext(ShopSettingsContext);
 
   //PIN
   const [showPinModal, setShowPinModal] = useState(false);
@@ -709,35 +718,13 @@ function Home({navigation}): React.FC<Props> {
   };
 
   const onPrint = async invoice => {
-    console.log('***** onPrint');
-    if (printer == 'ciontek') {
-      console.log('printCiontek');
-      printCiontek(
-        invoice.description,
-        invoice.timestamp,
-        invoice.ispaid,
-        invoice.payment_hash,
-        invoice.amt,
-      );
-    } else if(printer == 'bitcoinize') {
-      console.log('printBitcoinize');
-      printBitcoinize(
-        invoice.description,
-        invoice.timestamp,
-        invoice.ispaid,
-        invoice.payment_hash,
-        invoice.amt,
-      );
-    } else if(printer == 'sunmi') {
-      console.log('printSunmi');
-      printSunmi(
-        invoice.description,
-        invoice.timestamp,
-        invoice.ispaid,
-        invoice.payment_hash,
-        invoice.amt,
-      );
-    }
+    console.log('***** onPrint', printer);
+    printReceipt(invoice, {
+      printer,
+      receiptImage,
+      receiptImagePosition,
+      receiptLogoUrl,
+    });
   };
 
   console.log('re-render...');

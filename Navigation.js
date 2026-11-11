@@ -12,6 +12,7 @@ import Currency from './screens/settings/Currency';
 import Settings from './screens/settings/Settings';
 import ShopName from './screens/settings/ShopName';
 import PrintSettings from './screens/settings/PrintSettings';
+import ReceiptImageSettings from './screens/settings/ReceiptImageSettings';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import RecentInvoices from './screens/recentInvoices/RecentInvoices';
 import InvoiceDetail from './screens/recentInvoices/InvoiceDetail';
@@ -46,6 +47,10 @@ const SettingsRoot = () => {
       <SettingsStack.Screen name="Currency" component={Currency} />
       <SettingsStack.Screen name="Shop Name" component={ShopName} />
       <SettingsStack.Screen name="Printer Settings" component={PrintSettings} />
+      <SettingsStack.Screen
+        name="Receipt Image"
+        component={ReceiptImageSettings}
+      />
     </SettingsStack.Navigator>
   );
 };
