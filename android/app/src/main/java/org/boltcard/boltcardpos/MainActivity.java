@@ -280,6 +280,41 @@ public class MainActivity extends ReactActivity {
         );
     }
 
+    /**
+     * Print the shop's own logo. Each printer has its own method, as for text
+     * and QR codes.
+     *
+     * @param base64 the logo image file encoded as base64
+     */
+    public void printImage(String base64) {
+        try {
+            Bitmap bitmap = ReceiptImage.fromBase64(base64);
+            if (bitmap == null) return;
+            // type 0--black and white bitmap, align 1--Align center
+            int ret = printerService.printBitmap(bitmap, 0, 1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void printImageCiontek(String base64) {
+        try {
+            Bitmap bitmap = ReceiptImage.fromBase64(base64);
+            if (bitmap == null) return;
+            int result = posApiHelper.PrintInit();
+            result = posApiHelper.PrintBmp(bitmap);
+            result = posApiHelper.PrintStart();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void printImageSunmi(String base64) {
+        Bitmap bitmap = ReceiptImage.fromBase64(base64);
+        if (bitmap == null) return;
+        sunmiPrintMe.sendImageToPrinter(bitmap);
+    }
+
     public void testPrintSunmi() {
         Log.d(TAG, "Sunmi Test Print!");
         // Print a text 

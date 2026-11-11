@@ -100,4 +100,32 @@ public class PrintModule extends ReactContextBaseJavaModule {
         if(activity != null) activity.testPrintSunmi();
     }
 
+    @ReactMethod
+    public void printImage(String base64) {
+        MainActivity activity = (MainActivity) getCurrentActivity();
+        if(activity != null) activity.printImage(base64);
+    }
+
+    @ReactMethod
+    public void printImageCiontek(String base64) {
+        MainActivity activity = (MainActivity) getCurrentActivity();
+        if(activity != null) activity.printImageCiontek(base64);
+    }
+
+    @ReactMethod
+    public void printImageSunmi(String base64) {
+        MainActivity activity = (MainActivity) getCurrentActivity();
+        if(activity != null) activity.printImageSunmi(base64);
+    }
+
+    /**
+     * Resolves true if the base64 encoded file is an image that can be printed
+     * as a receipt logo, so that a bad file is caught when it is chosen rather
+     * than when a receipt is printed.
+     */
+    @ReactMethod
+    public void isPrintableImage(String base64, Promise promise) {
+        promise.resolve(ReceiptImage.fromBase64(base64) != null);
+    }
+
 }

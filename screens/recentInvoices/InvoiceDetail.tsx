@@ -14,14 +14,21 @@ import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 import QRCode from 'react-native-qrcode-svg';
 import Toast from 'react-native-toast-message';
-import {printCiontek, printBitcoinize, onPDF, printSunmi} from '../../helper/printing';
+import {printReceipt, onPDF} from '../../helper/printing';
 import {ShopSettingsContext} from '../../contexts/ShopSettingsContext';
 import moment from 'moment';
 
 const InvoiceDetail = ({route}) => {
   const {navigate} = useNavigation();
-  const {shopName, lndhub, lndhubUser, printer} =
-    useContext(ShopSettingsContext);
+  const {
+    shopName,
+    lndhub,
+    lndhubUser,
+    printer,
+    receiptImage,
+    receiptImagePosition,
+    receiptLogoUrl,
+  } = useContext(ShopSettingsContext);
 
   const isDarkMode = useColorScheme() === 'dark';
   const backgroundStyle = {
@@ -45,34 +52,13 @@ const InvoiceDetail = ({route}) => {
   };
 
   const print = async () => {
-    if (printer == 'ciontek') {
-      console.log('printCiontek');
-      printCiontek(
-        invoice.description,
-        invoice.timestamp,
-        invoice.ispaid,
-        invoice.payment_hash,
-        invoice.amt,
-      );
-    } else if(printer == 'bitcoinize') {
-      console.log('printBitcoinize');
-      printBitcoinize(
-        invoice.description,
-        invoice.timestamp,
-        invoice.ispaid,
-        invoice.payment_hash,
-        invoice.amt,
-      );
-    } else if(printer == 'sunmi') {
-      console.log('printSunmi');
-      printSunmi(
-        invoice.description,
-        invoice.timestamp,
-        invoice.ispaid,
-        invoice.payment_hash,
-        invoice.amt,
-      );
-    }
+    console.log('print', printer);
+    printReceipt(invoice, {
+      printer,
+      receiptImage,
+      receiptImagePosition,
+      receiptLogoUrl,
+    });
   };
 
   return (

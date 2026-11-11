@@ -107,6 +107,11 @@ const PrintSettings = () => {
           }}
           chevron
         />
+        <SimpleListItem
+          title="Receipt Image"
+          onPress={() => navigate('Receipt Image')}
+          chevron
+        />
         <View style={{zIndex: 3, marginTop: 10}}>
           <DropDownPicker
             style={{
